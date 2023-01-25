@@ -3,7 +3,7 @@
 #include "StateTransition.h"
 #include "StateMachine.h"
 #include "State.h"
-#include "../Build/CSC8503CoreClasses/HierarchicalState.h"
+#include "HierarchicalState.h"
 #include "PhysicsObject.h"
 #include "Window.h"
 #include "BehaviourNode.h"
