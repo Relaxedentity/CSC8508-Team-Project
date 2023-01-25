@@ -10,6 +10,7 @@ set(Header_Files
     "StateGameObject.h"
     "TutorialGame.h"
 	"BTreeObject.h"
+    "HierarchicalState.h"
 )
 source_group("Header Files" FILES ${Header_Files})
 
