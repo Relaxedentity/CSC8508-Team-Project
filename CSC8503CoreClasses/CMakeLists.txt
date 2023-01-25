@@ -28,6 +28,7 @@ set(AI_State_Machine
     "StateMachine.cpp"
     "StateMachine.h"
     "StateTransition.h"
+    "HierarchicalState.h"
 )
 source_group("AI\\State Machine" FILES ${AI_State_Machine})
 
