@@ -32,10 +32,19 @@ namespace NCL::CSC8503 {
 	struct ClientPacket : public GamePacket {
 		int		lastID;
 		char	buttonstates[8];
+		int		myID;
 
 		ClientPacket() {
 			type = Received_State;
 			size = sizeof(ClientPacket);
+		}
+	};
+	struct InitialPacket : public GamePacket {
+		int count;
+
+		InitialPacket() {
+			type = Player_Connected;
+			size = sizeof(InitialPacket);
 		}
 	};
 

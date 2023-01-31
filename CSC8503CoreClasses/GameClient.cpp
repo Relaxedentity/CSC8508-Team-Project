@@ -15,9 +15,7 @@ bool GameClient::Connect(uint8_t a, uint8_t b, uint8_t c, uint8_t d, int portNum
 	ENetAddress address;
 	address.port = portNum;
 	address.host = (d << 24) | (c << 16) | (b << 8) | (a);
-
 	netPeer = enet_host_connect(netHandle, &address, 2, 0);
-
 	return netPeer != nullptr;
 }
 

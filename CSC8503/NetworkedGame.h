@@ -25,6 +25,9 @@ namespace NCL {
 			void ReceivePacket(int type, GamePacket* payload, int source) override;
 
 			void OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b);
+			int worldCount;
+			int netID;
+			int playerDistance;
 
 		protected:
 			void UpdateAsServer(float dt);
@@ -43,6 +46,7 @@ namespace NCL {
 
 			std::map<int, GameObject*> serverPlayers;
 			GameObject* localPlayer;
+			
 		};
 	}
 }

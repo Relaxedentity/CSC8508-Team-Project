@@ -357,7 +357,7 @@ void TutorialGame::InitWorld() {
 	door->SetTag(4);
 	button->SetAssociated(door);
 	TestHedgefinding(Vector3(0, 5, 0));
-	goose = AddGooseToWorld(nodes2[0], nodes2);
+	//goose = AddGooseToWorld(nodes2[0], nodes2);
 	InitDefaultFloor();
 	
 }
@@ -557,7 +557,7 @@ GameObject* TutorialGame::AddButtonToWorld(const Vector3& position, float invers
 	return floor;
 }
 
-GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
+GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position, int netID, int worldID) {
 	float meshSize		= 1.0f;
 	float inverseMass	= 0.5f;
 
@@ -580,8 +580,8 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
-	character->SetWorldID(1);
-	NetworkObject* n = new NetworkObject(*character, 1);
+	character->SetWorldID(worldID);
+	NetworkObject* n = new NetworkObject(*character, netID);
 
 	return character;
 }
@@ -743,7 +743,7 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(Vector3(-10, 5, -335));
+	player = AddPlayerToWorld(Vector3(-10, 5, -335),1,1);
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(Vector3(-20, 5, 20));
 	AddBonusToWorld(Vector3(10, 5, 0));

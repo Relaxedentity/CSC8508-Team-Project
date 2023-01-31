@@ -24,9 +24,12 @@ namespace NCL {
 			virtual void UpdateGame(float dt);
 			GameObject* player;
 			GameObject* player2;
+			GameObject* player3;
+			GameObject* player4;
 			GameWorld* GetGameWorld() {
 				return world;
 			}
+
 			
 		protected:
 			void InitialiseAssets();
@@ -68,7 +71,7 @@ namespace NCL {
 			GameObject* AddGWBlocksToWorld(const Vector3& position, Vector3 dimensions);
 			GameObject* AddButtonToWorld(const Vector3& position, float inverseMass = 10.0f);
 			void buildGameworld();
-			GameObject* AddPlayerToWorld(const Vector3& position);
+			GameObject* AddPlayerToWorld(const Vector3& position, int netID, int worldID);
 			GameObject* AddPlayer2ToWorld(const Vector3& position);
 			GameObject* AddEnemyToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);

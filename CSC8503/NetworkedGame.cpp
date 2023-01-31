@@ -23,7 +23,9 @@ struct MessagePacket : public GamePacket {
 NetworkedGame::NetworkedGame()	{
 	thisServer = nullptr;
 	thisClient = nullptr;
-
+	netID = 1;
+	worldCount = 1;
+	playerDistance = 10;
 	NetworkBase::Initialise();
 	timeToNextPacket  = 0.0f;
 	packetsToSnapshot = 0;
@@ -37,24 +39,29 @@ NetworkedGame::~NetworkedGame()	{
 
 void NetworkedGame::StartAsServer() {
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 4);
-	player2 = AddPlayer2ToWorld(Vector3(10, 5, -330));
+	player2 = AddPlayerToWorld(Vector3(10, 5, -330),2,2);
+	player3 = AddPlayerToWorld(Vector3(15, 5, -330), 3, 3);
+	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);
 	thisServer->RegisterPacketHandler(Received_State, this);
-	goose->setTarget2(player2);
+	//goose->setTarget2(player2);
 	
 	StartLevel();
 }
 
 void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient = new GameClient();
-	
 	thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
-	player2 = AddPlayer2ToWorld(Vector3(10, 5, -330));
-	LockCameraToObject(player2);
+	player2 = AddPlayerToWorld(Vector3(10, 5, -330), 2, 2);
+	player3 = AddPlayerToWorld(Vector3(15, 5, -330), 3, 3);
+	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);
+
+	LockCameraToObject(player3);
+	
 	thisClient->RegisterPacketHandler(Delta_State, this);
 	thisClient->RegisterPacketHandler(Full_State, this);
 	thisClient->RegisterPacketHandler(Player_Connected, this);
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
-	goose->setTarget2(player2);
+	//goose->setTarget2(thisPlayer);
 
 	
 	StartLevel();
@@ -99,11 +106,22 @@ void NetworkedGame::UpdateAsServer(float dt) {
 }
 
 void NetworkedGame::UpdateAsClient(float dt) {
-	movePlayer(player2);
+	switch (thisClient->clientID) {
+	case 1:
+		movePlayer(player2);
+		break;
+	case 2:
+		movePlayer(player3);
+		break;
+	case 3:
+		movePlayer(player4);
+		break;
+	}
 	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisClient->UpdateClient();
 
 	ClientPacket newPacket;
+	newPacket.myID = thisClient->clientID;
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 			//fire button pressed!
 			newPacket.buttonstates[0] = 1;
@@ -207,12 +225,29 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 			//std::cout << "server " << source << std::endl;
 			o->ReadPacket(*payload);
 		}
-		if (type = Full_State) {
+		if (type == Full_State) {
 			//std::cout << ((FullPacket*)payload)->objectID << std::endl;
 			//std::cout << ((FullPacket*)payload)->fullState.position << std::endl;
 		}
-		if (type = Received_State) {
-			if (o->getGameObject().GetWorldID() == 2) {
+		if (type == Player_Connected) {
+			if (thisClient->clientID <= 0) {
+				std::cout << ((InitialPacket*)payload)->count << "\n";
+				thisClient->clientID = ((InitialPacket*)payload)->count;
+				switch (thisClient->clientID) {
+				case 1:
+					LockCameraToObject(player2);
+					break;
+				case 2:
+					LockCameraToObject(player3);
+					break;
+				case 3:
+					LockCameraToObject(player4);
+					break;
+				}
+			}
+		}
+		if (type == Received_State) {
+			if (o->getGameObject().GetWorldID() == ((ClientPacket*)payload)->myID+1) {
 				//std::cout << "client" << source << std::endl;
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
 					o->GameobjectMove(1);
