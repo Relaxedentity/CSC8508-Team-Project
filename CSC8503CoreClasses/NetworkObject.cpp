@@ -38,6 +38,7 @@ bool NetworkObject::ReadDeltaPacket(DeltaPacket &p) {
 	if (p.fullID != lastFullState.stateID) {
 		return false; //cant delta this frame
 	}
+
 	UpdateStateHistory(p.fullID);
 
 	Vector3 fullPos = lastFullState.position;
@@ -136,7 +137,7 @@ void NetworkObject::UpdateStateHistory(int minID) {
 	}
 }
 
-void NetworkObject::GameobjectMove(int i) {
+void NetworkObject::GameObjectMove(int i) {
 	GameObject& g = getGameObject();
 	switch (i)
 	{

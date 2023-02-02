@@ -22,38 +22,46 @@ namespace NCL {
 				return player2;
 			}
 			virtual void UpdateGame(float dt);
+			
 			GameObject* player;
 			GameObject* player2;
+			GameObject* player3;
+			GameObject* player4;
+			
+			GameObject* playerCoop;
+
 			GameWorld* GetGameWorld() {
 				return world;
 			}
 			
 		protected:
 			void InitialiseAssets();
-
-			void InitCamera();
-			void UpdateKeys();
-
 			
+			void InitCamera();
+			void InitCameraSec();
+			void UpdateKeys();
 
 			/*
 			These are some of the world/object creation functions I created when testing the functionality
 			in the module. Feel free to mess around with them to see different objects being created in different
 			test scenarios (constraints, collision types, and so on). 
 			*/
-			void InitGameExamples();
 
+			void InitGameExamples();
 			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
 			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims);
 			void BridgeConstraintTest(Vector3 pos);
 			void InitDefaultFloor();
-			void patrolMovement();
+
 			bool SelectObject();
+
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
-			void movePlayer(GameObject* player);
+			void MovePlayer(GameObject* player);
+			void MovePlayerTwo(GameObject& player);
+
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
 			BTreeObject* AddGooseToWorld(const Vector3& position, vector <Vector3 > testNodes);
@@ -68,8 +76,8 @@ namespace NCL {
 			GameObject* AddGWBlocksToWorld(const Vector3& position, Vector3 dimensions);
 			GameObject* AddButtonToWorld(const Vector3& position, float inverseMass = 10.0f);
 			void buildGameworld();
-			GameObject* AddPlayerToWorld(const Vector3& position);
-			GameObject* AddPlayer2ToWorld(const Vector3& position);
+			GameObject* AddPlayerToWorld(const Vector3& position, int netID, int worldID);
+			GameObject* AddPlayerForCoop(const Vector3& position);
 			GameObject* AddEnemyToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
 			void AddHedgeMazeToWorld();
@@ -86,6 +94,10 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
+
+			bool initSplitScreen;
+			bool coopMode;
+
 			bool useGravity;
 			bool inSelectionMode;
 			NavigationGrid* worldGrid;
@@ -93,6 +105,7 @@ namespace NCL {
 			float		forceMagnitude;
 
 			GameObject* selectionObject = nullptr;
+			GameObject* selectionObjectSec = nullptr;
 			MeshGeometry*	capsuleMesh = nullptr;
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
@@ -107,10 +120,14 @@ namespace NCL {
 			MeshGeometry*	bonusMesh	= nullptr;
 
 			//Coursework Additional functionality	
-			GameObject* lockedObject	= nullptr;
+			GameObject* lockFirstObject	= nullptr;
+			GameObject* lockSecObject = nullptr;
 			Vector3 lockedOffset		= Vector3(0, 14, 20);
 			void LockCameraToObject(GameObject* o) {
-				lockedObject = o;
+				lockFirstObject = o;
+			}
+			void LockCameraToObject2(GameObject* o) {
+				lockSecObject = o;
 			}
 
 			GameObject* objClosest = nullptr;

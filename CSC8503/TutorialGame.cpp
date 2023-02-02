@@ -34,6 +34,9 @@ TutorialGame::TutorialGame()	{
 	forceMagnitude	= 10.0f;
 	useGravity		= false;
 	inSelectionMode = false;
+	initSplitScreen = false;
+	coopMode = true;
+
 	InitialiseAssets();
 
 }
@@ -58,7 +61,9 @@ void TutorialGame::InitialiseAssets() {
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
 
 	InitCamera();
+	InitCameraSec();
 	InitWorld();
+
 }
 
 TutorialGame::~TutorialGame()	{
@@ -67,6 +72,8 @@ TutorialGame::~TutorialGame()	{
 	delete charMesh;
 	delete enemyMesh;
 	delete bonusMesh;
+	delete capsuleMesh;
+	delete gooseMesh;
 
 	delete basicTex;
 	delete basicShader;
@@ -78,20 +85,21 @@ TutorialGame::~TutorialGame()	{
 
 void TutorialGame::UpdateGame(float dt) {
 
-	
 	//LockedObjectMovement();
-	movePlayer(player);
-	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
-	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
+	MovePlayer(player);
+
+	//Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
+	//Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
+
 	if (!inSelectionMode) {
 		world->GetMainCamera()->UpdateCamera(dt);
+		world->GetSecCamera()->UpdateCamera(dt);
 	}
-	if (lockedObject) {
-		Vector3 objPos = lockedObject->GetTransform().GetPosition();
-		Vector3 camPos = (objPos + lockedObject->GetTransform().GetOrientation() * lockedOffset);
 
+	if (lockFirstObject) {
+		Vector3 objPos = lockFirstObject->GetTransform().GetPosition();
+		Vector3 camPos = (objPos + lockFirstObject->GetTransform().GetOrientation()* lockedOffset);
 		Matrix4 temp = Matrix4::BuildViewMatrix(camPos, objPos, Vector3(0,1,0));
-
 		Matrix4 modelMat = temp.Inverse();
 
 		Quaternion q(modelMat);
@@ -101,19 +109,26 @@ void TutorialGame::UpdateGame(float dt) {
 		world->GetMainCamera()->SetPitch(angles.x);
 		world->GetMainCamera()->SetYaw(angles.y);
 	}
-	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
-	//	button->GetAssociated()->GetPhysicsObject()->AddForce(Vector3(0,100,0));
-	//}
+
+	if (lockSecObject) {
+		//std::cout << lockSecObject << std::endl;
+		Vector3 objPos2 = lockSecObject->GetTransform().GetPosition();
+		Vector3 camPos2 = objPos2 + lockSecObject->GetTransform().GetOrientation() * lockedOffset;
+
+		Matrix4 temp2 = Matrix4::BuildViewMatrix(camPos2, objPos2, Vector3(0, 1, 0));
+		Matrix4 modelMat2 = temp2.Inverse();
+
+		Quaternion q2(modelMat2);
+		Vector3 angles2 = q2.ToEuler(); //nearly there now!
+
+		world->GetSecCamera()->SetPosition(camPos2);
+		world->GetSecCamera()->SetPitch(angles2.x);
+		world->GetSecCamera()->SetYaw(angles2.y);
+	}
+
 	UpdateKeys();
 
-	if (useGravity) {
-		//Debug::Print("(G)ravity on", Vector2(5, 95), Debug::RED);
-	}
-	else {
-		//Debug::Print("(G)ravity off", Vector2(5, 95), Debug::RED);
-	}
-
-	RayCollision closestCollision;
+	/*RayCollision closestCollision;
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::K) && selectionObject) {
 		Vector3 rayPos;
 		Vector3 rayDir;
@@ -133,70 +148,85 @@ void TutorialGame::UpdateGame(float dt) {
 
 			objClosest->GetRenderObject()->SetColour(Vector4(1, 0, 1, 1));
 		}
-	}
-	if (testStateObject) {
-		testStateObject->Update(dt);
-		for (int i = 1; i < nodes.size(); ++i) {
-			Vector3 a = nodes[i - 1];
-			Vector3 b = nodes[i];
+	}*/
 
-			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-		}
-	}
-	if (goose) {
-		goose->Update(dt);
-		for (int i = 1; i < nodes2.size(); ++i) {
-			Vector3 a = nodes2[i - 1];
-			Vector3 b = nodes2[i];
+	//if (testStateObject) {
+	//	testStateObject->Update(dt);
+	//	for (int i = 1; i < nodes.size(); ++i) {
+	//		Vector3 a = nodes[i - 1];
+	//		Vector3 b = nodes[i];
 
-			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-		}
-	}
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
+	//}
+	//if (goose) {
+	//	goose->Update(dt);
+	//	for (int i = 1; i < nodes2.size(); ++i) {
+	//		Vector3 a = nodes2[i - 1];
+	//		Vector3 b = nodes2[i];
 
-	
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
+	//}
 
-	SelectObject();
-	MoveSelectedObject();
 
+	//SelectObject();
+	//MoveSelectedObject();
 	world->UpdateWorld(dt);
-	renderer->Update(dt);
-	physics->Update(dt);
 
-	renderer->Render();
+
+	renderer->Update(dt);
+
+	if (initSplitScreen && coopMode) {
+		renderer->RenderSplitScreens();
+		MovePlayerTwo(*playerCoop);
+	}else
+		renderer->Render();
+	
+	physics->Update(dt);
+	
 	Debug::UpdateRenderables(dt);
 }
 
 void TutorialGame::UpdateKeys() {
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1)) {
-		InitWorld(); //We can reset the simulation at any time with F1
-		selectionObject = nullptr;
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1)) {
+	//	InitWorld(); //We can reset the simulation at any time with F1
+	//	selectionObject = nullptr;
+	//}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F2)) {
-		InitCamera(); //F2 will reset the camera to a specific default place
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F2)) {
+	//	InitCamera(); //F2 will reset the camera to a specific default place
+	//}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::G)) {
 		useGravity = !useGravity; //Toggle gravity!
 		physics->UseGravity(useGravity);
 	}
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::V) ) {
+		
+		initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
+	}
+
+
 	//Running certain physics updates in a consistent order might cause some
 	//bias in the calculations - the same objects might keep 'winning' the constraint
 	//allowing the other one to stretch too much etc. Shuffling the order so that it
 	//is random every frame can help reduce such bias.
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9)) {
-		world->ShuffleConstraints(true);
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10)) {
-		world->ShuffleConstraints(false);
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9)) {
+	//	world->ShuffleConstraints(true);
+	//}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10)) {
+	//	world->ShuffleConstraints(false);
+	//}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F7)) {
-		world->ShuffleObjects(true);
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F8)) {
-		world->ShuffleObjects(false);
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F7)) {
+	//	world->ShuffleObjects(true);
+	//}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F8)) {
+	//	world->ShuffleObjects(false);
+	//}
+
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
 		std::fstream my_file;
 		my_file.open(Assets::DATADIR + "Highscore.txt", std::ios::in);
@@ -213,14 +243,16 @@ void TutorialGame::UpdateKeys() {
 		std::cout << "Highest Score is "<< x <<std::endl;
 	}
 
-	if (lockedObject) {
+
+	/*if (lockFirstObject && lockSecObject) {
 		LockedObjectMovement();
 	}
 	else {
 		DebugObjectMovement();
-	}
+	}*/
 }
-void TutorialGame::movePlayer(GameObject* player) {
+
+void TutorialGame::MovePlayer(GameObject* player) {
 	
 	RayCollision floorCollision;
 	Ray r = Ray(player->GetTransform().GetPosition() + Vector3(0, -1, 0), Vector3(0, -1, 0));
@@ -250,6 +282,39 @@ void TutorialGame::movePlayer(GameObject* player) {
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
 		player->GetPhysicsObject()->AddForce(player->GetTransform().GetOrientation() * Vector3(0, 0, 20));
 	}
+}
+
+void NCL::CSC8503::TutorialGame::MovePlayerTwo(GameObject& player)
+{
+	RayCollision floorCollision;
+	Ray r = Ray(player.GetTransform().GetPosition() + Vector3(0, -1, 0), Vector3(0, -1, 0));
+	Debug::DrawLine(player.GetTransform().GetPosition() + Vector3(0, -1, 0), player.GetTransform().GetPosition() + Vector3(0, -2, 0), Vector4(0, 1, 1, 1));
+
+	if (world->Raycast(r, floorCollision, true, selectionObject)) {
+		float d = floorCollision.rayDistance;
+		if (d < 2) {
+			onFloor = true;
+		}
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
+		player.GetPhysicsObject()->AddForce(player.GetTransform().GetOrientation() * Vector3(0, 0, -20));
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
+		player.GetPhysicsObject()->AddTorque(Vector3(0, -2, 0));
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::V) && onFloor == true) {
+		player.GetPhysicsObject()->AddForce(Vector3(0, 1000, 0));
+		onFloor = false;
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
+		player.GetPhysicsObject()->AddTorque(Vector3(0, 2, 0));
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
+		player.GetPhysicsObject()->AddForce(player.GetTransform().GetOrientation() * Vector3(0, 0, 20));
+	}
+
 }
 
 
@@ -285,7 +350,7 @@ void TutorialGame::LockedObjectMovement() {
 	//}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::NEXT)) {
-		lockedObject->GetPhysicsObject()->AddForce(Vector3(0,-10,0));
+		lockFirstObject->GetPhysicsObject()->AddForce(Vector3(0,-10,0));
 	}
 }
 
@@ -333,7 +398,17 @@ void TutorialGame::InitCamera() {
 	world->GetMainCamera()->SetPitch(-15.0f);
 	world->GetMainCamera()->SetYaw(315.0f);
 	world->GetMainCamera()->SetPosition(Vector3(-60, 40, 60));
-	lockedObject = nullptr;
+	//lockFirstObject = nullptr;
+}
+
+void NCL::CSC8503::TutorialGame::InitCameraSec()
+{
+	world->GetSecCamera()->SetNearPlane(0.1f);
+	world->GetSecCamera()->SetFarPlane(500.0f);
+	world->GetSecCamera()->SetPitch(-15.0f);
+	world->GetSecCamera()->SetYaw(315.0f);
+	world->GetSecCamera()->SetPosition(Vector3(10, 30, 60));
+	//lockedObject = nullptr;s
 }
 
 void TutorialGame::InitWorld() {
@@ -344,12 +419,14 @@ void TutorialGame::InitWorld() {
 	InitGameExamples();
 	
 	Vector3 startPos(70, 0, -10);
-	
 	TestPathfinding(startPos);
+
 	testStateObject = AddStateObjectToWorld(nodes[0],nodes);
 	
 	button = AddButtonToWorld(Vector3(0, -18, 0));
+
 	buildGameworld();
+
 	AddHedgeMazeToWorld();
 	door = AddGWBlocksToWorld(Vector3(50,-13,50), Vector3(5, 5, 5));
 	door->GetRenderObject()->SetColour(Vector4(0,0,1,1));
@@ -357,7 +434,7 @@ void TutorialGame::InitWorld() {
 	door->SetTag(4);
 	button->SetAssociated(door);
 	TestHedgefinding(Vector3(0, 5, 0));
-	goose = AddGooseToWorld(nodes2[0], nodes2);
+	//goose = AddGooseToWorld(nodes2[0], nodes2);
 	InitDefaultFloor();
 	
 }
@@ -391,6 +468,7 @@ void TutorialGame::buildGameworld() {
 		}
 	}
 }
+
 
 void TutorialGame::AddHedgeMazeToWorld() {
 	srand(time(0));
@@ -557,14 +635,14 @@ GameObject* TutorialGame::AddButtonToWorld(const Vector3& position, float invers
 	return floor;
 }
 
-GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
-	float meshSize		= 1.0f;
-	float inverseMass	= 0.5f;
+GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position, int netID, int worldID) {
+	float meshSize = 1.0f;
+	float inverseMass = 0.5f;
 
 	GameObject* character = new GameObject();
 	character->SetTag(1);
 	character->setScore(0);
-	CapsuleVolume* volume  = new CapsuleVolume(2.5f,1.5f);
+	CapsuleVolume* volume = new CapsuleVolume(2.5f, 1.5f);
 
 	character->SetBoundingVolume((CollisionVolume*)volume);
 
@@ -580,13 +658,13 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
-	character->SetWorldID(1);
-	NetworkObject* n = new NetworkObject(*character, 1);
+	character->SetWorldID(worldID);
+	NetworkObject* n = new NetworkObject(*character, netID);
 
 	return character;
 }
 
-GameObject* TutorialGame::AddPlayer2ToWorld(const Vector3& position) {
+GameObject* TutorialGame::AddPlayerForCoop(const Vector3& position) {
 	float meshSize = 1.0f;
 	float inverseMass = 0.5f;
 
@@ -609,11 +687,10 @@ GameObject* TutorialGame::AddPlayer2ToWorld(const Vector3& position) {
 	character->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
 
 	world->AddGameObject(character);
-	character->SetWorldID(2);
-	NetworkObject* n = new NetworkObject(*character, 2);
+	//character->SetWorldID(2);
+	//NetworkObject* n = new NetworkObject(*character, 2);
 	return character;
 }
-
 
 GameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) {
 	float meshSize		= 1.0f;
@@ -743,12 +820,16 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(Vector3(-10, 5, -335));
+	player = AddPlayerToWorld(Vector3(5, 5, -330), 1,1);
+
+	playerCoop = AddPlayerForCoop(Vector3(-10, 5, -200));
+
 	LockCameraToObject(player);
+	LockCameraToObject2(playerCoop);
+
 	patrol = AddEnemyToWorld(Vector3(-20, 5, 20));
 	AddBonusToWorld(Vector3(10, 5, 0));
 	world->SetPlayer(player);
-
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
@@ -837,7 +918,7 @@ bool TutorialGame::SelectObject() {
 		inSelectionMode = !inSelectionMode;
 		if (inSelectionMode) {
 			Window::GetWindow()->ShowOSPointer(true);
-			Window::GetWindow()->LockMouseToWindow(false);
+			Window::GetWindow()->LockMouseToWindow(true);
 		}
 		else {
 			Window::GetWindow()->ShowOSPointer(false);
@@ -868,11 +949,14 @@ bool TutorialGame::SelectObject() {
 		}
 		if (Window::GetKeyboard()->KeyPressed(NCL::KeyboardKeys::L)) {
 			if (selectionObject) {
-				if (lockedObject == selectionObject) {
-					lockedObject = nullptr;
+				if (lockFirstObject == selectionObject) {
+					lockFirstObject = nullptr;
+					//lockSecObject = nullptr;
+					//lockSecObject = nullptr;
 				}
 				else {
-					lockedObject = selectionObject;
+					lockFirstObject = selectionObject;
+					//lockSecObject = selectionObjectSec;
 				}
 			}
 		}

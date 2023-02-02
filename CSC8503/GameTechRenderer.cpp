@@ -17,24 +17,31 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	debugShader  = new OGLShader("debug.vert", "debug.frag");
 	shadowShader = new OGLShader("shadow.vert", "shadow.frag");
 
+	screenAspectSplit = ((float)windowWidth * 0.5) / (float)windowHeight;
+	screenAspect = (float)windowWidth / (float)windowHeight;
+	
+	// build texture that serves as the shadow attachment of the first framebuffer
 	glGenTextures(1, &shadowTex);
 	glBindTexture(GL_TEXTURE_2D, shadowTex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-			     SHADOWSIZE, SHADOWSIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,SHADOWSIZE, SHADOWSIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+
+	// build texture that will serve as colour attachment of the second framebuffer
+
+	// shadow buffer
 	glGenFramebuffers(1, &shadowFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, shadowTex, 0);
 	glDrawBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	
 	glClearColor(1, 1, 1, 1);
 
 	//Set up the light properties
@@ -66,6 +73,9 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 GameTechRenderer::~GameTechRenderer()	{
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
+
+	//glDeleteTextures(1, &secScreenTex);
+	//glDeleteFramebuffers(1, &secScreenFBO);
 }
 
 void GameTechRenderer::LoadSkybox() {
@@ -113,9 +123,11 @@ void GameTechRenderer::RenderFrame() {
 	glClearColor(1, 1, 1, 1);
 	BuildObjectList();
 	SortObjectList();
-	RenderShadowMap();
+	RenderShadowMap(0, 0, windowWidth, windowHeight);
+
 	RenderSkybox();
-	RenderCamera();
+	RenderCamera(*gameWorld.GetMainCamera(), screenAspect);
+
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
@@ -125,6 +137,50 @@ void GameTechRenderer::RenderFrame() {
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
+{
+	glEnable(GL_CULL_FACE);
+	glClearColor(1, 1, 1, 1);
+	BuildObjectList();
+	SortObjectList();
+	RenderShadowMap(windowWidth * 0.5, 0, windowWidth * 0.5, windowHeight);
+
+	RenderSkybox();
+	RenderCamera(*gameWorld.GetSecCamera(), screenAspectSplit);
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	NewRenderLines();
+	NewRenderText();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
+{
+	glEnable(GL_CULL_FACE);
+	glClearColor(1, 1, 1, 1);
+	BuildObjectList();
+	SortObjectList();
+	RenderShadowMap(0, 0, windowWidth * 0.5, windowHeight);
+
+	RenderSkybox();
+	RenderCamera(*gameWorld.GetMainCamera(), screenAspectSplit);
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	NewRenderLines();
+	NewRenderText();
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 }
 
 void GameTechRenderer::BuildObjectList() {
@@ -142,11 +198,12 @@ void GameTechRenderer::BuildObjectList() {
 	);
 }
 
-void GameTechRenderer::SortObjectList() {
+void GameTechRenderer::SortObjectList() 
+{
 
 }
 
-void GameTechRenderer::RenderShadowMap() {
+void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height) {
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -175,12 +232,13 @@ void GameTechRenderer::RenderShadowMap() {
 		}
 	}
 
-	glViewport(0, 0, windowWidth, windowHeight);
+	glViewport(start, end, width, height);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glCullFace(GL_BACK);
 }
+
 
 void GameTechRenderer::RenderSkybox() {
 	glDisable(GL_CULL_FACE);
@@ -212,10 +270,14 @@ void GameTechRenderer::RenderSkybox() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void GameTechRenderer::RenderCamera() {
-	float screenAspect = (float)windowWidth / (float)windowHeight;
-	Matrix4 viewMatrix = gameWorld.GetMainCamera()->BuildViewMatrix();
-	Matrix4 projMatrix = gameWorld.GetMainCamera()->BuildProjectionMatrix(screenAspect);
+void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
+	//float screenAspect = ((float)windowWidth/2) / (float)windowHeight;
+	Matrix4 viewMatrix = camera.BuildViewMatrix();
+		
+	//	gameWorld.GetMainCamera()->BuildViewMatrix();
+	Matrix4 projMatrix = camera.BuildProjectionMatrix(aspectRatio);
+		
+		//gameWorld.GetMainCamera()->BuildProjectionMatrix(aspectRatio);
 
 	OGLShader* activeShader = nullptr;
 	int projLocation	= 0;
@@ -293,6 +355,7 @@ void GameTechRenderer::RenderCamera() {
 		}
 	}
 }
+
 
 MeshGeometry* GameTechRenderer::LoadMesh(const string& name) {
 	OGLMesh* mesh = new OGLMesh(name);

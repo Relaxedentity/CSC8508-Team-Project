@@ -64,6 +64,7 @@ namespace NCL {
 		int base  = 0;
 	};
 
+
 	struct SubMeshPoses { //New!
 		int start;
 		int count;
@@ -76,6 +77,7 @@ namespace NCL {
 		GeometryPrimitive GetPrimitiveType() const {
 			return primType;
 		}
+
 
 		void SetPrimitiveType(GeometryPrimitive type) {
 			primType = type;

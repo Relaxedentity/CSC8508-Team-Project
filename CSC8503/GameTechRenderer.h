@@ -26,17 +26,24 @@ namespace NCL {
 			void NewRenderText();
 
 			void RenderFrame()	override;
+			void RenderFirstFrame() override;
+			void RenderSecFrame() override;
+	
 
 			OGLShader*		defaultShader;
-
 			GameWorld&	gameWorld;
+
+			float screenAspectSplit;
+			float screenAspect;
 
 			void BuildObjectList();
 			void SortObjectList();
-			void RenderShadowMap();
-			void RenderCamera(); 
-			void RenderSkybox();
 
+			void RenderShadowMap(int start, int end, int width, int height);
+
+			void RenderCamera(Camera& camera, float& aspectRatio); 
+
+			void RenderSkybox();
 			void LoadSkybox();
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -49,10 +56,12 @@ namespace NCL {
 			OGLMesh*	skyboxMesh;
 			GLuint		skyboxTex;
 
+
 			//shadow mapping things
 			OGLShader*	shadowShader;
 			GLuint		shadowTex;
 			GLuint		shadowFBO;
+		
 			Matrix4     shadowMatrix;
 
 			Vector4		lightColour;
