@@ -1,4 +1,5 @@
 #include "BTreeObject.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "StateGameObject.h"
 #include "StateTransition.h"
 #include "StateMachine.h"
@@ -33,22 +34,24 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 			else if (state == Ongoing) {
 				Vector3 a = nodes[currentNode - 1];
 				Vector3 b = nodes[currentNode];
-				Vector3 t = b - GetTransform().GetPosition();
+				Vector3 t = b - GetPhysicsObject()->getTransform().getPosition();
 				Vector3 dir = b - a;
-				l1 = (getTarget1()->GetTransform().GetPosition() - GetTransform().GetPosition()).Length();
+				l1 = Vector3(getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition()).Length();
 				if (getTarget2()!=NULL) {
-					l2 = (getTarget2()->GetTransform().GetPosition() - GetTransform().GetPosition()).Length();
+					l2 = Vector3(getTarget2()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition()).Length();
 				}
 				if ( l1> 20.0f && getTarget2() == NULL || l1> 20.0f && l2 > 20.0f) {
-					Vector3 dis = b - GetTransform().GetPosition();
-					GetPhysicsObject()->AddForce(dis.Normalised() * 2.5f);
+					Vector3 dis = b - GetPhysicsObject()->getTransform().getPosition();
+					Vector3 force = dis.Normalised() * 2.5f;
+					GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 					Debug::DrawLine(b, Vector3(0, 10, 0) + b, Vector4(1, 0, 0, 1));
-					if ((b - GetTransform().GetPosition()).Length() < 1.5f) {
+					if (Vector3(b - GetPhysicsObject()->getTransform().getPosition()).Length() < 1.5f) {
 						currentNode++;
 					}
-					int l = (GetTransform().GetPosition() - nodes[currentNode]).Length();
+					int l = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - nodes[currentNode]).Length();
 					if (l > 15.0f) {
-						GetTransform().SetPosition(nodes[currentNode]);
+						Vector3 position = nodes[currentNode];
+						GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), GetPhysicsObject()->getTransform().getOrientation()));
 					}
 				}
 				else if (l1 < 20.0f || l2 < 20.0f) {
@@ -57,7 +60,8 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 					state = Success;
 				}
 				if (currentNode == nodes.size()-1) {
-					GetTransform().SetPosition(nodes[0]);
+					Vector3 position = nodes[0];
+					GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), GetPhysicsObject()->getTransform().getOrientation()));
 					currentNode = 1;
 				}	
 			}
@@ -67,22 +71,22 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 
 	BehaviourAction* Attack = new BehaviourAction("Attack goat\n",
 		[&](float dt, BehaviourState state)->BehaviourState {
-			l1 = (getTarget1()->GetTransform().GetPosition() - GetTransform().GetPosition()).Length();
+			l1 = Vector3(getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition()).Length();
 			Vector3 dir;
 			if (getTarget2()) {
-				l2 = (getTarget2()->GetTransform().GetPosition() - GetTransform().GetPosition()).Length();
-				
+				l2 = Vector3(getTarget2()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition()).Length();
+
 				if (l1 < l2) {
-					dir = getTarget1()->GetTransform().GetPosition() - GetTransform().GetPosition();
+					dir = getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition();
 					a = getTarget1();
 				}
 				else if (l2 < l1) {
-					dir = getTarget2()->GetTransform().GetPosition() - GetTransform().GetPosition();
+					dir = getTarget2()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition();
 					a = getTarget2();
 				}
 			}
 			else if (!getTarget2()) {
-				dir = getTarget1()->GetTransform().GetPosition() - GetTransform().GetPosition();
+				dir = getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition();
 				a = getTarget1();
 			}
 			if (state == Initialise) {
@@ -90,14 +94,16 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 				state = Ongoing;
 			}
 			else if (state == Ongoing) {
-				GetPhysicsObject()->AddForce(dir*Vector3(1,0,1) * 10.0f);
-				l1 = (getTarget1()->GetTransform().GetPosition() - GetTransform().GetPosition()).Length();
+				Vector3 force = dir * Vector3(1, 0, 1) * 10.0f;
+				GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
+				l1 = Vector3(getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition()).Length();
 				if (getTarget2()) {
-					l2 = (getTarget2()->GetTransform().GetPosition() - GetTransform().GetPosition()).Length();
-						GetTransform().SetOrientation(-(a->GetTransform().GetOrientation()));
+					l2 = Vector3(getTarget2()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition()).Length();
+					Quaternion orientation = -(Quaternion(a->GetPhysicsObject()->getTransform().getOrientation()));
+					    GetPhysicsObject()->setTransform(reactphysics3d::Transform(GetPhysicsObject()->getTransform().getPosition(),  reactphysics3d::Quaternion(orientation.x, orientation.y, orientation.z, orientation.w)));
 					if (l1 < 5.0f || l2 < 5.0f) {
 						std::cout << "attacked\n";
-						a->GetTransform().SetPosition(Vector3(0, -10, -350));
+						a->GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(0, -10, -350), a->GetPhysicsObject()->getTransform().getOrientation()));
 						currentstate = Success;
 						state = Success;
 					}
@@ -105,7 +111,7 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 				else {
 					if (l1 < 5.0f) {
 						std::cout << "attacked\n";
-						getTarget1()->GetTransform().SetPosition(Vector3(0, -10, -350));
+						getTarget1()->GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(0, -10, -350), getTarget1()->GetPhysicsObject()->getTransform().getOrientation()));
 						currentstate = Success;
 						state = Success;
 					}
@@ -116,7 +122,7 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 	);
 	BehaviourAction* Rest = new BehaviourAction("resting\n",
 		[&](float dt, BehaviourState state)->BehaviourState {
-			float m = GetPhysicsObject()->GetInverseMass();
+			float m = 1.0f / GetPhysicsObject()->getMass();
 			if (state == Initialise) {
 				std::cout << "temporary rest\n";
 				restTime = 100.0f;
@@ -131,7 +137,8 @@ BTreeObject::BTreeObject(vector <Vector3 > testNodes) {
 					std::cout << "rested\n";
 					currentstate = Success;
 					std::cout << "next\n";
-					GetTransform().SetPosition(nodes[currentNode]);
+					Vector3 position = nodes[currentNode];
+					GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), GetPhysicsObject()->getTransform().getOrientation()));
 					state =  Success;
 				}
 			}

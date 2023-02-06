@@ -1,4 +1,5 @@
 #include "GameWorld.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "GameObject.h"
 #include "Constraint.h"
 #include "CollisionDetection.h"
@@ -8,8 +9,9 @@
 using namespace NCL;
 using namespace NCL::CSC8503;
 
-GameWorld::GameWorld()	{
+GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 	mainCamera = new Camera();
+	this->physicsWorld = physicsWorld;
 
 	shuffleConstraints	= false;
 	shuffleObjects		= false;
@@ -29,6 +31,7 @@ void GameWorld::Clear() {
 
 void GameWorld::ClearAndErase() {
 	for (auto& i : gameObjects) {
+		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
 		delete i;
 	}
 	for (auto& i : constraints) {
@@ -46,6 +49,7 @@ void GameWorld::AddGameObject(GameObject* o) {
 void GameWorld::RemoveGameObject(GameObject* o, bool andDelete) {
 	gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), o), gameObjects.end());
 	if (andDelete) {
+		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
 		delete o;
 	}
 	worldStateCounter++;
@@ -82,7 +86,7 @@ void GameWorld::UpdateWorld(float dt) {
 
 bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObject, GameObject* ignoreThis) const {
 	//The simplest raycast just goes through each object and sees if there's a collision
-	RayCollision collision;
+	/*RayCollision collision;
 
 	for (auto& i : gameObjects) {
 		if (!i->GetBoundingVolume()) { //objects might not be collideable etc...
@@ -112,6 +116,7 @@ bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObje
 		closestCollision.node	= collision.node;
 		return true;
 	}
+	*/
 	return false;
 }
 
