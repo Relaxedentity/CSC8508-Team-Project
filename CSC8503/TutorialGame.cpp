@@ -13,6 +13,10 @@
 #include <string>
 #include <sstream>
 #include "Assets.h"
+#include "../OpenGLRendering/OGLRenderer.h"
+#include <OGLRenderer.cpp>
+
+
 
 
 
@@ -666,14 +670,15 @@ GameObject* TutorialGame::AddEmitterToWorld(const Vector3& position) {
 	pointSprites->SetPrimitiveType(GeometryPrimitive::Points);
 	pointSprites->AddSubMesh(0, 100, 0);
 	pointSprites->UploadToGPU();
-	OGLShader* newShader = new OGLShader("particle.vert", "debug.frag", "pointGeom.glsl");
+	OGLShader* newShader = new OGLShader("scene.vert", "scene.frag", "pointGeom.glsl");
 	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
+	
 	//int modelLocation = glGetUniformLocation(newShader->GetProgramID(), "modelMatrix");
 
 	Transform &t = emitter->GetTransform();
 	
-	RenderObject* object = new RenderObject(&t, pointSprites, OGLTexture::RGBATextureFromFilename("stainedglass.tga"), newShader);
-	
+	RenderObject* object = new RenderObject(&t, pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader);
+
 	//Matrix4 modelMatrix = (*object).GetTransform()->GetMatrix();
 	//glUniformMatrix4fv(modelLocation, 1, false, (float*)&modelMatrix);
 	emitter->SetRenderObject(object);
