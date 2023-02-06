@@ -36,7 +36,7 @@ namespace NCL {
 			void RenderShadowMap();
 			void RenderCamera(); 
 			void RenderSkybox();
-
+			void Particles();
 			void LoadSkybox();
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -53,6 +53,7 @@ namespace NCL {
 			OGLShader*	shadowShader;
 			GLuint		shadowTex;
 			GLuint		shadowFBO;
+			GLuint		particleTex;
 			Matrix4     shadowMatrix;
 
 			Vector4		lightColour;

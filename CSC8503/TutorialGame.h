@@ -23,6 +23,7 @@ namespace NCL {
 			}
 			virtual void UpdateGame(float dt);
 			GameObject* player;
+			GameObject* emitter;
 			GameObject* player2;
 			GameWorld* GetGameWorld() {
 				return world;
@@ -42,7 +43,6 @@ namespace NCL {
 			test scenarios (constraints, collision types, and so on). 
 			*/
 			void InitGameExamples();
-
 			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
 			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims);
@@ -70,6 +70,7 @@ namespace NCL {
 			void buildGameworld();
 			GameObject* AddPlayerToWorld(const Vector3& position);
 			GameObject* AddPlayer2ToWorld(const Vector3& position);
+			GameObject* AddEmitterToWorld(const Vector3& position);
 			GameObject* AddEnemyToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
 			void AddHedgeMazeToWorld();

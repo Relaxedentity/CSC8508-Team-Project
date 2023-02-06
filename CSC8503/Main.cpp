@@ -313,7 +313,7 @@ class IntroScreen : public PushdownState {
 		PushdownState** newState) override {
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RETURN)) {
 			*newState = new GameScreen();
-			g->InitWorld();
+			//g->InitWorld();
 			return PushdownResult::Push;
 		}
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::ESCAPE)) {

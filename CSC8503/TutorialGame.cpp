@@ -339,7 +339,7 @@ void TutorialGame::InitCamera() {
 void TutorialGame::InitWorld() {
 	world->ClearAndErase();
 	physics->Clear();
-	BridgeConstraintTest(Vector3(0,-20,-310));
+	//BridgeConstraintTest(Vector3(0,-20,-310));
 	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	InitGameExamples();
 	
@@ -350,6 +350,8 @@ void TutorialGame::InitWorld() {
 	
 	button = AddButtonToWorld(Vector3(0, -18, 0));
 	buildGameworld();
+	//AddBreakableToWorld(Vector3( 200.0f,13.0f, 50.0f), 1.0f);
+	//AddGWBlocksToWorld(Vector3(201.0f,  18.0f,  100.0f), Vector3(5, 5, 5));
 	AddHedgeMazeToWorld();
 	door = AddGWBlocksToWorld(Vector3(50,-13,50), Vector3(5, 5, 5));
 	door->GetRenderObject()->SetColour(Vector4(0,0,1,1));
@@ -357,7 +359,7 @@ void TutorialGame::InitWorld() {
 	door->SetTag(4);
 	button->SetAssociated(door);
 	TestHedgefinding(Vector3(0, 5, 0));
-	goose = AddGooseToWorld(nodes2[0], nodes2);
+	//goose = AddGooseToWorld(nodes2[0], nodes2);
 	InitDefaultFloor();
 	
 }
@@ -639,6 +641,48 @@ GameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) {
 	return character;
 }
 
+GameObject* TutorialGame::AddEmitterToWorld(const Vector3& position) {
+	GameObject* emitter = new GameObject();
+	SphereVolume* volume = new SphereVolume(0.5f);
+	emitter->SetBoundingVolume((CollisionVolume*)volume);
+	float meshSize = 1.0f;
+	emitter->GetTransform()
+		.SetScale(Vector3(meshSize, meshSize, meshSize))
+		.SetPosition(position);
+
+	std::vector <Vector3 > verts;
+
+	for (int i = 0; i < 100; ++i) {
+		float x = (float)(rand() % 100 - 50);
+		float y = (float)(rand() % 100 - 50);
+		float z = (float)(rand() % 100 - 50);
+
+		verts.push_back(Vector3(x, y, z));
+
+	}
+
+	OGLMesh* pointSprites = new OGLMesh();
+	pointSprites->SetVertexPositions(verts);
+	pointSprites->SetPrimitiveType(GeometryPrimitive::Points);
+	pointSprites->AddSubMesh(0, 100, 0);
+	pointSprites->UploadToGPU();
+	OGLShader* newShader = new OGLShader("particle.vert", "debug.frag", "pointGeom.glsl");
+	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
+	//int modelLocation = glGetUniformLocation(newShader->GetProgramID(), "modelMatrix");
+
+	Transform &t = emitter->GetTransform();
+	
+	RenderObject* object = new RenderObject(&t, pointSprites, OGLTexture::RGBATextureFromFilename("stainedglass.tga"), newShader);
+	
+	//Matrix4 modelMatrix = (*object).GetTransform()->GetMatrix();
+	//glUniformMatrix4fv(modelLocation, 1, false, (float*)&modelMatrix);
+	emitter->SetRenderObject(object);
+	emitter->SetPhysicsObject(new PhysicsObject(&emitter->GetTransform(), emitter->GetBoundingVolume()));
+	emitter->GetPhysicsObject()->SetInverseMass(0);
+	world->AddGameObject(emitter);
+	return emitter;
+}
+
 GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 	GameObject* apple = new GameObject();
 
@@ -744,7 +788,8 @@ void TutorialGame::InitDefaultFloor() {
 
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(Vector3(-10, 5, -335));
-	LockCameraToObject(player);
+	emitter = AddEmitterToWorld(Vector3(-10, 5, -345));
+	//LockCameraToObject(player);
 	patrol = AddEnemyToWorld(Vector3(-20, 5, 20));
 	AddBonusToWorld(Vector3(10, 5, 0));
 	world->SetPlayer(player);
