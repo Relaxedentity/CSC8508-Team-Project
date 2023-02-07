@@ -9,6 +9,11 @@ https://research.ncl.ac.uk/game/
 #pragma once
 #include <iostream>
 
+namespace reactphysics3d {
+	class Vector2;
+	class Quaternion;
+}
+
 namespace NCL::Maths {
 	class Matrix3;
 	class Matrix4;
@@ -33,6 +38,7 @@ namespace NCL::Maths {
 
 		Quaternion(const Matrix3 &m);
 		Quaternion(const Matrix4 &m);
+		Quaternion(const reactphysics3d::Quaternion& q);
 
 		~Quaternion(void) = default;
 

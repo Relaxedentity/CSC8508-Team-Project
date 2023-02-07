@@ -56,6 +56,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     ";"
     "UNICODE;"
     "_UNICODE"
+    "NOMINMAX"	
 )
 
 ################################################################################
@@ -94,3 +95,7 @@ include_directories("../NCLCoreClasses/")
 include_directories("../OpenGLRendering/")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
+
+set(LIB_DEPENDENCIES "ReactPhysics3D::ReactPhysics3D")
+
+target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_DEPENDENCIES}")

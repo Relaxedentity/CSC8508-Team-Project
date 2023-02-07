@@ -166,6 +166,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     "_UNICODE"
     "WIN32_LEAN_AND_MEAN"
     "_WINSOCK_DEPRECATED_NO_WARNINGS"
+    "NOMINMAX"	
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE
@@ -208,3 +209,7 @@ include_directories("./")
 if(MSVC)
     target_link_libraries(${PROJECT_NAME} PRIVATE "ws2_32.lib")
 endif()
+
+set(LIB_DEPENDENCIES "ReactPhysics3D::ReactPhysics3D")
+
+target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_DEPENDENCIES}")

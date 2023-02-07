@@ -18,7 +18,7 @@ OrientationConstraint::~OrientationConstraint()
 
 void OrientationConstraint::UpdateConstraint(float dt) {
 
-	Vector3 a = objectA->GetTransform().GetOrientation()* Vector3(1,0,0);
+	/*Vector3 a = objectA->GetTransform().GetOrientation() * Vector3(1, 0, 0);
 	Vector3 b = objectB->GetTransform().GetOrientation()* Vector3(1, 0, 0);
 
 	float offset = Vector3::Dot(a, b);
@@ -119,5 +119,5 @@ void OrientationConstraint::UpdateConstraint(float dt) {
 			physA->ApplyAngularImpulse(aImpulse);// multiplied by mass here
 			physB->ApplyAngularImpulse(bImpulse);// multiplied by mass here
 		}
-	}
+	}*/
 }

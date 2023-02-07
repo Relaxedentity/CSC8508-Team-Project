@@ -6,14 +6,14 @@ namespace NCL {
         class StateMachine;
         class StateGameObject : public GameObject  {
         public:
-            StateGameObject(vector <Vector3 > testNodes);
+            StateGameObject(std::vector<NCL::Maths::Vector3> testNodes);
             ~StateGameObject();
 
             virtual void Update(float dt);
-			Vector3 getTargerPosition() {
+			NCL::Maths::Vector3 getTargerPosition() {
 				return targetPosition;
 			};
-			void setTargetPosition(Vector3 position) {
+			void setTargetPosition(NCL::Maths::Vector3 position) {
 				targetPosition = position;
 			};
 			GameObject* getTarget() {
@@ -30,14 +30,14 @@ namespace NCL {
 			void MoveDown(float dt);
 			void Escape(float dt);
 			GameObject* target;
-			Vector3 targetPosition;
+			NCL::Maths::Vector3 targetPosition;
             StateMachine* stateMachine;
             float counterX;
 			float counterY;
 			StateMachine* patrolMachine;
 			StateMachine* escapeMachine;
 			bool runAway;
-			vector <Vector3 > nodes;
+			std::vector<NCL::Maths::Vector3> nodes;
 			int currentNode;
 			bool reverse;
         };

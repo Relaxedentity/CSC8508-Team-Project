@@ -8,6 +8,13 @@ https://research.ncl.ac.uk/game/
 */
 #pragma once
 #include <iostream>
+#include <reactphysics3d/reactphysics3d.h>
+#include "Quaternion.h"
+#include "Vector3.h"
+
+namespace reactphysics3d {
+	class Transform;
+}
 
 namespace NCL::Maths {
 	class Vector3;
@@ -23,7 +30,12 @@ namespace NCL::Maths {
 		Matrix4(float elements[16]);
 		Matrix4(const Matrix3& m3);
 		Matrix4(const Quaternion& quat);
+
 		~Matrix4(void) = default;
+
+		/*static Matrix4 MatrixFromTransform(const reactphysics3d::Transform& transform, const Vector3& scale) {
+			return Matrix4::Translation(Vector3(transform.getPosition())) * Matrix4(NCL::Maths::Quaternion(transform.getOrientation())) * Matrix4::Scale(scale);
+		}*/
 
 		//Set all matrix values to zero
 		void	ToZero();
