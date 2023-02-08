@@ -312,7 +312,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 
 	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
 		endVelocity.Normalise();
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z));
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z)*10);
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && onFloor == true) {
@@ -330,39 +330,6 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		//
 		//player->GetPhysicsObject()->setTransform(newTransform);
 	}
-
-	// // // // // // //
-
-	//reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
-	///*RayCollision floorCollision;
-	//Ray r = Ray(player->GetTransform().GetPosition() + Vector3(0, -1, 0), Vector3(0, -1, 0));
-	//Debug::DrawLine(player->GetTransform().GetPosition() + Vector3(0, -1, 0), player->GetTransform().GetPosition() + Vector3(0, -2, 0), Vector4(0, 1, 1, 1));
-	//
-	//if (world->Raycast(r, floorCollision, true, selectionObject)) {
-	//	float d = floorCollision.rayDistance;
-	//	if (d < 2) {
-	//		onFloor = true;
-	//	}
-	//}*/
-	//onFloor = true;
-	//
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-	//	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, -20));
-	//}
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-	//	player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -15, 0));
-	//}
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE) && onFloor == true) {
-	//	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 100, 0));
-	//	onFloor = false;
-	//}
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-	//	player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 15, 0));
-	//}
-	//
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-	//	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, 20));
-	//}
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
