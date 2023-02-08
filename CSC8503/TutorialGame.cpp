@@ -597,14 +597,13 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 	return character;
 }
 
-GameObject* TutorialGame::AddEmitterToWorld(const Vector3& position) {
+GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
 	GameObject* emitter = new GameObject();
-	SphereVolume* volume = new SphereVolume(0.5f);
-	emitter->SetBoundingVolume((CollisionVolume*)volume);
-	float meshSize = 1.0f;
-	emitter->GetTransform()
-		.SetScale(Vector3(meshSize, meshSize, meshSize))
-		.SetPosition(position);
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::KINEMATIC);
+	body->setMass(0.0f);
+	reactphysics3d::SphereShape* shape = physics.createSphereShape(0.5f);
 
 	std::vector <Vector3 > verts;
 
@@ -625,17 +624,8 @@ GameObject* TutorialGame::AddEmitterToWorld(const Vector3& position) {
 	OGLShader* newShader = new OGLShader("scene.vert", "scene.frag", "pointGeom.glsl");
 	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
 
-	//int modelLocation = glGetUniformLocation(newShader->GetProgramID(), "modelMatrix");
-
-	Transform& t = emitter->GetTransform();
-
-	RenderObject* object = new RenderObject(&t, pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader);
-
-	//Matrix4 modelMatrix = (*object).GetTransform()->GetMatrix();
-	//glUniformMatrix4fv(modelLocation, 1, false, (float*)&modelMatrix);
-	emitter->SetRenderObject(object);
-	emitter->SetPhysicsObject(new PhysicsObject(&emitter->GetTransform(), emitter->GetBoundingVolume()));
-	emitter->GetPhysicsObject()->SetInverseMass(0);
+	emitter->SetPhysicsObject(body);
+	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader));
 	world->AddGameObject(emitter);
 	return emitter;
 }
@@ -730,6 +720,7 @@ void TutorialGame::InitDefaultFloor() {
 
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity());
+	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
