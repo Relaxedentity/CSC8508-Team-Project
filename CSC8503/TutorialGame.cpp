@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include "Assets.h"
+#include "Maths.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -81,29 +82,31 @@ TutorialGame::~TutorialGame()	{
 }
 
 void TutorialGame::UpdateGame(float dt) {
-	Debug::DrawAxisLines(Matrix4());
-	LockedObjectMovement();
-	MovePlayer(player);
+	//Debug::DrawAxisLines(Matrix4());
+	//LockedObjectMovement();
+
+	MovePlayer(player, dt);
+	
 	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
 	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
-	if (!inSelectionMode) {
-		world->GetMainCamera()->UpdateCamera(dt);
-	}
-	if (lockedObject) {
-		Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
-		Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
-
-		Matrix4 temp = Matrix4::BuildViewMatrix(camPos, objPos, Vector3(0,1,0));
-
-		Matrix4 modelMat = temp.Inverse();
-
-		Quaternion q(modelMat);
-		Vector3 angles = q.ToEuler(); //nearly there now!
-
-		world->GetMainCamera()->SetPosition(camPos);
-		world->GetMainCamera()->SetPitch(angles.x);
-		world->GetMainCamera()->SetYaw(angles.y);
-	}
+	//if (!inSelectionMode) {
+	//	world->GetMainCamera()->UpdateCamera(dt);
+	//}
+	//if (lockedObject) {
+	//	Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
+	//	Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
+	//
+	//	Matrix4 temp = Matrix4::BuildViewMatrix(camPos, objPos, Vector3(0,1,0));
+	//
+	//	Matrix4 modelMat = temp.Inverse();
+	//
+	//	Quaternion q(modelMat);
+	//	Vector3 angles = q.ToEuler(); //nearly there now!
+	//
+	//	world->GetMainCamera()->SetPosition(camPos);
+	//	world->GetMainCamera()->SetPitch(angles.x);
+	//	world->GetMainCamera()->SetYaw(angles.y);
+	//}
 	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
 	//	button->GetAssociated()->GetPhysicsObject()->AddForce(Vector3(0,100,0));
 	//}
@@ -225,37 +228,231 @@ void TutorialGame::UpdateKeys() {
 		DebugObjectMovement();
 	}
 }
-void TutorialGame::MovePlayer(GameObject* player) {
-	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
-	/*RayCollision floorCollision;
-	Ray r = Ray(player->GetTransform().GetPosition() + Vector3(0, -1, 0), Vector3(0, -1, 0));
-	Debug::DrawLine(player->GetTransform().GetPosition() + Vector3(0, -1, 0), player->GetTransform().GetPosition() + Vector3(0, -2, 0), Vector4(0, 1, 1, 1));
+void TutorialGame::MovePlayer(GameObject* player, float dt) {
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
+		thirdPerson = !thirdPerson;
+	}
+
+	world->GetMainCamera()->ThirdPersonUpdateRot();
+
+	Vector3 objPos = Vector3(player->GetPhysicsObject()->getTransform().getPosition());
+
+
+
+	Vector3 camPos;
+	if (!thirdPerson) {
+		camPos = orbitCameraProcess(objPos);
+		cameraInterpolation(camPos, dt);
+	}
+	else {
+		camPos = thirdPersonCameraProcess(objPos);
+		cameraInterpolation(camPos, dt);
+		camPos = world->GetMainCamera()->GetPosition();
+
+		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
+		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		Quaternion goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
+
+		reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
+
+		player->GetPhysicsObject()->setTransform(newTransform);
+	}
+
+	bool onFloor = true; //FIXME
+
+	RayCollision floorCollision;
+	Ray r = Ray(objPos, Vector3(0, -1, 0));
 
 	if (world->Raycast(r, floorCollision, true, selectionObject)) {
-		float d = floorCollision.rayDistance;
-		if (d < 2) {
+		float distance = floorCollision.rayDistance;
+		if (distance < 1.5) {
 			onFloor = true;
 		}
-	}*/
-	onFloor = true;
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, -20));
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-		player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -15, 0));
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE) && onFloor == true) {
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 100, 0));
-		onFloor = false;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-		player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 15, 0));
 	}
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, 20));
+	Quaternion Yaw = Quaternion(world->GetMainCamera()->GetRotationYaw());
+
+	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
+	Vector3 endVelocity = Vector3(0, 0, 0);
+
+	bool directionInput = false;
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
+		Vector3 trajectory = onFloor ? Yaw*Vector3(0, 0, -15) : Yaw*Vector3(0, 0, -7);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
+		directionInput = true;
 	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
+		Vector3 trajectory = onFloor ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
+		directionInput = true;
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
+		Vector3 trajectory = onFloor ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
+		directionInput = true;
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
+		Vector3 trajectory = onFloor ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
+		directionInput = true;
+	}
+	if (!directionInput && onFloor) {
+		float scalar = (1 - dt);
+		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
+	}
+
+	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
+		endVelocity.Normalise();
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z));
+	}
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && onFloor == true) {
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 5, 0));
+	}
+
+	if (!thirdPerson) {
+		//Vector3 currentVelocity = Vector3(lockedObject->GetPhysicsObject()->getLinearVelocity());
+		//float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
+		//Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
+		//Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		//Quaternion goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
+		//
+		//reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
+		//
+		//player->GetPhysicsObject()->setTransform(newTransform);
+	}
+
+	// // // // // // //
+
+	//reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
+	///*RayCollision floorCollision;
+	//Ray r = Ray(player->GetTransform().GetPosition() + Vector3(0, -1, 0), Vector3(0, -1, 0));
+	//Debug::DrawLine(player->GetTransform().GetPosition() + Vector3(0, -1, 0), player->GetTransform().GetPosition() + Vector3(0, -2, 0), Vector4(0, 1, 1, 1));
+	//
+	//if (world->Raycast(r, floorCollision, true, selectionObject)) {
+	//	float d = floorCollision.rayDistance;
+	//	if (d < 2) {
+	//		onFloor = true;
+	//	}
+	//}*/
+	//onFloor = true;
+	//
+	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+	//	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, -20));
+	//}
+	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+	//	player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -15, 0));
+	//}
+	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE) && onFloor == true) {
+	//	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 100, 0));
+	//	onFloor = false;
+	//}
+	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+	//	player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 15, 0));
+	//}
+	//
+	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
+	//	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, 20));
+	//}
+}
+
+Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
+	Vector2 screenSize = Window::GetWindow()->GetScreenSize();
+	Vector3 nearPos = Vector3(screenSize.x / 2,
+		screenSize.y / 2,
+		-0.99999f
+	);
+	Vector3 farPos = Vector3(screenSize.x / 2,
+		screenSize.y / 2,
+		0.99999f
+	);
+
+	Vector3 a = CollisionDetection::Unproject(nearPos, *cam);
+	Vector3 b = CollisionDetection::Unproject(farPos, *cam);
+	Vector3 c = b - a;
+	c.Normalise();
+
+	Ray ray = Ray(camPos, c);
+	RayCollision aimCollision;
+	Quaternion goatStartRotation;
+	if (world->Raycast(ray, aimCollision, true, object)) {
+		Vector3 collisionVector = aimCollision.collidedAt - Vector3(object->GetPhysicsObject()->getTransform().getPosition());
+
+		float theta = atan2(collisionVector.z, collisionVector.x) * (180 / PI);
+		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
+		goatStartRotation = Quaternion(object->GetPhysicsObject()->getTransform().getOrientation());
+		Quaternion goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
+		return goatRealRotation;
+	}
+	Matrix4 Yaw = cam->GetRotationYaw();
+	return Quaternion(Yaw);
+}
+
+void TutorialGame::cameraInterpolation(Vector3 target, float dt) {
+	Camera* currentCamera = world->GetMainCamera();
+	Vector3 currentCamPos = currentCamera->GetPosition();
+	Vector3 movement = target - currentCamPos;
+	//float movementLength = movement.Length();
+
+	currentCamera->SetPosition(currentCamPos + movement * cameraInterpBaseSpeed);
+}
+
+Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos) {
+	Matrix4 Pitch = world->GetMainCamera()->GetRotationPitch();
+	Matrix4 Yaw = world->GetMainCamera()->GetRotationYaw();
+	Quaternion rotationAmount = Quaternion(Yaw) * Quaternion(Pitch);
+
+	orbitScalar -= Window::GetMouse()->GetWheelMovement();
+	orbitScalar = NCL::Maths::Clamp(orbitScalar, orbitScalarMin, orbitScalarMax);
+
+	Vector3 camPos = objPos + rotationAmount * Vector3(0, 0, orbitScalar);
+	RayCollision cameraCollision;
+	Ray r = Ray(objPos + rotationAmount * Vector3(0, 0, 1.5), rotationAmount * Vector3(0, 0, 1));
+	if (world->Raycast(r, cameraCollision, true, lockedObject)) {
+		float distance = cameraCollision.rayDistance;
+		if (distance < orbitScalar) {
+			camPos = objPos + rotationAmount * Vector3(0, 0, distance);
+		}
+	}
+	return camPos;
+}
+
+Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos) {
+	Matrix4 Pitch = world->GetMainCamera()->GetRotationPitch();
+	Matrix4 Yaw = world->GetMainCamera()->GetRotationYaw();
+
+	objPos = objPos + Vector3(0, thirdPersonYScalar, 0);
+	Quaternion rotationAmount = Quaternion(Yaw) * Quaternion(Pitch);
+
+	Vector3 endVector = Vector3(thirdPersonXScalar, 0, thirdPersonZScalar);
+
+	RayCollision cameraCollision;
+	Ray r = Ray(objPos, rotationAmount * Vector3(thirdPersonXScalar, 0, 0));
+	if (world->Raycast(r, cameraCollision, true, lockedObject)) {
+		float distance = cameraCollision.rayDistance;
+		if (distance < thirdPersonXScalar) {
+			endVector.x = distance;
+		}
+	}
+
+	RayCollision cameraCollision2;
+	Ray r2 = Ray(objPos + rotationAmount * Vector3(endVector.x, 0, 0), rotationAmount * Vector3(0, 0, thirdPersonZScalar));
+	if (world->Raycast(r2, cameraCollision2, true, lockedObject)) {
+		float distance = cameraCollision2.rayDistance;
+		if (distance < thirdPersonZScalar) {
+			endVector.z = distance;
+		}
+	}
+	Vector3 camPos = objPos + rotationAmount * endVector;
+	return camPos;
 }
 
 

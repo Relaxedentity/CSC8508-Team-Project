@@ -49,6 +49,31 @@ void Camera::UpdateCamera(float dt) {
 	}
 }
 
+void Camera::ThirdPersonUpdateRot() {
+	//Update the mouse by how much
+	pitch -= (Window::GetMouse()->GetRelativePosition().y);
+	yaw -= (Window::GetMouse()->GetRelativePosition().x);
+
+	//Bounds check the pitch, to be between straight up and straight down ;)
+	pitch = std::min(pitch, 90.0f);
+	pitch = std::max(pitch, -90.0f);
+
+	if (yaw < 0) {
+		yaw += 360.0f;
+	}
+	if (yaw > 360.0f) {
+		yaw -= 360.0f;
+	}
+}
+
+Matrix4 Camera::GetRotationYaw() {
+	return	Matrix4::Rotation(yaw, Vector3(0, 1, 0));
+}
+
+Matrix4 Camera::GetRotationPitch() {
+	return	Matrix4::Rotation(pitch, Vector3(1, 0, 0));
+}
+
 /*
 Generates a view matrix for the camera's viewpoint. This matrix can be sent
 straight to the shader...it's already an 'inverse camera' matrix.

@@ -84,7 +84,7 @@ void NetworkedGame::UpdateGame(float dt) {
 }
 
 void NetworkedGame::UpdateAsServer(float dt) {
-	MovePlayer(player);
+	MovePlayer(player, dt);
 	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisServer->UpdateServer();
 	
@@ -100,7 +100,7 @@ void NetworkedGame::UpdateAsServer(float dt) {
 }
 
 void NetworkedGame::UpdateAsClient(float dt) {
-	MovePlayer(player2);
+	MovePlayer(player2, dt);
 	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisClient->UpdateClient();
 
