@@ -14,6 +14,8 @@
 #include <string>
 #include <sstream>
 #include "Assets.h"
+#include "../OpenGLRendering/OGLRenderer.h"
+#include <OGLRenderer.cpp>
 
 using namespace NCL;
 using namespace CSC8503;
@@ -34,7 +36,6 @@ TutorialGame::TutorialGame()	{
 	renderer = new GameTechRenderer(*world);
 #endif
 
-	
 	testStateObject = nullptr;
 	forceMagnitude	= 10.0f;
 	useGravity		= false;
@@ -343,7 +344,7 @@ void TutorialGame::InitCamera() {
 }
 
 void TutorialGame::InitWorld() {
-	BridgeConstraintTest(Vector3(0, -20, -310));
+	//BridgeConstraintTest(Vector3(0,-20,-310));
 	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	InitGameExamples();
 	
@@ -354,13 +355,15 @@ void TutorialGame::InitWorld() {
 	
 	button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
 	buildGameworld();
+	//AddBreakableToWorld(Vector3( 200.0f,13.0f, 50.0f), 1.0f);
+	//AddGWBlocksToWorld(Vector3(201.0f,  18.0f,  100.0f), Vector3(5, 5, 5));
 	AddHedgeMazeToWorld();
 	door = AddGWBlocksToWorld(reactphysics3d::Vector3(50,-13,50), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 5, 5));
 	door->GetRenderObject()->SetColour(Vector4(0,0,1,1));
 	door->SetTag(4);
 	button->SetAssociated(door);
 	TestHedgefinding(Vector3(0, 5, 0));
-	//goose = AddGooseToWorld(reactphysics3d::Vector3(nodes2[0].x, nodes2[0].y, nodes2[0].z), reactphysics3d::Quaternion::identity(), nodes2);
+	//goose = AddGooseToWorld(nodes2[0], nodes2);
 	InitDefaultFloor();
 }
 
@@ -594,6 +597,39 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 	return character;
 }
 
+GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
+	GameObject* emitter = new GameObject();
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::KINEMATIC);
+	body->setMass(0.0f);
+	reactphysics3d::SphereShape* shape = physics.createSphereShape(0.5f);
+
+	std::vector <Vector3 > verts;
+
+	for (int i = 0; i < 100; ++i) {
+		float x = (float)(rand() % 100 - 50);
+		float y = (float)(rand() % 100 - 50);
+		float z = (float)(rand() % 100 - 50);
+
+		verts.push_back(Vector3(x, y, z));
+
+	}
+
+	OGLMesh* pointSprites = new OGLMesh();
+	pointSprites->SetVertexPositions(verts);
+	pointSprites->SetPrimitiveType(GeometryPrimitive::Points);
+	pointSprites->AddSubMesh(0, 100, 0);
+	pointSprites->UploadToGPU();
+	OGLShader* newShader = new OGLShader("scene.vert", "scene.frag", "pointGeom.glsl");
+	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
+
+	emitter->SetPhysicsObject(body);
+	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader));
+	world->AddGameObject(emitter);
+	return emitter;
+}
+
 GameObject* TutorialGame::AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
 	GameObject* apple = new GameObject();
 	reactphysics3d::Transform transform(position, orientation);
@@ -684,6 +720,7 @@ void TutorialGame::InitDefaultFloor() {
 
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity());
+	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
