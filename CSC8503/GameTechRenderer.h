@@ -10,6 +10,7 @@ namespace NCL {
 	class Maths::Vector3;
 	class Maths::Vector4;
 	namespace CSC8503 {
+		class GameObject;
 		class RenderObject;
 
 		class GameTechRenderer : public OGLRenderer	{

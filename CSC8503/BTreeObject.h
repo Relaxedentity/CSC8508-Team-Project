@@ -7,14 +7,14 @@ namespace NCL {
 		class StateMachine;
 		class BTreeObject : public GameObject {
 		public:
-			BTreeObject(vector <Vector3 > testNodes);
+			BTreeObject(std::vector<NCL::Maths::Vector3> testNodes);
 			~BTreeObject();
 
 			virtual void Update(float dt);
-			Vector3 getTargerPosition() {
+			NCL::Maths::Vector3 getTargerPosition() {
 				return targetPosition;
 			};
-			void setTargetPosition(Vector3 position) {
+			void setTargetPosition(NCL::Maths::Vector3 position) {
 				targetPosition = position;
 			};
 			GameObject* getTarget1() {
@@ -32,8 +32,8 @@ namespace NCL {
 		protected:
 			GameObject* target1;
 			GameObject* target2;
-			Vector3 targetPosition;
-			vector <Vector3 > nodes;
+			NCL::Maths::Vector3 targetPosition;
+			std::vector<NCL::Maths::Vector3> nodes;
 			int currentNode;
 			BehaviourSequence* sequence;
 			BehaviourState currentstate;

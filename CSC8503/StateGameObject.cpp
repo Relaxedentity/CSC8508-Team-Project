@@ -3,7 +3,7 @@
 #include "StateMachine.h"
 #include "State.h"
 #include "HierarchicalState.h"
-#include "PhysicsObject.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "Window.h"
 
 using namespace NCL;
@@ -86,14 +86,14 @@ StateGameObject::StateGameObject(vector <Vector3 > testNodes) {
 	stateMachine->AddTransition(new StateTransition(Patrol, stateE,
 		[&]()-> bool
 		{
-			Vector3 t = target->GetTransform().GetPosition() - GetTransform().GetPosition();
+			Vector3 t = Vector3(getTarget()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition());
 			return t.Length() < 15.0f;
 		}
 	));
 	stateMachine->AddTransition(new StateTransition(stateE, Patrol,
 		[&]()-> bool
 		{
-			Vector3 t = target->GetTransform().GetPosition() - GetTransform().GetPosition();
+			Vector3 t = Vector3(getTarget()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition());
 			return t.Length() > 20.0f;
 		}
 	));
@@ -125,17 +125,19 @@ void StateGameObject::Move(float dt) {
 	//GetPhysicsObject()->AddForce(dir*0.2f);
 	Vector3 a = nodes[currentNode-1];
 	Vector3 b = nodes[currentNode];
-	Vector3 t = b - GetTransform().GetPosition();
+	Vector3 t = b - GetPhysicsObject()->getTransform().getPosition();
 	Vector3 dir = b - a;
-	Vector3 dis = b - GetTransform().GetPosition();
-	GetPhysicsObject()->AddForce(dis.Normalised() * 2.0f);
+	Vector3 dis = b - GetPhysicsObject()->getTransform().getPosition();
+	Vector3 force = dis.Normalised() * 2.0f;
+	GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 	counterX += dt;
-	if ((b - GetTransform().GetPosition()).Length()<5.0f) {
+	if ((b - GetPhysicsObject()->getTransform().getPosition()).Length()<5.0f) {
 		currentNode++;
 	}
-	int l = (GetTransform().GetPosition() - nodes[currentNode]).Length();
+	int l = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - nodes[currentNode]).Length();
 	if (l > 50.0f) {
-		GetTransform().SetPosition(nodes[currentNode]);
+		Vector3 position = nodes[currentNode];
+		GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), GetPhysicsObject()->getTransform().getOrientation()));
 	}
 }
 void StateGameObject::MoveBack(float dt) {
@@ -144,18 +146,20 @@ void StateGameObject::MoveBack(float dt) {
 	//GetPhysicsObject()->AddForce(dir*0.2f);
 	Vector3 b = nodes[currentNode - 1];
 	Vector3 a = nodes[currentNode];
-	Vector3 t = b - GetTransform().GetPosition();
+	Vector3 t = b - GetPhysicsObject()->getTransform().getPosition();
 	Vector3 dir = b - a;
-	Vector3 dis = b - GetTransform().GetPosition();
-	GetPhysicsObject()->AddForce(dis.Normalised() * 2.0f);
+	Vector3 dis = b - GetPhysicsObject()->getTransform().getPosition();
+	Vector3 force = dis.Normalised() * 2.0f;
+	GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 	
 	counterX += dt;
-	if ((b - GetTransform().GetPosition()).Length() < 5.0f) {
+	if ((b - GetPhysicsObject()->getTransform().getPosition()).Length() < 5.0f) {
 		currentNode--;
 	}
-	int l = (GetTransform().GetPosition() - nodes[currentNode]).Length();
+	int l = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - nodes[currentNode]).Length();
 	if (l > 50.0f) {
-		GetTransform().SetPosition(nodes[currentNode]);
+		Vector3 position = nodes[currentNode];
+		GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), GetPhysicsObject()->getTransform().getOrientation()));
 	}
 }
 
@@ -166,7 +170,8 @@ void StateGameObject::MoveRight(float dt) {
 	Vector3 a = nodes[1];
 	Vector3 b = nodes[2];
 	Vector3 dir = b - a;
-	GetPhysicsObject()->AddForce(dir * 0.2f);
+	Vector3 force = dir * 2.0f;
+	GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 	counterX -= dt;
 }
 void StateGameObject::MoveUp(float dt) {
@@ -176,7 +181,8 @@ void StateGameObject::MoveUp(float dt) {
 	Vector3 a = nodes[2];
 	Vector3 b = nodes[3];
 	Vector3 dir = b - a;
-	GetPhysicsObject()->AddForce(dir * 0.2f);
+	Vector3 force = dir * 2.0f;
+	GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 	counterY -= dt;
 }	
 
@@ -188,14 +194,16 @@ void StateGameObject::MoveDown(float dt) {
 	Vector3 a = nodes[3];
 	Vector3 b = nodes[4];
 	Vector3 dir = b - a;
-	GetPhysicsObject()->AddForce(dir * 0.2f);
+	Vector3 force = dir * 2.0f;
+	GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 	counterY += dt;
 }
 
 void StateGameObject::Escape(float dt) {
-	Vector3 dir = GetTransform().GetPosition()-target->GetTransform().GetPosition();
-	GetTransform().SetOrientation(target->GetTransform().GetOrientation());
+	Vector3 dir = GetPhysicsObject()->getTransform().getPosition() - target->GetPhysicsObject()->getTransform().getPosition();
+	GetPhysicsObject()->setTransform(reactphysics3d::Transform(GetPhysicsObject()->getTransform().getPosition(), target->GetPhysicsObject()->getTransform().getOrientation()));
 	dir.y = 0;
-	GetPhysicsObject()->AddForce(dir*2.0f);
+	Vector3 force = dir * 2.0f;
+	GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
 }
 

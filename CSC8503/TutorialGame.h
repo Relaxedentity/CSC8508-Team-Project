@@ -3,13 +3,18 @@
 #ifdef USEVULKAN
 #include "GameTechVulkanRenderer.h"
 #endif
-#include "PhysicsSystem.h"
 #include "NavigationGrid.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
 
+namespace reactphysics3d {
+	class PhysicsCommon;
+	class PhysicsWorld;
+}
+
 namespace NCL {
 	namespace CSC8503 {
+		class GameObject;
 		class TutorialGame		{
 		public:
 			void InitWorld();
@@ -28,6 +33,9 @@ namespace NCL {
 			GameWorld* GetGameWorld() {
 				return world;
 			}
+			reactphysics3d::PhysicsWorld* GetPhysicsWorld() {
+				return physicsWorld;
+			}
 			
 		protected:
 			void InitialiseAssets();
@@ -45,7 +53,7 @@ namespace NCL {
 			void InitGameExamples();
 			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
 			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
-			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims);
+			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void BridgeConstraintTest(Vector3 pos);
 			void InitDefaultFloor();
 			void patrolMovement();
@@ -53,26 +61,25 @@ namespace NCL {
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
-			void movePlayer(GameObject* player);
+			void MovePlayer(GameObject* player);
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
-			BTreeObject* AddGooseToWorld(const Vector3& position, vector <Vector3 > testNodes);
-			StateGameObject* AddStateObjectToWorld(const Vector3& position, vector <Vector3 > testNodes);
+			BTreeObject* AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
+			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* testStateObject;
 			BTreeObject* goose;
 
-			GameObject* AddFloorToWorld(const Vector3& position, Vector3 size);
-			GameObject* AddSphereToWorld(const Vector3& position, float radius, float inverseMass = 10.0f);
-			GameObject* AddBreakableToWorld(const Vector3& position, float radius, float inverseMass = 10.0f);
-			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass = 10.0f);
-			GameObject* AddGWBlocksToWorld(const Vector3& position, Vector3 dimensions);
-			GameObject* AddButtonToWorld(const Vector3& position, float inverseMass = 10.0f);
+			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
+			GameObject* AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
+			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
+			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
+			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
+			GameObject* AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass = 0.1f);
 			void buildGameworld();
-			GameObject* AddPlayerToWorld(const Vector3& position);
-			GameObject* AddPlayer2ToWorld(const Vector3& position);
-			GameObject* AddEmitterToWorld(const Vector3& position);
-			GameObject* AddEnemyToWorld(const Vector3& position);
-			GameObject* AddBonusToWorld(const Vector3& position);
+			GameObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddPlayer2ToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
 
 
@@ -81,7 +88,8 @@ namespace NCL {
 #else
 			GameTechRenderer* renderer;
 #endif
-			PhysicsSystem*		physics;
+			reactphysics3d::PhysicsCommon physics;
+			reactphysics3d::PhysicsWorld* physicsWorld;
 			GameWorld*			world;
 			GameObject* patrol;
 			

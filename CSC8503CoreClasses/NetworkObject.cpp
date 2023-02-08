@@ -1,7 +1,7 @@
 #include "NetworkObject.h"
 #include "./enet/enet.h"
 #include "Window.h"
-#include "PhysicsObject.h"
+#include <reactphysics3d/reactphysics3d.h>
 using namespace NCL;
 using namespace CSC8503;
 
@@ -52,8 +52,7 @@ bool NetworkObject::ReadDeltaPacket(DeltaPacket &p) {
 	fullOrientation.z += ((float)p.orientation[2]) / 127.0f;
 	fullOrientation.w += ((float)p.orientation[3]) / 127.0f;
 
-	object.GetTransform().SetPosition(fullPos);
-	object.GetTransform().SetOrientation(fullOrientation);
+	object.GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(fullPos.x, fullPos.y, fullPos.z), reactphysics3d::Quaternion(fullOrientation.x, fullOrientation.y, fullOrientation.z, fullOrientation.w)));
 	return true;
 }
 
@@ -63,8 +62,7 @@ bool NetworkObject::ReadFullPacket(FullPacket &p) {
 	}
 	lastFullState = p.fullState;
 
-	object.GetTransform().SetPosition(lastFullState.position);
-	object.GetTransform().SetOrientation(lastFullState.orientation);
+	object.GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(lastFullState.position.x, lastFullState.position.y, lastFullState.position.z), reactphysics3d::Quaternion(lastFullState.orientation.x, lastFullState.orientation.y, lastFullState.orientation.z, lastFullState.orientation.w)));
 
 	stateHistory.emplace_back(lastFullState);
 
@@ -80,8 +78,8 @@ bool NetworkObject::WriteDeltaPacket(GamePacket**p, int stateID) {
 	dp->fullID = stateID;
 	dp->objectID = networkID;
 
-	Vector3 currentPos = object.GetTransform().GetPosition();
-	Quaternion currentOrientation = object.GetTransform().GetOrientation();
+	Vector3 currentPos = object.GetPhysicsObject()->getTransform().getPosition();
+	Quaternion currentOrientation = object.GetPhysicsObject()->getTransform().getOrientation();
 
 	currentPos -= state.position;
 	currentOrientation -= state.orientation;
@@ -104,8 +102,8 @@ bool NetworkObject::WriteFullPacket(GamePacket**p) {
 	FullPacket* fp = new FullPacket();
 
 	fp->objectID = networkID;
-	fp->fullState.position = object.GetTransform().GetPosition();
-	fp->fullState.orientation = object.GetTransform().GetOrientation();
+	fp->fullState.position = object.GetPhysicsObject()->getTransform().getPosition();
+	fp->fullState.orientation = object.GetPhysicsObject()->getTransform().getOrientation();
 	fp->fullState.stateID = lastFullState.stateID++;
 	*p = fp;
 	return true;
@@ -141,23 +139,23 @@ void NetworkObject::GameobjectMove(int i) {
 	switch (i)
 	{
 	case 1:
-		g.GetPhysicsObject()->AddForce(g.GetTransform().GetOrientation() * Vector3(0, 0, -5)); // forward
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -5)); // forward
 		break;
 
 	case 2:
-		g.GetPhysicsObject()->AddForce(g.GetTransform().GetOrientation() * Vector3(0, 0, 5)); //backward
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, 5)); //backward
 		break;
 
 	case 3:
-		g.GetPhysicsObject()->AddTorque(Vector3(0, 2, 0)); //left
+		g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 2, 0)); //left
 		break;
 
 	case 4:
-		g.GetPhysicsObject()->AddTorque(Vector3(0, -2, 0)); //right
+		g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -2, 0)); //right
 		break;
 
 	case 5:
-		g.GetPhysicsObject()->AddForce(Vector3(0, 50, 0)); //up
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 50, 0)); //up
 		break;
 	}
 }

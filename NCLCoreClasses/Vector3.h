@@ -11,6 +11,10 @@ https://research.ncl.ac.uk/game/
 #include <iostream>
 #include <algorithm>
 
+namespace reactphysics3d {
+	class Vector3;
+}
+
 namespace NCL::Maths {
 	class Vector2;
 	class Vector4;
@@ -32,6 +36,7 @@ namespace NCL::Maths {
 
 		Vector3(const Vector2& v2, float z = 0.0f);
 		Vector3(const Vector4& v4);
+		Vector3(const reactphysics3d::Vector3& v3);
 
 		~Vector3(void) = default;
 

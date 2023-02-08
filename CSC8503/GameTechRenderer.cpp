@@ -1,4 +1,5 @@
 #include "GameTechRenderer.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "GameObject.h"
 #include "RenderObject.h"
 #include "Camera.h"
@@ -166,7 +167,8 @@ void GameTechRenderer::RenderShadowMap() {
 	shadowMatrix = biasMatrix * mvMatrix; //we'll use this one later on
 
 	for (const auto&i : activeObjects) {
-		Matrix4 modelMatrix = (*i).GetTransform()->GetMatrix();
+		reactphysics3d::Transform iTransform = i->GetPhysicsObject()->getTransform();
+		Matrix4 modelMatrix = Matrix4() * Matrix4::Translation(Vector3(iTransform.getPosition())) * Matrix4(Quaternion(iTransform.getOrientation())) * Matrix4::Scale((*i).GetScale());
 		Matrix4 mvpMatrix	= mvMatrix * modelMatrix;
 		glUniformMatrix4fv(mvpLocation, 1, false, (float*)&mvpMatrix);
 		BindMesh((*i).GetMesh());
@@ -274,7 +276,8 @@ void GameTechRenderer::RenderCamera() {
 			activeShader = shader;
 		}
 
-		Matrix4 modelMatrix = (*i).GetTransform()->GetMatrix();
+		reactphysics3d::Transform iTransform = i->GetPhysicsObject()->getTransform();
+		Matrix4 modelMatrix = Matrix4() * Matrix4::Translation(Vector3(iTransform.getPosition())) * Matrix4(Quaternion(iTransform.getOrientation())) * Matrix4::Scale((*i).GetScale());
 		glUniformMatrix4fv(modelLocation, 1, false, (float*)&modelMatrix);			
 		
 		Matrix4 fullShadowMat = shadowMatrix * modelMatrix;

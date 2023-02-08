@@ -4,6 +4,11 @@
 #include "Ray.h"
 #include "CollisionDetection.h"
 #include "QuadTree.h"
+
+namespace reactphysics3d {
+	class PhysicsWorld;
+}
+
 namespace NCL {
 		class Camera;
 		using Maths::Ray;
@@ -16,7 +21,7 @@ namespace NCL {
 
 		class GameWorld	{
 		public:
-			GameWorld();
+			GameWorld(reactphysics3d::PhysicsWorld* physicsWorld);
 			~GameWorld();
 
 			void Clear();
@@ -80,6 +85,7 @@ namespace NCL {
 			int		worldIDCounter;
 			int		worldStateCounter;
 			int objectCount;
+			reactphysics3d::PhysicsWorld* physicsWorld;
 			GameObject* player;
 		};
 	}

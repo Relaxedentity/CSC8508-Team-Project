@@ -28,7 +28,7 @@ bool CollisionDetection::RayPlaneIntersection(const Ray&r, const Plane&p, RayCol
 }
 
 bool CollisionDetection::RayIntersection(const Ray& r,GameObject& object, RayCollision& collision) {
-	bool hasCollided = false;
+	/*bool hasCollided = false;
 
 	const Transform& worldTransform = object.GetTransform();
 	const CollisionVolume* volume	= object.GetBoundingVolume();
@@ -45,7 +45,8 @@ bool CollisionDetection::RayIntersection(const Ray& r,GameObject& object, RayCol
 		case VolumeType::Capsule:	hasCollided = RayCapsuleIntersection(r, worldTransform, (const CapsuleVolume&)*volume, collision); break;
 	}
 
-	return hasCollided;
+	return hasCollided;*/
+	return false;
 }
 
 bool CollisionDetection::RayBoxIntersection(const Ray&r, const Vector3& boxPos, const Vector3& boxSize, RayCollision& collision) {
@@ -177,7 +178,7 @@ bool CollisionDetection::RayCapsuleIntersection(const Ray& r, const Transform& w
 }
 
 bool CollisionDetection::ObjectIntersection(GameObject* a, GameObject* b, CollisionInfo& collisionInfo) {
-	const CollisionVolume* volA = a->GetBoundingVolume();
+	/*const CollisionVolume* volA = a->GetBoundingVolume();
 	const CollisionVolume* volB = b->GetBoundingVolume();
 
 
@@ -250,7 +251,7 @@ bool CollisionDetection::ObjectIntersection(GameObject* a, GameObject* b, Collis
 		return AABBCapsuleIntersection((CapsuleVolume&)*volB, transformB, (AABBVolume&)*volA, transformA, collisionInfo);
 	}
 	
-
+	*/
 	return false;
 }
 

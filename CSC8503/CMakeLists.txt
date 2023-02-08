@@ -117,6 +117,7 @@ if(MSVC)
         "_WINSOCKAPI_"   
         "_WINSOCK2API_"
         "_WINSOCK_DEPRECATED_NO_WARNINGS"
+        "NOMINMAX"
     )
 endif()
 
@@ -215,3 +216,7 @@ add_custom_target(
 add_dependencies(${PROJECT_NAME} SHADER_FILES)
 
 endif()
+
+set(LIB_DEPENDENCIES "ReactPhysics3D::ReactPhysics3D")
+
+target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_DEPENDENCIES}")

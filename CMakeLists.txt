@@ -64,6 +64,12 @@ set(USE_VULKAN CACHE BOOL FORCE)
 if(USE_VULKAN)
     add_compile_definitions("USEVULKAN") 
 endif() 
+
+if(WIN32) 
+  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ReactPhysics3D") 
+endif() 
+
+find_package(ReactPhysics3D REQUIRED)
 ################################################################################
 # Sub-projects
 ################################################################################
