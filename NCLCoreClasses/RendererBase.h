@@ -28,7 +28,7 @@ namespace NCL::Rendering {
 
 		void Render() {
 			BeginFrame();
-			RenderFrame();
+			RenderFrame( );
 			EndFrame();
 			SwapBuffers();
 		}

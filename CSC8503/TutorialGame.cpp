@@ -41,6 +41,7 @@ TutorialGame::TutorialGame()	{
 	forceMagnitude	= 10.0f;
 	useGravity		= false;
 	inSelectionMode = false;
+	world->SetPlayerHealth(1.0f);
 	InitialiseAssets();
 }
 
@@ -62,6 +63,9 @@ void TutorialGame::InitialiseAssets() {
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
+	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
+
+	timeLimit = 300;
 
 	InitCamera();
 	InitWorld();
@@ -86,13 +90,22 @@ void TutorialGame::UpdateGame(float dt) {
 	//Debug::DrawAxisLines(Matrix4());
 	//LockedObjectMovement();
 
-	MovePlayer(player, dt);
+
+
+	//MovePlayer(player, dt);
 	
-	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
-	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
-	//if (!inSelectionMode) {
-	//	world->GetMainCamera()->UpdateCamera(dt);
-	//}
+	world->SetPlayerHealth(health);
+	timeLimit -= dt;
+
+
+	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
+	
+	//Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
+	//Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
+
+	if (!inSelectionMode) {
+		world->GetMainCamera()->UpdateCamera(dt);
+	}
 	//if (lockedObject) {
 	//	Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
 	//	Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
@@ -134,7 +147,7 @@ void TutorialGame::UpdateGame(float dt) {
 		if (world->Raycast(r, closestCollision, true, selectionObject)) {
 			if (objClosest) {
 				objClosest->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
-				Debug::DrawLine(selectionObject->GetTransform().GetPosition(), objClosest->GetTransform().GetPosition(), Vector4(1, 0, 0, 1));
+				//Debug::DrawLine(selectionObject->GetTransform().GetPosition(), objClosest->GetTransform().GetPosition(), Vector4(1, 0, 0, 1));
 			}
 			objClosest = (GameObject*)closestCollision.node;
 
@@ -148,7 +161,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Vector3 a = nodes[i - 1];
 			Vector3 b = nodes[i];
 
-			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 		}
 	}
 	if (goose) {
@@ -157,7 +170,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Vector3 a = nodes2[i - 1];
 			Vector3 b = nodes2[i];
 
-			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 		}
 	}
 
@@ -171,6 +184,7 @@ void TutorialGame::UpdateGame(float dt) {
 	renderer->Update(dt);
 
 	renderer->Render();
+	
 	Debug::UpdateRenderables(dt);
 }
 

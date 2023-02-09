@@ -174,3 +174,4 @@ void OGLMesh::RecalculateNormals() {
 
 	}
 }
+

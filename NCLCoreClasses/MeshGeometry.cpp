@@ -334,6 +334,15 @@ MeshGeometry* MeshGeometry::GenerateTriangle(MeshGeometry* input) {
 	return input;
 }
 
+MeshGeometry* NCL::MeshGeometry::GenerateQuad(MeshGeometry* input)
+{
+	input->SetVertexPositions({ Vector3(-0.075, 0.9,-1), Vector3(-0.095,0.98,-1) , Vector3(0.077, 0.98,-1) , Vector3(0.057, 0.9,-1) });
+	input->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	input->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
+	input->SetVertexIndices({ 0,1,2,2,3,0 });
+	return input;
+}
+
 void MeshGeometry::SetDebugName(const std::string& newName) {
 	debugName = newName;
 }
