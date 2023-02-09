@@ -231,9 +231,8 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 
 	world->GetMainCamera()->ThirdPersonUpdateRot();
 
-	Vector3 objPos = Vector3(player->GetPhysicsObject()->getTransform().getPosition());
-
-
+	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
+	Vector3 objPos = Vector3(playerTransform.getPosition());
 
 	Vector3 camPos;
 	if (!thirdPerson) {
@@ -254,17 +253,8 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		player->GetPhysicsObject()->setTransform(newTransform);
 	}
 
-	bool onFloor = true; //FIXME
-
-	RayCollision floorCollision;
-	Ray r = Ray(objPos, Vector3(0, -1, 0));
-
-	if (world->Raycast(r, floorCollision, true, selectionObject)) {
-		float distance = floorCollision.rayDistance;
-		if (distance < 1.5) {
-			onFloor = true;
-		}
-	}
+	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -3, 0));
+	SceneContactPoint* ground = world->Raycast(ray, player);
 
 	Quaternion Yaw = Quaternion(world->GetMainCamera()->GetRotationYaw());
 
@@ -299,7 +289,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 		directionInput = true;
 	}
-	if (!directionInput && onFloor) {
+	if (!directionInput && ground->isHit) {
 		float scalar = (1 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
@@ -342,11 +332,11 @@ Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* o
 	Vector3 c = b - a;
 	c.Normalise();
 
-	Ray ray = Ray(camPos, c);
-	RayCollision aimCollision;
 	Quaternion goatStartRotation;
-	if (world->Raycast(ray, aimCollision, true, object)) {
-		Vector3 collisionVector = aimCollision.collidedAt - Vector3(object->GetPhysicsObject()->getTransform().getPosition());
+	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(camPos.x, camPos.y, camPos.z), reactphysics3d::Vector3(camPos.x, camPos.y, camPos.z) + reactphysics3d::Vector3(c.x, c.y, c.z) * 1000);
+	SceneContactPoint* aimCollision = world->Raycast(ray, object);
+	if (aimCollision->isHit) {
+		Vector3 collisionVector = Vector3(aimCollision->hitPos) - Vector3(object->GetPhysicsObject()->getTransform().getPosition());
 
 		float theta = atan2(collisionVector.z, collisionVector.x) * (180 / PI);
 		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
@@ -376,10 +366,13 @@ Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos) {
 	orbitScalar = NCL::Maths::Clamp(orbitScalar, orbitScalarMin, orbitScalarMax);
 
 	Vector3 camPos = objPos + rotationAmount * Vector3(0, 0, orbitScalar);
-	RayCollision cameraCollision;
-	Ray r = Ray(objPos + rotationAmount * Vector3(0, 0, 1.5), rotationAmount * Vector3(0, 0, 1));
-	if (world->Raycast(r, cameraCollision, true, lockedObject)) {
-		float distance = cameraCollision.rayDistance;
+	Vector3 startPos = objPos + rotationAmount * Vector3(0, 0, 1.5);
+	Vector3 direction = rotationAmount * Vector3(0, 0, 1);
+	float rayLength = 100.0f;
+	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z) + reactphysics3d::Vector3(direction.x, direction.y, direction.z) * rayLength);
+	SceneContactPoint* cameraCollision = world->Raycast(ray, lockedObject);
+	if (cameraCollision->isHit) {
+		float distance = cameraCollision->hitFraction * rayLength;
 		if (distance < orbitScalar) {
 			camPos = objPos + rotationAmount * Vector3(0, 0, distance);
 		}
@@ -396,19 +389,23 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos) {
 
 	Vector3 endVector = Vector3(thirdPersonXScalar, 0, thirdPersonZScalar);
 
-	RayCollision cameraCollision;
-	Ray r = Ray(objPos, rotationAmount * Vector3(thirdPersonXScalar, 0, 0));
-	if (world->Raycast(r, cameraCollision, true, lockedObject)) {
-		float distance = cameraCollision.rayDistance;
+	Vector3 direction = rotationAmount * Vector3(thirdPersonXScalar, 0, 0);
+	float rayLength = 100.0f;
+	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z) + reactphysics3d::Vector3(direction.x, direction.y, direction.z) * rayLength);
+	SceneContactPoint* cameraCollision = world->Raycast(ray, lockedObject);
+	if (cameraCollision->isHit) {
+		float distance = cameraCollision->hitFraction * rayLength;
 		if (distance < thirdPersonXScalar) {
 			endVector.x = distance;
 		}
 	}
 
-	RayCollision cameraCollision2;
-	Ray r2 = Ray(objPos + rotationAmount * Vector3(endVector.x, 0, 0), rotationAmount * Vector3(0, 0, thirdPersonZScalar));
-	if (world->Raycast(r2, cameraCollision2, true, lockedObject)) {
-		float distance = cameraCollision2.rayDistance;
+	Vector3 startPos = (objPos + rotationAmount * Vector3(endVector.x, 0, 0));
+	Vector3 direction2 = rotationAmount * Vector3(0, 0, thirdPersonZScalar);
+	reactphysics3d::Ray ray2 = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z) + reactphysics3d::Vector3(direction2.x, direction2.y, direction2.z) * rayLength);
+	SceneContactPoint* cameraCollision2 = world->Raycast(ray2, lockedObject);
+	if (cameraCollision2->isHit) {
+		float distance = cameraCollision2->hitFraction * rayLength;
 		if (distance < thirdPersonZScalar) {
 			endVector.z = distance;
 		}
