@@ -65,6 +65,9 @@ void TutorialGame::InitialiseAssets() {
 
 	InitCamera();
 	InitWorld();
+
+	GameObjectListener* listener = new GameObjectListener(world);
+	world->SetCollisionListener(listener);
 }
 
 TutorialGame::~TutorialGame()	{
@@ -84,8 +87,12 @@ TutorialGame::~TutorialGame()	{
 
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
-
-	MovePlayer(player, dt);
+	if (lockedObject == player) {
+		MovePlayer(player, dt);
+	}
+	else {
+		world->GetMainCamera()->UpdateCamera(dt);
+	}
 	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
 	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
 	//if (!inSelectionMode) {
@@ -224,7 +231,6 @@ void TutorialGame::UpdateKeys() {
 	}
 }
 void TutorialGame::MovePlayer(GameObject* player, float dt) {
-
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
 		thirdPerson = !thirdPerson;
 	}
@@ -876,7 +882,7 @@ void TutorialGame::InitDefaultFloor() {
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity());
 	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
-	LockCameraToObject(player);
+	//LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);

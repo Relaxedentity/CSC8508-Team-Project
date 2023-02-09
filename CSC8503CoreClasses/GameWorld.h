@@ -87,8 +87,14 @@ namespace NCL {
 			GameObject* GetPlayer() {
 				return player;
 			}
+
 			void SetPlayer(GameObject* p) {
 				player = p;
+			}
+
+			void SetCollisionListener(GameObjectListener* listener) {
+				collisionManager = listener;
+				physicsWorld->setEventListener(listener);
 			}
 
 			void ShuffleConstraints(bool state) {
@@ -135,6 +141,7 @@ namespace NCL {
 			int objectCount;
 			reactphysics3d::PhysicsWorld* physicsWorld;
 			RaycastManager* raycastManager;
+			GameObjectListener* collisionManager;
 			GameObject* player;
 		};
 	}
