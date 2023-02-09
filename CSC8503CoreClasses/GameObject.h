@@ -4,13 +4,25 @@ using std::vector;
 namespace reactphysics3d {
 	class RigidBody;
 	class Transform;
+	class CollisionCallback;
 }
 
 namespace NCL::CSC8503 {
 	class NetworkObject;
 	class RenderObject;
+	class GameWorld;
 
-	class GameObject	{
+	class GameObjectListener : public reactphysics3d::EventListener {
+	public:
+		GameObjectListener(GameWorld* world) { this->world = world; }
+		~GameObjectListener(){}
+
+		virtual void onContact(const CollisionCallback::CallbackData& callbackData) override;
+	private:
+		GameWorld* world;
+	};
+
+	class GameObject{
 	public:
 		GameObject(std::string name = "");
 		~GameObject();

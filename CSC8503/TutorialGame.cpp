@@ -69,6 +69,9 @@ void TutorialGame::InitialiseAssets() {
 
 	InitCamera();
 	InitWorld();
+
+	GameObjectListener* listener = new GameObjectListener(world);
+	world->SetCollisionListener(listener);
 }
 
 TutorialGame::~TutorialGame()	{
@@ -89,6 +92,7 @@ TutorialGame::~TutorialGame()	{
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
 
+
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
 		inSelectionMode = !inSelectionMode;
 	}
@@ -96,7 +100,7 @@ void TutorialGame::UpdateGame(float dt) {
 		freeCamera = !freeCamera;
 		if (!freeCamera) inSelectionMode = false;
 	}
-	
+
 	if (freeCamera) {
 		if (inSelectionMode) {
 			Window::GetWindow()->ShowOSPointer(true);
@@ -114,8 +118,8 @@ void TutorialGame::UpdateGame(float dt) {
 		MovePlayer(player, dt);
 	}
 
-	
-	
+
+
 	world->SetPlayerHealth(health);
 	timeLimit -= dt;
 
@@ -238,7 +242,6 @@ void TutorialGame::UpdateKeys() {
 	}
 }
 void TutorialGame::MovePlayer(GameObject* player, float dt) {
-
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
 		thirdPerson = !thirdPerson;
 	}
@@ -894,7 +897,7 @@ void TutorialGame::InitDefaultFloor() {
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity());
 	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
-	LockCameraToObject(player);
+	//LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);
