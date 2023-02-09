@@ -22,7 +22,6 @@ using namespace NCL;
 using namespace CSC8503;
 vector <NCL::Maths::Vector3> nodes;
 vector <NCL::Maths::Vector3> nodes2;
-bool onFloor;
 TutorialGame::TutorialGame()	{
 	reactphysics3d::PhysicsWorld::WorldSettings settings;
 	settings.defaultVelocitySolverNbIterations = 15; // Default is 10, we can discuss reducing to default
@@ -41,6 +40,8 @@ TutorialGame::TutorialGame()	{
 	forceMagnitude	= 10.0f;
 	useGravity		= true;
 	inSelectionMode = false;
+	freeCamera		= false;
+	world->SetPlayerHealth(1.0f);
 	InitialiseAssets();
 }
 
@@ -62,6 +63,9 @@ void TutorialGame::InitialiseAssets() {
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
+	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
+
+	timeLimit = 300;
 
 	InitCamera();
 	InitWorld();
@@ -87,35 +91,41 @@ TutorialGame::~TutorialGame()	{
 
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
-	if (lockedObject == player) {
-		MovePlayer(player, dt);
+
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
+		inSelectionMode = !inSelectionMode;
 	}
-	else {
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::Q)) {
+		freeCamera = !freeCamera;
+		if (!freeCamera) inSelectionMode = false;
+	}
+
+	if (freeCamera) {
+		if (inSelectionMode) {
+			Window::GetWindow()->ShowOSPointer(true);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
+		else {
+			Window::GetWindow()->ShowOSPointer(false);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
 		world->GetMainCamera()->UpdateCamera(dt);
 	}
-	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
-	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
-	//if (!inSelectionMode) {
-	//	world->GetMainCamera()->UpdateCamera(dt);
-	//}
-	//if (lockedObject) {
-	//	Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
-	//	Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
+	else {
+		Window::GetWindow()->ShowOSPointer(false);
+		Window::GetWindow()->LockMouseToWindow(true);
+		MovePlayer(player, dt);
+	}
 
-	//	Matrix4 temp = Matrix4::BuildViewMatrix(camPos, objPos, Vector3(0,1,0));
 
-	//	Matrix4 modelMat = temp.Inverse();
 
-	//	Quaternion q(modelMat);
-	//	Vector3 angles = q.ToEuler(); //nearly there now!
+	world->SetPlayerHealth(health);
+	timeLimit -= dt;
 
-	//	world->GetMainCamera()->SetPosition(camPos);
-	//	world->GetMainCamera()->SetPitch(angles.x);
-	//	world->GetMainCamera()->SetYaw(angles.y);
-	//}
-	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
-	//	button->GetAssociated()->GetPhysicsObject()->AddForce(Vector3(0,100,0));
-	//}
+
+	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
+	
 	UpdateKeys();
 
 	if (useGravity) {
@@ -149,7 +159,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Vector3 a = nodes[i - 1];
 			Vector3 b = nodes[i];
 
-			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 		}
 	}
 	if (goose) {
@@ -158,7 +168,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Vector3 a = nodes2[i - 1];
 			Vector3 b = nodes2[i];
 
-			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 		}
 
 		reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
@@ -173,6 +183,7 @@ void TutorialGame::UpdateGame(float dt) {
 	renderer->Update(dt);
 
 	renderer->Render();
+	
 	Debug::UpdateRenderables(dt);
 }
 
@@ -224,7 +235,7 @@ void TutorialGame::UpdateKeys() {
 	}
 
 	if (lockedObject) {
-		LockedObjectMovement();
+		//LockedObjectMovement();
 	}
 	else {
 		DebugObjectMovement();
@@ -253,13 +264,17 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		camPos = world->GetMainCamera()->GetPosition();
 	}
 
-	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -3, 0));
-	SceneContactPoint* ground = world->Raycast(ray, player);
-
 	Quaternion Yaw = Quaternion(world->GetMainCamera()->GetRotationYaw());
 
 	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
 	Vector3 endVelocity = Vector3(0, 0, 0);
+
+	bool onFloor = false;
+	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
+	SceneContactPoint* ground = world->Raycast(ray, player);
+	if (ground->isHit) {
+		onFloor = true;
+	}
 
 	bool directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
@@ -289,18 +304,18 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 		directionInput = true;
 	}
-	if (!directionInput && ground->isHit) {
+	if (!directionInput && onFloor) {
 		float scalar = (1 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
+	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && onFloor) {
 		endVelocity.Normalise();
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && ground->isHit) {
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 15, 0));
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && onFloor) {
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
 
 	if (!thirdPerson) {
@@ -709,7 +724,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& positi
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(1.5f, 2.5f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, nullptr, basicShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, nullptr, charShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
@@ -961,17 +976,6 @@ letting you move the camera around.
 
 */
 bool TutorialGame::SelectObject() {
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::Q)) {
-		inSelectionMode = !inSelectionMode;
-		if (inSelectionMode) {
-			Window::GetWindow()->ShowOSPointer(true);
-			Window::GetWindow()->LockMouseToWindow(false);
-		}
-		else {
-			Window::GetWindow()->ShowOSPointer(false);
-			Window::GetWindow()->LockMouseToWindow(true);
-		}
-	}
 	if (inSelectionMode) {
 		//Debug::Print("Press Q to change to camera mode!", Vector2(5, 85));
 

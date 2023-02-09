@@ -44,7 +44,6 @@ namespace NCL {
 			void UpdateKeys();
 
 			
-
 			/*
 			These are some of the world/object creation functions I created when testing the functionality
 			in the module. Feel free to mess around with them to see different objects being created in different
@@ -56,7 +55,7 @@ namespace NCL {
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void BridgeConstraintTest(Vector3 pos);
 			void InitDefaultFloor();
-			void patrolMovement();
+			
 			bool SelectObject();
 			void MoveSelectedObject();
 			void DebugObjectMovement();
@@ -98,9 +97,13 @@ namespace NCL {
 			GameObject* door;
 			bool useGravity;
 			bool inSelectionMode;
+			bool freeCamera;
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
+
+			float		health =0.8f;
+			float		timeLimit;
 
 			GameObject* selectionObject = nullptr;
 			MeshGeometry*	capsuleMesh = nullptr;
@@ -110,6 +113,7 @@ namespace NCL {
 
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
+			ShaderBase*		charShader = nullptr;
 
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
@@ -136,7 +140,7 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 
-			bool thirdPerson = false;
+			bool thirdPerson = true;
 
 			Vector3 orbitCameraProcess(Vector3 objPos);
 			Vector3 thirdPersonCameraProcess(Vector3 objPos);

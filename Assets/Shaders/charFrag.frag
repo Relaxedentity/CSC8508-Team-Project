@@ -47,6 +47,9 @@ void main(void)
 	}
 
 
+	float fresnel = 1-(dot( viewDir, normalize(IN.normal))); // player highlighting 
+	fresnel = pow(fresnel, 3.0);
+
 	albedo.rgb = pow(albedo.rgb, vec3(2.2));
 	
 	fragColor.rgb = albedo.rgb * 0.05f; //ambient
@@ -57,11 +60,10 @@ void main(void)
 	
 	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / 2.2f));
 
+	fragColor.rgb += fresnel ;// * vec3(0,0,1);
+
 	fragColor.a = albedo.a;
 
-	if(fragColor.a<0.00001f){
-		discard;
-	}
 
 //fragColor.rgb = IN.normal;
 

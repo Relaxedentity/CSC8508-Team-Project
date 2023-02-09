@@ -91,6 +91,15 @@ namespace NCL {
 			void SetPlayer(GameObject* p) {
 				player = p;
 			}
+			
+			float GetPlayerHealth() {
+				return playerHealth;
+			}
+
+			void SetPlayerHealth(float health) {
+				playerHealth = health;
+			}
+
 
 			void SetCollisionListener(GameObjectListener* listener) {
 				collisionManager = listener;
@@ -143,6 +152,7 @@ namespace NCL {
 			RaycastManager* raycastManager;
 			GameObjectListener* collisionManager;
 			GameObject* player;
+			float playerHealth;
 		};
 	}
 }
