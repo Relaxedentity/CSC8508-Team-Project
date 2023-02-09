@@ -239,7 +239,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 
 	Vector3 objPos = Vector3(player->GetPhysicsObject()->getTransform().getPosition());
 
-
+	Quaternion goatRealRotation;
 
 	Vector3 camPos;
 	if (!thirdPerson) {
@@ -250,14 +250,6 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		camPos = thirdPersonCameraProcess(objPos);
 		cameraInterpolation(camPos, dt);
 		camPos = world->GetMainCamera()->GetPosition();
-
-		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
-		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
-		Quaternion goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
-
-		reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
-
-		player->GetPhysicsObject()->setTransform(newTransform);
 	}
 
 	bool onFloor = true; //FIXME
@@ -312,24 +304,29 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 
 	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
 		endVelocity.Normalise();
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z)*10);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z)*15);
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && onFloor == true) {
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 5, 0));
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 15, 0));
 	}
 
 	if (!thirdPerson) {
-		//Vector3 currentVelocity = Vector3(lockedObject->GetPhysicsObject()->getLinearVelocity());
-		//float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
-		//Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
-		//Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
-		//Quaternion goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
-		//
-		//reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
-		//
-		//player->GetPhysicsObject()->setTransform(newTransform);
+		Vector3 currentVelocity = Vector3(lockedObject->GetPhysicsObject()->getLinearVelocity());
+		float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
+		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
+		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
 	}
+	else {
+		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
+		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
+	}
+
+	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
+
+	player->GetPhysicsObject()->setTransform(newTransform);
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
