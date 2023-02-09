@@ -40,6 +40,7 @@ TutorialGame::TutorialGame()	{
 	forceMagnitude	= 10.0f;
 	useGravity		= true;
 	inSelectionMode = false;
+	freeCamera		= false;
 	world->SetPlayerHealth(1.0f);
 	InitialiseAssets();
 }
@@ -88,9 +89,32 @@ TutorialGame::~TutorialGame()	{
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
 
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
+		inSelectionMode = !inSelectionMode;
+	}
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::Q)) {
+		freeCamera = !freeCamera;
+		if (!freeCamera) inSelectionMode = false;
+	}
+	
+	if (freeCamera) {
+		if (inSelectionMode) {
+			Window::GetWindow()->ShowOSPointer(true);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
+		else {
+			Window::GetWindow()->ShowOSPointer(false);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
+		world->GetMainCamera()->UpdateCamera(dt);
+	}
+	else {
+		Window::GetWindow()->ShowOSPointer(false);
+		Window::GetWindow()->LockMouseToWindow(true);
+		MovePlayer(player, dt);
+	}
 
-
-	MovePlayer(player, dt);
+	
 	
 	world->SetPlayerHealth(health);
 	timeLimit -= dt;
@@ -98,30 +122,6 @@ void TutorialGame::UpdateGame(float dt) {
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
-	//Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
-	//Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
-
-	if (!inSelectionMode) {
-		//world->GetMainCamera()->UpdateCamera(dt);
-	}
-	//if (lockedObject) {
-	//	Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
-	//	Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
-
-	//	Matrix4 temp = Matrix4::BuildViewMatrix(camPos, objPos, Vector3(0,1,0));
-
-	//	Matrix4 modelMat = temp.Inverse();
-
-	//	Quaternion q(modelMat);
-	//	Vector3 angles = q.ToEuler(); //nearly there now!
-
-	//	world->GetMainCamera()->SetPosition(camPos);
-	//	world->GetMainCamera()->SetPitch(angles.x);
-	//	world->GetMainCamera()->SetYaw(angles.y);
-	//}
-	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
-	//	button->GetAssociated()->GetPhysicsObject()->AddForce(Vector3(0,100,0));
-	//}
 	UpdateKeys();
 
 	if (useGravity) {
@@ -306,7 +306,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
+	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && onFloor) {
 		endVelocity.Normalise();
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
@@ -973,17 +973,6 @@ letting you move the camera around.
 
 */
 bool TutorialGame::SelectObject() {
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::Q)) {
-		inSelectionMode = !inSelectionMode;
-		if (inSelectionMode) {
-			Window::GetWindow()->ShowOSPointer(true);
-			Window::GetWindow()->LockMouseToWindow(false);
-		}
-		else {
-			Window::GetWindow()->ShowOSPointer(false);
-			Window::GetWindow()->LockMouseToWindow(true);
-		}
-	}
 	if (inSelectionMode) {
 		//Debug::Print("Press Q to change to camera mode!", Vector2(5, 85));
 

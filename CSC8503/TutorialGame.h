@@ -97,6 +97,7 @@ namespace NCL {
 			GameObject* door;
 			bool useGravity;
 			bool inSelectionMode;
+			bool freeCamera;
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
