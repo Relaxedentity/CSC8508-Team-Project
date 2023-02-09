@@ -38,7 +38,11 @@ namespace NCL::Maths {
 
 		Quaternion(const Matrix3 &m);
 		Quaternion(const Matrix4 &m);
+		//React to NCL
 		Quaternion(const reactphysics3d::Quaternion& q);
+		//NCL to React
+		reactphysics3d::Quaternion NCLtoReactQuaternion(NCL::Maths::Quaternion i);
+
 
 		~Quaternion(void) = default;
 

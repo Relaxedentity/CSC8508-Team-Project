@@ -25,6 +25,10 @@ NCL::Maths::Vector3::Vector3(const Vector4& v4) : x(v4.x), y(v4.y), z(v4.z) {
 NCL::Maths::Vector3::Vector3(const reactphysics3d::Vector3& v3) : x(v3.x), y(v3.y), z(v3.z) {
 }
 
+reactphysics3d::Vector3 NCLtoReactVector3(NCL::Maths::Vector3 i) {
+	return reactphysics3d::Vector3(i.x, i.y, i.z);
+}
+
 constexpr NCL::Maths::Vector3 NCL::Maths::Vector3::Clamp(const NCL::Maths::Vector3& input, const NCL::Maths::Vector3& mins, const NCL::Maths::Vector3& maxs) {
 	return NCL::Maths::Vector3(
 		std::clamp(input.x, mins.x, maxs.x),

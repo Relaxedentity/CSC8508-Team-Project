@@ -88,6 +88,10 @@ NCL::Maths::Quaternion::Quaternion(const reactphysics3d::Quaternion& q) {
 	w = q.w;
 }
 
+reactphysics3d::Quaternion NCLtoReactQuaternion(NCL::Maths::Quaternion i) {
+	return reactphysics3d::Quaternion(i.x, i.y, i.z, i.w);
+}
+
 float NCL::Maths::Quaternion::Dot(const Quaternion &a,const Quaternion &b){
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
 }

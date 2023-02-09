@@ -58,6 +58,10 @@ void main(void)
 	
 	fragColor.a = albedo.a;
 
+	if(fragColor.a<0.00001f){
+		discard;
+	}
+
 //fragColor.rgb = IN.normal;
 
 	//fragColor = IN.colour;

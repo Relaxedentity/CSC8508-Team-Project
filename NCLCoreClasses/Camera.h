@@ -51,6 +51,10 @@ namespace NCL {
 
 		void UpdateCamera(float dt);
 
+		void ThirdPersonUpdateRot();
+		Matrix4 GetRotationYaw();
+		Matrix4 GetRotationPitch();
+
 		float GetFieldOfVision() const {
 			return fov;
 		}

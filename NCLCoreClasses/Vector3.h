@@ -38,6 +38,8 @@ namespace NCL::Maths {
 		Vector3(const Vector4& v4);
 		Vector3(const reactphysics3d::Vector3& v3);
 
+		reactphysics3d::Vector3 NCLtoReactVector3(NCL::Maths::Vector3 i);
+
 		~Vector3(void) = default;
 
 		Vector3 Normalised() const {

@@ -28,6 +28,7 @@ namespace NCL {
 			}
 			virtual void UpdateGame(float dt);
 			GameObject* player;
+			GameObject* emitter;
 			GameObject* player2;
 			GameWorld* GetGameWorld() {
 				return world;
@@ -50,7 +51,6 @@ namespace NCL {
 			test scenarios (constraints, collision types, and so on). 
 			*/
 			void InitGameExamples();
-
 			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
 			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
@@ -61,7 +61,7 @@ namespace NCL {
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
-			void MovePlayer(GameObject* player);
+			void MovePlayer(GameObject* player, float dt);
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
 			BTreeObject* AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
@@ -80,6 +80,7 @@ namespace NCL {
 			GameObject* AddPlayer2ToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
 
 
@@ -117,12 +118,32 @@ namespace NCL {
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
-			Vector3 lockedOffset		= Vector3(0, 14, 20);
 			void LockCameraToObject(GameObject* o) {
 				lockedObject = o;
 			}
 
 			GameObject* objClosest = nullptr;
+
+
+			// Third Person Camera Tests
+
+			Vector3 lockedOffset = Vector3(0, 14, 20);
+			float orbitScalar = 30.0f;
+			float orbitScalarMax = 30.0f;
+			float orbitScalarMin = 2.0f;
+
+			float thirdPersonYScalar = 1;
+			float thirdPersonXScalar = 1.25;
+			float thirdPersonZScalar = 4;
+
+			bool thirdPerson = false;
+
+			Vector3 orbitCameraProcess(Vector3 objPos);
+			Vector3 thirdPersonCameraProcess(Vector3 objPos);
+			void cameraInterpolation(Vector3 target, float dt);
+			float cameraInterpBaseSpeed = 0.5f;
+
+			Quaternion thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos);
 		};
 	}
 }
