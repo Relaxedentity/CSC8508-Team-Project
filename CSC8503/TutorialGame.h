@@ -136,7 +136,7 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 
-			bool thirdPerson = false;
+			bool thirdPerson = true;
 
 			Vector3 orbitCameraProcess(Vector3 objPos);
 			Vector3 thirdPersonCameraProcess(Vector3 objPos);

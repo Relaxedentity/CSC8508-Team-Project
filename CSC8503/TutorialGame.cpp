@@ -22,7 +22,6 @@ using namespace NCL;
 using namespace CSC8503;
 vector <NCL::Maths::Vector3> nodes;
 vector <NCL::Maths::Vector3> nodes2;
-bool onFloor;
 TutorialGame::TutorialGame()	{
 	reactphysics3d::PhysicsWorld::WorldSettings settings;
 	settings.defaultVelocitySolverNbIterations = 15; // Default is 10, we can discuss reducing to default
@@ -254,6 +253,9 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 
 	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
 	Vector3 endVelocity = Vector3(0, 0, 0);
+
+	bool onFloor = true;
+
 
 	bool directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
