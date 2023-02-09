@@ -600,7 +600,11 @@ Ray CollisionDetection::BuildRayFromMouse(const Camera& cam) {
 
 	c.Normalise();
 
-	return Ray(cam.GetPosition(), c);
+	Ray r(cam.GetPosition(), c);
+
+	//Debug::DrawLine(r.GetPosition(), r.GetPosition() + r.GetDirection() * 1000, Vector4(1, 1, 1, 1), 40);
+
+	return r;
 }
 
 //http://bookofhook.com/mousepick.pdf
