@@ -207,11 +207,11 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 			//std::cout << "server " << source << std::endl;
 			o->ReadPacket(*payload);
 		}
-		if (type = Full_State) {
+		if (type == Full_State) {
 			//std::cout << ((FullPacket*)payload)->objectID << std::endl;
 			//std::cout << ((FullPacket*)payload)->fullState.position << std::endl;
 		}
-		if (type = Received_State) {
+		if (type == Received_State) {
 			if (o->getGameObject().GetWorldID() == 2) {
 				//std::cout << "client" << source << std::endl;
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {

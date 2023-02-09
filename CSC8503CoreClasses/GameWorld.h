@@ -37,6 +37,15 @@ namespace NCL {
 			void SetPlayer(GameObject* p) {
 				player = p;
 			}
+			
+			float GetPlayerHealth() {
+				return playerHealth;
+			}
+
+			void SetPlayerHealth(float health) {
+				playerHealth = health;
+			}
+
 
 			void ShuffleConstraints(bool state) {
 				shuffleConstraints = state;
@@ -80,7 +89,9 @@ namespace NCL {
 			int		worldIDCounter;
 			int		worldStateCounter;
 			int objectCount;
+
 			GameObject* player;
+			float playerHealth;
 		};
 	}
 }

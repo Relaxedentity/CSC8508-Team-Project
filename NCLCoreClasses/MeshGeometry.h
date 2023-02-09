@@ -164,7 +164,7 @@ namespace NCL {
 		void SetVertexSkinIndices(const vector<Vector4i>& newSkinIndices);
 
 
-		void	TransformVertices(const Matrix4& byMatrix);
+		void TransformVertices(const Matrix4& byMatrix);
 
 		void RecalculateNormals();
 		void RecalculateTangents();
@@ -174,6 +174,9 @@ namespace NCL {
 		virtual void UploadToGPU(Rendering::RendererBase* renderer = nullptr) = 0;
 
 		static MeshGeometry* GenerateTriangle(MeshGeometry* input);
+		static MeshGeometry* GenerateQuad(MeshGeometry* input);
+
+
 
 	protected:
 		MeshGeometry();

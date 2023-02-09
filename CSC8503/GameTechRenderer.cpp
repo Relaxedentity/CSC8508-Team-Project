@@ -51,6 +51,36 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 
 	LoadSkybox();
 
+	// healthbar
+	healthShader = new OGLShader("basicVertex.glsl", "colourFragment.glsl");
+	healthQuad = new OGLMesh();
+	healthQuad->SetVertexPositions({ Vector3(-0.95, -0.80,-1), Vector3(-0.95,-0.90,-1) , Vector3(-0.6,-0.90,-1) , Vector3(-0.6, -0.80,-1) });
+	healthQuad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	healthQuad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
+	healthQuad->SetVertexIndices({ 0,1,2,2,3,0 });
+	healthQuad->UploadToGPU();
+
+	// progressbar
+	progressShader = new OGLShader("progressVert.glsl", "progressFrag.glsl");
+	progressBar = new OGLMesh();
+	progressBar->SetVertexPositions({ Vector3(-0.4, 0.85,-1), Vector3(-0.4,0.9,-1) , Vector3(0.4, 0.9,-1) , Vector3(0.4, 0.85,-1) });
+	progressBar->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	progressBar->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f)});
+	progressBar->SetVertexIndices({ 0,1,2,2,3,0 });
+	progressBar->UploadToGPU();
+
+	//timer quad
+	simpleShader = new OGLShader("simpleVert.glsl", "simpleFrag.glsl");
+	quad = new OGLMesh();
+	quad->GenerateQuad(quad);
+
+	//quad->SetVertexPositions({ Vector3(-0.5, 0.9,-1), Vector3(-0.5,1,-1) , Vector3(0.4, 1,-1) , Vector3(0.4, 0.9,-1) });
+	//quad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	//quad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
+	//quad->SetVertexIndices({ 0,1,2,2,3,0 });
+
+	quad->UploadToGPU();
+
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
 
@@ -64,6 +94,19 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 }
 
 GameTechRenderer::~GameTechRenderer()	{
+	delete debugShader;
+	delete shadowShader;
+	delete skyboxShader;
+	delete progressShader;
+	delete simpleShader;
+
+	delete healthShader;
+	delete skyboxMesh;	
+	delete healthQuad;
+	delete progressBar;
+	delete quad;
+
+	
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
 }
@@ -108,7 +151,39 @@ void GameTechRenderer::LoadSkybox() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-void GameTechRenderer::RenderFrame() {
+void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
+{
+	BindShader(healthShader);
+	glUniform1f(glGetUniformLocation(healthShader->GetProgramID(), "health"), health);
+	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "firstColour"), 1,0,0,1);
+	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "secColour"), 0,1,0,1);
+	BindMesh(healthQuad);
+	DrawBoundMesh();
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderProgressBar(float score)
+{
+	BindShader(progressShader);
+	glUniform1f(glGetUniformLocation(progressShader->GetProgramID(), "score"), score);
+	glUniform4f(glGetUniformLocation(progressShader->GetProgramID(), "playerColour"), 0.752f, 0.027f, 0.286f, 1);
+
+	BindMesh(progressBar);
+	DrawBoundMesh();
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderTimerQuad()
+{
+	glEnable(GL_BLEND);
+	BindShader(simpleShader);
+	glUniform4f(glGetUniformLocation(simpleShader->GetProgramID(), "bgColour"), 0.2f, 0.2f, 0.2f, 1);
+
+	BindMesh(quad);
+	DrawBoundMesh();
+}
+
+
+void GameTechRenderer::RenderFrame( ) {
+
 	glEnable(GL_CULL_FACE);
 	glClearColor(1, 1, 1, 1);
 	BuildObjectList();
@@ -116,12 +191,17 @@ void GameTechRenderer::RenderFrame() {
 	RenderShadowMap();
 	RenderSkybox();
 	RenderCamera();
+	
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	NewRenderLines();
+	RenderTimerQuad();
 	NewRenderText();
+
+	RenderHealthBar(gameWorld.GetPlayerHealth());
+	RenderProgressBar(0.3f);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -387,8 +467,6 @@ void GameTechRenderer::NewRenderText() {
 	glDrawArrays(GL_TRIANGLES, 0, frameVertCount);
 	glBindVertexArray(0);
 }
-
-
 
 TextureBase* GameTechRenderer::LoadTexture(const string& name) {
 	return TextureLoader::LoadAPITexture(name);

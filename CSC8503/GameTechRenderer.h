@@ -21,6 +21,14 @@ namespace NCL {
 			TextureBase*	LoadTexture(const string& name);
 			ShaderBase*		LoadShader(const string& vertex, const string& fragment);
 
+
+			
+			void RenderHealthBar(float health);
+			void RenderProgressBar(float score);
+			void RenderTimerQuad();
+
+			
+
 		protected:
 			void NewRenderLines();
 			void NewRenderText();
@@ -39,6 +47,7 @@ namespace NCL {
 
 			void LoadSkybox();
 
+
 			void SetDebugStringBufferSizes(size_t newVertCount);
 			void SetDebugLineBufferSizes(size_t newVertCount);
 
@@ -48,6 +57,18 @@ namespace NCL {
 			OGLShader*  skyboxShader;
 			OGLMesh*	skyboxMesh;
 			GLuint		skyboxTex;
+
+			// health bar shading
+			OGLShader* healthShader;
+			OGLMesh* healthQuad;
+
+			// progress shader
+			OGLShader* progressShader;
+			OGLMesh* progressBar;
+
+			//timer background
+			OGLShader* simpleShader;
+			OGLMesh* quad;
 
 			//shadow mapping things
 			OGLShader*	shadowShader;
