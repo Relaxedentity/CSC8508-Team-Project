@@ -37,7 +37,7 @@ TutorialGame::TutorialGame()	{
 	
 	testStateObject = nullptr;
 	forceMagnitude	= 10.0f;
-	useGravity		= false;
+	useGravity		= true;
 	inSelectionMode = false;
 	InitialiseAssets();
 }
@@ -82,14 +82,18 @@ TutorialGame::~TutorialGame()	{
 
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
-	LockedObjectMovement();
-	MovePlayer(player);
 	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
 	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
 	if (!inSelectionMode) {
 		world->GetMainCamera()->UpdateCamera(dt);
 	}
 	if (lockedObject) {
+		if (lockedObject == player) {
+			MovePlayer(player);
+		}
+		else {
+			LockedObjectMovement();
+		}
 		Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
 		Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
 
@@ -116,27 +120,23 @@ void TutorialGame::UpdateGame(float dt) {
 		//Debug::Print("(G)ravity off", Vector2(5, 95), Debug::RED);
 	}
 
-	/*RayCollision closestCollision;
+	RayCollision closestCollision;
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::K) && selectionObject) {
-		Vector3 rayPos;
-		Vector3 rayDir;
+		reactphysics3d::Vector3 rayDir = selectionObject->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -1);
+		reactphysics3d::Vector3 rayPos = selectionObject->GetPhysicsObject()->getTransform().getPosition();
 
-		rayDir = selectionObject->GetTransform().GetOrientation() * Vector3(0, 0, -1);
-
-		rayPos = selectionObject->GetTransform().GetPosition();
-
-		Ray r = Ray(rayPos, rayDir);
-
-		if (world->Raycast(r, closestCollision, true, selectionObject)) {
+		reactphysics3d::Ray ray = reactphysics3d::Ray(rayPos, rayPos + rayDir * 1000);
+		SceneContactPoint* closestCollision = world->Raycast(ray);
+		if (closestCollision->isHit) {
 			if (objClosest) {
 				objClosest->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
-				Debug::DrawLine(selectionObject->GetTransform().GetPosition(), objClosest->GetTransform().GetPosition(), Vector4(1, 0, 0, 1));
+				//Debug::DrawLine(Vector3(rayPos), Vector3(rayPos + rayDir * 1000), Vector4(1, 0, 0, 1));
 			}
-			objClosest = (GameObject*)closestCollision.node;
+			objClosest = (GameObject*)closestCollision->object;
 
 			objClosest->GetRenderObject()->SetColour(Vector4(1, 0, 1, 1));
 		}
-	}*/
+	}
 
 	if (testStateObject) {
 		testStateObject->Update(dt);
@@ -155,9 +155,10 @@ void TutorialGame::UpdateGame(float dt) {
 
 			Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 		}
-	}
 
-	
+		reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
+		transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
+	}
 
 	SelectObject();
 	MoveSelectedObject();
@@ -182,8 +183,7 @@ void TutorialGame::UpdateKeys() {
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::G)) {
 		useGravity = !useGravity; //Toggle gravity!
-		reactphysics3d::Vector3 gravity = useGravity ? reactphysics3d::Vector3(0, -9.81, 0) : reactphysics3d::Vector3(0, 0, 0);
-		physicsWorld->setGravity(gravity);
+		physicsWorld->setIsGravityEnabled(useGravity);
 	}
 	//Running certain physics updates in a consistent order might cause some
 	//bias in the calculations - the same objects might keep 'winning' the constraint
@@ -227,27 +227,18 @@ void TutorialGame::UpdateKeys() {
 }
 void TutorialGame::MovePlayer(GameObject* player) {
 	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
-	/*RayCollision floorCollision;
-	Ray r = Ray(player->GetTransform().GetPosition() + Vector3(0, -1, 0), Vector3(0, -1, 0));
-	Debug::DrawLine(player->GetTransform().GetPosition() + Vector3(0, -1, 0), player->GetTransform().GetPosition() + Vector3(0, -2, 0), Vector4(0, 1, 1, 1));
+	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -3, 0));
+	SceneContactPoint* ground = world->Raycast(ray, player);
+	//Debug::DrawLine(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -3, 0), Vector4(0, 1, 1, 1));
 
-	if (world->Raycast(r, floorCollision, true, selectionObject)) {
-		float d = floorCollision.rayDistance;
-		if (d < 2) {
-			onFloor = true;
-		}
-	}*/
-	onFloor = true;
-
+	if (ground->isHit && Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE)) {
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 10, 0));
+	}
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(playerTransform.getOrientation() * reactphysics3d::Vector3(0, 0, -20));
 	}
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
 		player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -15, 0));
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE) && onFloor == true) {
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 100, 0));
-		onFloor = false;
 	}
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
 		player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 15, 0));
@@ -273,22 +264,22 @@ void TutorialGame::LockedObjectMovement() {
 	fwdAxis.y = 0.0f;
 	fwdAxis.Normalise();
 
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-	//	lockedObject->GetPhysicsObject()->AddForce(lockedObject->GetTransform().GetOrientation() * Vector3(0, 0, -7));
-	//}
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-	//	lockedObject->GetPhysicsObject()->AddTorque(Vector3(0, 2, 0));
-	//}
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) {
-	//	lockedObject->GetPhysicsObject()->AddForce(Vector3(0, 50, 0));
-	//}
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-	//	lockedObject->GetPhysicsObject()->AddTorque(Vector3(0, -2, 0));
-	//}
-	//
-	//if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-	//	lockedObject->GetPhysicsObject()->AddForce(lockedObject->GetTransform().GetOrientation() * Vector3(0, 0, 7));
-	//}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+		lockedObject->GetPhysicsObject()->applyWorldForceAtCenterOfMass(lockedObject->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -7));
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+		lockedObject->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 2, 0));
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) {
+		lockedObject->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 50, 0));
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+		lockedObject->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -2, 0));
+	}
+	
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
+		lockedObject->GetPhysicsObject()->applyWorldForceAtCenterOfMass(lockedObject->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, 7));
+	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::NEXT)) {
 		lockedObject->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, -10, 0));
@@ -508,6 +499,7 @@ GameObject* TutorialGame::AddGWBlocksToWorld(const reactphysics3d::Vector3& posi
 	body->setMass(0);
 	reactphysics3d::BoxShape* shape = physics.createBoxShape(halfextents);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	cube->SetPhysicsObject(body);
 	cube->SetRenderObject(new RenderObject(body, Vector3(halfextents) * 2, cubeMesh, basicTex, basicShader));
 
 	world->AddGameObject(cube);
@@ -783,11 +775,13 @@ bool TutorialGame::SelectObject() {
 				selectionObject = nullptr;
 			}
 
-			Ray ray = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
-
-			RayCollision closestCollision;
-			if (world->Raycast(ray, closestCollision, true)) {
-				selectionObject = (GameObject*)closestCollision.node;
+			Ray r = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
+			Vector3 startPos = r.GetPosition();
+			Vector3 endPos = r.GetPosition() + r.GetDirection() * 1000;
+			reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(endPos.x, endPos.y, endPos.z));
+			SceneContactPoint* closestCollision = world->Raycast(ray);
+			if (closestCollision->isHit) {
+				selectionObject = (GameObject*)closestCollision->object;
 
 				selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 				return true;
@@ -829,14 +823,17 @@ void TutorialGame::MoveSelectedObject() {
 	}
 	//Push the selected object!
 	if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::RIGHT)) {
-		/*Ray ray = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
-
-		RayCollision closestCollision;
-		if (world->Raycast(ray, closestCollision, true)) {
-			if (closestCollision.node == selectionObject) {
-				selectionObject->GetPhysicsObject()->AddForceAtPosition(ray.GetDirection() * forceMagnitude, closestCollision.collidedAt);
+		Ray r = CollisionDetection::BuildRayFromMouse(*world->GetMainCamera());
+		Vector3 startPos = r.GetPosition();
+		Vector3 endPos = r.GetPosition() + r.GetDirection() * 1000;
+		reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(endPos.x, endPos.y, endPos.z));
+		SceneContactPoint* closestCollision = world->Raycast(ray);
+		if (closestCollision->isHit) {
+			if (closestCollision->object == selectionObject) {
+				Vector3 force = r.GetDirection() * forceMagnitude;
+				selectionObject->GetPhysicsObject()->applyWorldForceAtWorldPosition(reactphysics3d::Vector3(force.x, force.y, force.z), closestCollision->hitPos);
 			}
-		}*/
+		}
 	}
 }
 
