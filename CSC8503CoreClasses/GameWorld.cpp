@@ -1,15 +1,36 @@
 #include "GameWorld.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "GameObject.h"
 #include "Constraint.h"
 #include "CollisionDetection.h"
 #include "Camera.h"
 
-
 using namespace NCL;
 using namespace NCL::CSC8503;
 
-GameWorld::GameWorld()	{
+rp3d::decimal RaycastManager::notifyRaycastHit(const rp3d::RaycastInfo& raycastInfo) {
+	if (ignoreBody == raycastInfo.body) { return -1; }
+
+	rp3d::Vector3 n = raycastInfo.worldNormal;
+	rp3d::Vector3 hitPos = raycastInfo.worldPoint;
+
+	SceneContactPoint* collision = new SceneContactPoint(); 
+	collision->isHit = true;
+	collision->hitFraction = raycastInfo.hitFraction;
+	collision->hitPos = hitPos;
+	collision->normal = n;
+	collision->body = raycastInfo.body;
+
+	hitPoints.push_back(collision);
+
+	//Debug::DrawLine(hitPos, hitPos + n, Vector4(1, 1, 0, 1), 4.0f);
+	return raycastInfo.hitFraction;
+}
+
+GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 	mainCamera = new Camera();
+	this->physicsWorld = physicsWorld;
+	raycastManager = new RaycastManager();
 
 	shuffleConstraints	= false;
 	shuffleObjects		= false;
@@ -29,6 +50,7 @@ void GameWorld::Clear() {
 
 void GameWorld::ClearAndErase() {
 	for (auto& i : gameObjects) {
+		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
 		delete i;
 	}
 	for (auto& i : constraints) {
@@ -46,6 +68,7 @@ void GameWorld::AddGameObject(GameObject* o) {
 void GameWorld::RemoveGameObject(GameObject* o, bool andDelete) {
 	gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), o), gameObjects.end());
 	if (andDelete) {
+		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
 		delete o;
 	}
 	worldStateCounter++;
@@ -80,39 +103,27 @@ void GameWorld::UpdateWorld(float dt) {
 	}
 }
 
-bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObject, GameObject* ignoreThis) const {
-	//The simplest raycast just goes through each object and sees if there's a collision
-	RayCollision collision;
+SceneContactPoint* GameWorld::Raycast(reactphysics3d::Ray& r, GameObject* ignoreThis) const {
+	raycastManager->clear();
+	if (ignoreThis) { raycastManager->setIgnore(ignoreThis->GetPhysicsObject()); }
+
+	physicsWorld->raycast(r, raycastManager);
+	SceneContactPoint* dummy = new SceneContactPoint();
+	dummy->isHit = false;
+	if (!raycastManager->isHit()) { return dummy; }
+
+	SceneContactPoint* closestHit = raycastManager->getHit();
+	rp3d::Vector3 n = closestHit->normal;
+	rp3d::Vector3 hitPos = closestHit->hitPos;
+	//Debug::DrawLine(hitPos, hitPos + (2 * n), Vector4(1, 0, 0, 1), 4.0f);
 
 	for (auto& i : gameObjects) {
-		if (!i->GetBoundingVolume()) { //objects might not be collideable etc...
-			continue;
-		}
-		if (i == ignoreThis) {
-			continue;
-		}
-		RayCollision thisCollision;
-		if (CollisionDetection::RayIntersection(r, *i, thisCollision)) {
-				
-			if (!closestObject) {	
-				closestCollision		= collision;
-				closestCollision.node = i;
-				return true;
-			}
-			else {
-				if (thisCollision.rayDistance < collision.rayDistance) {
-					thisCollision.node = i;
-					collision = thisCollision;
-				}
-			}
+		if (i->GetPhysicsObject() == closestHit->body) {
+			closestHit->object = i;
 		}
 	}
-	if (collision.node) {
-		closestCollision		= collision;
-		closestCollision.node	= collision.node;
-		return true;
-	}
-	return false;
+
+	return closestHit;
 }
 
 

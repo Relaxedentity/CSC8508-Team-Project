@@ -10,6 +10,7 @@ namespace NCL {
 	class Maths::Vector3;
 	class Maths::Vector4;
 	namespace CSC8503 {
+		class GameObject;
 		class RenderObject;
 
 		class GameTechRenderer : public OGLRenderer	{
@@ -20,6 +21,14 @@ namespace NCL {
 			MeshGeometry*	LoadMesh(const string& name);
 			TextureBase*	LoadTexture(const string& name);
 			ShaderBase*		LoadShader(const string& vertex, const string& fragment);
+
+
+			
+			void RenderHealthBar(float health);
+			void RenderProgressBar(float score);
+			void RenderTimerQuad();
+
+			
 
 		protected:
 			void NewRenderLines();
@@ -36,8 +45,9 @@ namespace NCL {
 			void RenderShadowMap();
 			void RenderCamera(); 
 			void RenderSkybox();
-
+			void Particles();
 			void LoadSkybox();
+
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
 			void SetDebugLineBufferSizes(size_t newVertCount);
@@ -49,10 +59,23 @@ namespace NCL {
 			OGLMesh*	skyboxMesh;
 			GLuint		skyboxTex;
 
+			// health bar shading
+			OGLShader* healthShader;
+			OGLMesh* healthQuad;
+
+			// progress shader
+			OGLShader* progressShader;
+			OGLMesh* progressBar;
+
+			//timer background
+			OGLShader* simpleShader;
+			OGLMesh* quad;
+
 			//shadow mapping things
 			OGLShader*	shadowShader;
 			GLuint		shadowTex;
 			GLuint		shadowFBO;
+			GLuint		particleTex;
 			Matrix4     shadowMatrix;
 
 			Vector4		lightColour;

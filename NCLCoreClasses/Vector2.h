@@ -9,9 +9,14 @@ https://research.ncl.ac.uk/game/
 #pragma once
 #include <iostream>
 
+namespace reactphysics3d {
+	class Vector2;
+}
+
 namespace NCL::Maths {
 	class Vector3;
 	class Vector4;
+
 	class Vector2 {
 	public:
 		union {
@@ -29,6 +34,7 @@ namespace NCL::Maths {
 
 		Vector2(const Vector3& v3);
 		Vector2(const Vector4& v4);
+		Vector2(const reactphysics3d::Vector2& v2);
 
 		~Vector2(void) = default;
 

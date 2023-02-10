@@ -45,7 +45,8 @@ void main(void)
 	if(hasTexture) {
 	 albedo *= texture(mainTex, IN.texCoord);
 	}
-	
+
+
 	albedo.rgb = pow(albedo.rgb, vec3(2.2));
 	
 	fragColor.rgb = albedo.rgb * 0.05f; //ambient
@@ -55,8 +56,12 @@ void main(void)
 	fragColor.rgb += lightColour.rgb * sFactor * shadow; //specular light
 	
 	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / 2.2f));
-	
+
 	fragColor.a = albedo.a;
+
+	if(fragColor.a<0.00001f){
+		discard;
+	}
 
 //fragColor.rgb = IN.normal;
 

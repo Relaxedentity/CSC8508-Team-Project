@@ -1,3 +1,4 @@
+#include <reactphysics3d/reactphysics3d.h>
 #include "Window.h"
 
 #include "Debug.h"
@@ -24,14 +25,13 @@
 #include "BehaviourSequence.h"
 #include "BehaviourAction.h"
 
-
 using namespace NCL;
 using namespace CSC8503;
 
 #include <chrono>
 #include <thread>
 #include <sstream>
-vector <Vector3 > testNodes;
+vector <Vector3> testNodes;
 void TestPathfinding() {
 	NavigationGrid grid("TestGrid2.txt");
 	NavigationPath outPath;
@@ -313,7 +313,7 @@ class IntroScreen : public PushdownState {
 		PushdownState** newState) override {
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RETURN)) {
 			*newState = new GameScreen();
-			g->InitWorld();
+			//g->InitWorld();
 			return PushdownResult::Push;
 		}
 		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::ESCAPE)) {
@@ -322,7 +322,7 @@ class IntroScreen : public PushdownState {
 		return PushdownResult::NoChange;
 	};
 	void OnAwake() override {
-		player->setScore(0);
+		//player->setScore(0);
 		std::cout << "Welcome to a really awesome game!\n";
 		std::cout << "Press Enter To Begin or escape to quit!\n";
 		
@@ -403,6 +403,7 @@ hide or show the
 int main() {
 	w = Window::CreateGameWindow("CSC8503 Game technology!", 1280, 720);
 	g = new NetworkedGame();
+	//g = new TutorialGame();
 	player = g->getPlayer();
 	if (g->getPlayer2() != NULL) {
 		player2 = g->getPlayer2();
@@ -413,7 +414,7 @@ int main() {
 	}	
 
 	w->ShowOSPointer(false);
-	w->LockMouseToWindow(true);
+	w->LockMouseToWindow(false);
 
 	
 	w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!

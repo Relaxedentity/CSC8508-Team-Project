@@ -7,6 +7,7 @@ Comments and queries to: richard-gordon.davison AT ncl.ac.uk
 https://research.ncl.ac.uk/game/
 */
 #include "Matrix4.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "Matrix3.h"
 #include "Maths.h"
 #include "Vector3.h"
@@ -46,7 +47,7 @@ Matrix4::Matrix4(const Matrix3& m3) {
 	array[3][3] = 1.0f;
 }
 
-Matrix4::Matrix4(const Quaternion& quat) : Matrix4() {
+Matrix4::Matrix4(const NCL::Maths::Quaternion& quat) : Matrix4() {
 	float yy = quat.y * quat.y;
 	float zz = quat.z * quat.z;
 	float xy = quat.x * quat.y;

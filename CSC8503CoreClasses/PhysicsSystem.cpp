@@ -180,12 +180,12 @@ void PhysicsSystem::UpdateCollisionList() {
 }
 
 void PhysicsSystem::UpdateObjectAABBs() {
-	std::vector <GameObject*>::const_iterator first;
+	/*std::vector <GameObject*>::const_iterator first;
 	std::vector <GameObject*>::const_iterator last;
 	gameWorld.GetObjectIterators(first, last);
 	for (auto i = first; i != last; ++i) {
 		(*i)->UpdateBroadphaseAABB();
-	}
+	}*/
 }
 
 /*
@@ -229,7 +229,7 @@ so that objects separate back out.
 
 */
 void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const {
-	PhysicsObject* physA = a.GetPhysicsObject();
+	/*PhysicsObject* physA = a.GetPhysicsObject();
 	PhysicsObject* physB = b.GetPhysicsObject();
 	if ((a.GetTag() == 1 && b.GetTag() == 2) || (a.GetTag() == 2 && b.GetTag() == 1)) {
 		if (a.GetTag() == 2) {
@@ -398,7 +398,7 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 	physB->ApplyLinearImpulse(fullImpulseB);
 
 	physA->ApplyAngularImpulse(Vector3::Cross(relativeA, -fullImpulseA));
-	physB->ApplyAngularImpulse(Vector3::Cross(relativeB, fullImpulseB));
+	physB->ApplyAngularImpulse(Vector3::Cross(relativeB, fullImpulseB));*/
 }
 
 /*
@@ -410,7 +410,7 @@ compare the collisions that we absolutely need to.
 
 */
 void PhysicsSystem::BroadPhase() {
-	broadphaseCollisions.clear();
+	/*broadphaseCollisions.clear();
 	QuadTree <GameObject*> tree(Vector2(1024, 1024), 7, 6);
 
 	std::vector <GameObject*>::const_iterator first;
@@ -436,7 +436,7 @@ void PhysicsSystem::BroadPhase() {
 					broadphaseCollisions.insert(info);
 				}
 			}
-		});
+		});*/
 }
 
 /*
@@ -445,7 +445,7 @@ The broadphase will now only give us likely collisions, so we can now go through
 and work out if they are truly colliding, and if so, add them into the main collision list
 */
 void PhysicsSystem::NarrowPhase() {
-	for (std::set <CollisionDetection::CollisionInfo >::iterator
+	/*for (std::set <CollisionDetection::CollisionInfo >::iterator
 		i = broadphaseCollisions.begin();
 		i != broadphaseCollisions.end(); ++i) {
 		CollisionDetection::CollisionInfo info = *i;
@@ -455,7 +455,7 @@ void PhysicsSystem::NarrowPhase() {
 			ImpulseResolveCollision(*info.a, *info.b, info.point);
 			allCollisions.insert(info); // insert into our main set
 		}
-	}
+	}*/
 }
 
 /*
@@ -468,7 +468,7 @@ based on any forces that have been accumulated in the objects during
 the course of the previous game frame.
 */
 void PhysicsSystem::IntegrateAccel(float dt) {
-	std::vector <GameObject*>::const_iterator first;
+	/*std::vector <GameObject*>::const_iterator first;
 	std::vector <GameObject*>::const_iterator last;
 	gameWorld.GetObjectIterators(first, last);
 
@@ -500,7 +500,7 @@ void PhysicsSystem::IntegrateAccel(float dt) {
 		angVel += angAccel * dt; // integrate angular accel!
 		object->SetAngularVelocity(angVel);
 
-	}
+	}*/
 }
 
 /*
@@ -510,7 +510,7 @@ throughout a physics update, to slowly move the objects through
 the world, looking for collisions.
 */
 void PhysicsSystem::IntegrateVelocity(float dt) {
-	std::vector <GameObject*>::const_iterator first;
+	/*std::vector <GameObject*>::const_iterator first;
 	std::vector <GameObject*>::const_iterator last;
 	gameWorld.GetObjectIterators(first, last);
 	float frameLinearDamping = 1.0f - (0.4f * dt);
@@ -543,7 +543,7 @@ void PhysicsSystem::IntegrateVelocity(float dt) {
 		float frameAngularDamping = 1.0f - (0.4f * dt);
 		angVel = angVel * frameAngularDamping;
 		object->SetAngularVelocity(angVel);
-	}
+	}*/
 
 }
 
@@ -553,11 +553,11 @@ clear out any accumulated forces, ready to receive new
 ones in the next 'game' frame.
 */
 void PhysicsSystem::ClearForces() {
-	gameWorld.OperateOnContents(
+	/*gameWorld.OperateOnContents(
 		[](GameObject* o) {
 			o->GetPhysicsObject()->ClearForces();
 		}
-	);
+	);*/
 }
 
 
@@ -569,11 +569,11 @@ us to model springs and ropes etc.
 
 */
 void PhysicsSystem::UpdateConstraints(float dt) {
-	std::vector<Constraint*>::const_iterator first;
+	/*std::vector<Constraint*>::const_iterator first;
 	std::vector<Constraint*>::const_iterator last;
 	gameWorld.GetConstraintIterators(first, last);
 
 	for (auto i = first; i != last; ++i) {
 		(*i)->UpdateConstraint(dt);
-	}
+	}*/
 }

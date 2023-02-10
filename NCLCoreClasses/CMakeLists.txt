@@ -112,6 +112,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     "_CRT_SECURE_NO_WARNINGS;"
     "_MBCS"
+    "NOMINMAX"			
 )
 
 ################################################################################
@@ -142,3 +143,6 @@ if(MSVC)
     )
 endif()
 
+set(LIB_DEPENDENCIES "ReactPhysics3D::ReactPhysics3D")
+
+target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_DEPENDENCIES}")

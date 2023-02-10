@@ -1,11 +1,13 @@
 #include "RenderObject.h"
+#include <reactphysics3d/reactphysics3d.h>
 #include "MeshGeometry.h"
 
 using namespace NCL::CSC8503;
 using namespace NCL;
 
-RenderObject::RenderObject(Transform* parentTransform, MeshGeometry* mesh, TextureBase* tex, ShaderBase* shader) {
-	this->transform	= parentTransform;
+RenderObject::RenderObject(reactphysics3d::RigidBody* rigidBody, const Vector3& scale, MeshGeometry* mesh, TextureBase* tex, ShaderBase* shader) {
+	this->rigidBody = rigidBody;
+	this->scale     = scale;
 	this->mesh		= mesh;
 	this->texture	= tex;
 	this->shader	= shader;

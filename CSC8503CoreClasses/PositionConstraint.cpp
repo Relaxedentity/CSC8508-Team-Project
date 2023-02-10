@@ -2,6 +2,7 @@
 //#include "../../Common/Vector3.h"
 #include "GameObject.h"
 #include "PhysicsObject.h"
+#include <reactphysics3d/reactphysics3d.h>
 //#include "Debug.h"
 
 
@@ -26,8 +27,8 @@ PositionConstraint::~PositionConstraint()
 //from each other...this would be all we need to simulate a rope, or a ragdoll
 void PositionConstraint::UpdateConstraint(float dt)	{
 	Vector3 relativePos =
-		objectA->GetTransform().GetPosition() -
-		objectB->GetTransform().GetPosition();
+		objectA->GetPhysicsObject()->getTransform().getPosition() -
+		objectB->GetPhysicsObject()->getTransform().getPosition();
 
 	float currentDistance = relativePos.Length();
 	float offset = distance - currentDistance;
@@ -35,10 +36,10 @@ void PositionConstraint::UpdateConstraint(float dt)	{
 	if (abs(offset) > 0.0f) {
 		Vector3 offsetDir = relativePos.Normalised();
 
-		PhysicsObject* physA = objectA->GetPhysicsObject();
-		PhysicsObject* physB = objectB->GetPhysicsObject();
+		reactphysics3d::RigidBody* physA = objectA->GetPhysicsObject();
+		reactphysics3d::RigidBody* physB = objectB->GetPhysicsObject();
 
-		Vector3 relativeVelocity = physA->GetLinearVelocity() -
+		/*Vector3 relativeVelocity = physA->GetLinearVelocity() -
 			physB->GetLinearVelocity();
 
 		float constraintMass = physA->GetInverseMass() +
@@ -58,6 +59,6 @@ void PositionConstraint::UpdateConstraint(float dt)	{
 
 			physA->ApplyLinearImpulse(aImpulse);// multiplied by mass here
 			physB->ApplyLinearImpulse(bImpulse);// multiplied by mass here
-		}
+		}*/
 	}
 }

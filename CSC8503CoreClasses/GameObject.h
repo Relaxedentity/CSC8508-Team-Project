@@ -1,26 +1,32 @@
 #pragma once
-#include "Transform.h"
-#include "CollisionVolume.h"
-
 using std::vector;
+
+namespace reactphysics3d {
+	class RigidBody;
+	class Transform;
+	class CollisionCallback;
+}
 
 namespace NCL::CSC8503 {
 	class NetworkObject;
 	class RenderObject;
-	class PhysicsObject;
+	class GameWorld;
 
-	class GameObject	{
+	class GameObjectListener : public reactphysics3d::EventListener {
+	public:
+		GameObjectListener(GameWorld* world) { this->world = world; }
+		~GameObjectListener(){}
+
+		virtual void onContact(const CollisionCallback::CallbackData& callbackData) override;
+	private:
+		GameWorld* world;
+	};
+
+	class GameObject{
 	public:
 		GameObject(std::string name = "");
 		~GameObject();
 
-		void SetBoundingVolume(CollisionVolume* vol) {
-			boundingVolume = vol;
-		}
-
-		const CollisionVolume* GetBoundingVolume() const {
-			return boundingVolume;
-		}
 		void setActive(bool active){
 			isActive = active;
 		}
@@ -33,15 +39,12 @@ namespace NCL::CSC8503 {
 		int GetTag() {
 			return objectTag;
 		}
-		Transform& GetTransform() {
-			return transform;
-		}
 
 		RenderObject* GetRenderObject() const {
 			return renderObject;
 		}
 
-		PhysicsObject* GetPhysicsObject() const {
+		reactphysics3d::RigidBody* GetPhysicsObject() const{
 			return physicsObject;
 		}
 
@@ -57,7 +60,7 @@ namespace NCL::CSC8503 {
 			renderObject = newObject;
 		}
 
-		void SetPhysicsObject(PhysicsObject* newObject) {
+		void SetPhysicsObject(reactphysics3d::RigidBody* newObject) {
 			physicsObject = newObject;
 		}
 
@@ -73,14 +76,12 @@ namespace NCL::CSC8503 {
 			//std::cout << "OnCollisionEnd event occured!\n";
 		}
 
-		bool GetBroadphaseAABB(Vector3& outsize) const;
 		int getScore() {
 			return score;
 		}
 		void setScore(int point) {
 			score = point;
 		}
-		void UpdateBroadphaseAABB();
 
 		void SetWorldID(int newID) {
 			worldID = newID;
@@ -97,10 +98,7 @@ namespace NCL::CSC8503 {
 
 
 	protected:
-		Transform			transform;
-
-		CollisionVolume*	boundingVolume;
-		PhysicsObject*		physicsObject;
+		reactphysics3d::RigidBody*		physicsObject;
 		RenderObject*		renderObject;
 		NetworkObject*		networkObject;
 		GameObject*			associated;
@@ -109,8 +107,6 @@ namespace NCL::CSC8503 {
 		int			worldID;
 		int			objectTag;
 		std::string	name;
-
-		Vector3 broadphaseAABB;
 	};
 }
 

@@ -1,3 +1,4 @@
+#include <reactphysics3d/reactphysics3d.h>
 #include "NetworkedGame.h"
 #include "NetworkPlayer.h"
 #include "NetworkObject.h"
@@ -39,9 +40,9 @@ NetworkedGame::~NetworkedGame()	{
 
 void NetworkedGame::StartAsServer() {
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 4);
-	player2 = AddPlayerToWorld(Vector3(10, 5, -330),2,2);
-	player3 = AddPlayerToWorld(Vector3(15, 5, -330), 3, 3);
-	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);
+	player2 = AddPlayerToWorld(Vector3(10, 5, -330), reactphysics3d::Quaternion::identity(), 2, 2);
+	player3 = AddPlayerToWorld(Vector3(15, 5, -330), reactphysics3d::Quaternion::identity(), 3, 3);
+	player4 = AddPlayerToWorld(Vector3(20, 5, -330), reactphysics3d::Quaternion::identity(), 4, 4);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	//goose->setTarget2(player2);
 	
@@ -51,12 +52,11 @@ void NetworkedGame::StartAsServer() {
 void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient = new GameClient();
 	thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
-	player2 = AddPlayerToWorld(Vector3(10, 5, -330), 2, 2);
-	player3 = AddPlayerToWorld(Vector3(15, 5, -330), 3, 3);
-	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);
+	player2 = AddPlayerToWorld(Vector3(10, 5, -330), reactphysics3d::Quaternion::identity(), 2, 2);
+	player3 = AddPlayerToWorld(Vector3(15, 5, -330), reactphysics3d::Quaternion::identity(), 3, 3);
+	player4 = AddPlayerToWorld(Vector3(20, 5, -330), reactphysics3d::Quaternion::identity(), 4, 4);
 
 	LockCameraToObject(player3);
-	
 	thisClient->RegisterPacketHandler(Delta_State, this);
 	thisClient->RegisterPacketHandler(Full_State, this);
 	thisClient->RegisterPacketHandler(Player_Connected, this);
@@ -90,7 +90,7 @@ void NetworkedGame::UpdateGame(float dt) {
 }
 
 void NetworkedGame::UpdateAsServer(float dt) {
-	movePlayer(player);
+	MovePlayer(player, dt);
 	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisServer->UpdateServer();
 	
@@ -183,8 +183,8 @@ void NetworkedGame::UpdateMinimumState() {
 	int maxID = 0; //we could use this to see if a player is lagging behind?
 
 	for (auto i : stateIDs) {
-		minID = min(minID, i.second);
-		maxID = max(maxID, i.second);
+		minID = std::min(minID, i.second);
+		maxID = std::max(maxID, i.second);
 	}
 	//every client has acknowledged reaching at least state minID
 	//so we can get rid of any old states!
@@ -247,7 +247,7 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 			}
 		}
 		if (type == Received_State) {
-			if (o->getGameObject().GetWorldID() == ((ClientPacket*)payload)->myID+1) {
+			if (o->getGameObject().GetWorldID() == ((ClientPacket*)payload)->myID + 1) {
 				//std::cout << "client" << source << std::endl;
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
 					o->GameobjectMove(1);
