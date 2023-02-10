@@ -124,8 +124,6 @@ void TutorialGame::UpdateGame(float dt) {
 		}
 	}
 
-
-
 	world->SetPlayerHealth(health);
 	timeLimit -= dt;
 
