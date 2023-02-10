@@ -4,11 +4,6 @@
 
 #include "Transform.h"
 #include "GameObject.h"
-
-#include "AABBVolume.h"
-#include "OBBVolume.h"
-#include "SphereVolume.h"
-#include "CapsuleVolume.h"
 #include "Ray.h"
 #include "Plane.h"
 
@@ -62,56 +57,14 @@ namespace NCL {
 			}
 		};
 
-		static bool AABBCapsuleIntersection(
-			const CapsuleVolume& volumeA, const Transform& worldTransformA,
-			const AABBVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
-		static bool SphereCapsuleIntersection(
-			const CapsuleVolume& volumeA, const Transform& worldTransformA,
-			const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
 		//TODO ADD THIS PROPERLY
 		static bool RayBoxIntersection(const Ray&r, const Vector3& boxPos, const Vector3& boxSize, RayCollision& collision);
 
 		static Ray BuildRayFromMouse(const Camera& c);
 
-		static bool RayIntersection(const Ray& r, GameObject& object, RayCollision& collisions);
-
 		static Vector3 ClosestPointOnLine(Vector3 A, Vector3 B, Vector3 point);
 
-		static bool RayAABBIntersection(const Ray&r, const Transform& worldTransform, const AABBVolume&	volume, RayCollision& collision);
-		static bool RayOBBIntersection(const Ray&r, const Transform& worldTransform, const OBBVolume&	volume, RayCollision& collision);
-		static bool RaySphereIntersection(const Ray&r, const Transform& worldTransform, const SphereVolume& volume, RayCollision& collision);
-		static bool RayCapsuleIntersection(const Ray& r, const Transform& worldTransform, const CapsuleVolume& volume, RayCollision& collision);
-
-
 		static bool RayPlaneIntersection(const Ray&r, const Plane&p, RayCollision& collisions);
-
-		static bool	AABBTest(const Vector3& posA, const Vector3& posB, const Vector3& halfSizeA, const Vector3& halfSizeB);
-
-
-		static bool ObjectIntersection(GameObject* a, GameObject* b, CollisionInfo& collisionInfo);
-
-
-		static bool AABBIntersection(	const AABBVolume& volumeA, const Transform& worldTransformA,
-										const AABBVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
-		static bool SphereIntersection(	const SphereVolume& volumeA, const Transform& worldTransformA,
-										const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
-		static bool CapsuleIntersection(const CapsuleVolume& volumeA, const Transform& worldTransformA,
-										const CapsuleVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
-		static bool AABBSphereIntersection(	const AABBVolume& volumeA	 , const Transform& worldTransformA,
-										const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
-		static bool OBBIntersection(	const OBBVolume& volumeA, const Transform& worldTransformA,
-										const OBBVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
-
-		static bool OBBSphereIntersection(const OBBVolume& volumeA, const Transform& worldTransformA,
-			const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo);
-
 
 		static Vector3 Unproject(const Vector3& screenPos, const Camera& cam);
 

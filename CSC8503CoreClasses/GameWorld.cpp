@@ -1,7 +1,6 @@
 #include "GameWorld.h"
 #include <reactphysics3d/reactphysics3d.h>
 #include "GameObject.h"
-#include "Constraint.h"
 #include "CollisionDetection.h"
 #include "Camera.h"
 
@@ -32,7 +31,6 @@ GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 	this->physicsWorld = physicsWorld;
 	raycastManager = new RaycastManager();
 
-	shuffleConstraints	= false;
 	shuffleObjects		= false;
 	worldIDCounter		= 0;
 	worldStateCounter	= 0;
@@ -43,7 +41,6 @@ GameWorld::~GameWorld()	{
 
 void GameWorld::Clear() {
 	gameObjects.clear();
-	constraints.clear();
 	worldIDCounter		= 0;
 	worldStateCounter	= 0;
 }
@@ -51,9 +48,6 @@ void GameWorld::Clear() {
 void GameWorld::ClearAndErase() {
 	for (auto& i : gameObjects) {
 		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
-		delete i;
-	}
-	for (auto& i : constraints) {
 		delete i;
 	}
 	Clear();
@@ -97,10 +91,6 @@ void GameWorld::UpdateWorld(float dt) {
 	if (shuffleObjects) {
 		std::shuffle(gameObjects.begin(), gameObjects.end(), e);
 	}
-
-	if (shuffleConstraints) {
-		std::shuffle(constraints.begin(), constraints.end(), e);
-	}
 }
 
 SceneContactPoint* GameWorld::Raycast(reactphysics3d::Ray& r, GameObject* ignoreThis) const {
@@ -124,27 +114,4 @@ SceneContactPoint* GameWorld::Raycast(reactphysics3d::Ray& r, GameObject* ignore
 	}
 
 	return closestHit;
-}
-
-
-/*
-Constraint Tutorial Stuff
-*/
-
-void GameWorld::AddConstraint(Constraint* c) {
-	constraints.emplace_back(c);
-}
-
-void GameWorld::RemoveConstraint(Constraint* c, bool andDelete) {
-	constraints.erase(std::remove(constraints.begin(), constraints.end(), c), constraints.end());
-	if (andDelete) {
-		delete c;
-	}
-}
-
-void GameWorld::GetConstraintIterators(
-	std::vector<Constraint*>::const_iterator& first,
-	std::vector<Constraint*>::const_iterator& last) const {
-	first	= constraints.begin();
-	last	= constraints.end();
 }
