@@ -41,6 +41,7 @@ TutorialGame::TutorialGame()	{
 	useGravity		= true;
 	inSelectionMode = false;
 	freeCamera		= false;
+	mouseLock		= true;
 	world->SetPlayerHealth(1.0f);
 	InitialiseAssets();
 }
@@ -100,21 +101,24 @@ void TutorialGame::UpdateGame(float dt) {
 		freeCamera = !freeCamera;
 		if (!freeCamera) inSelectionMode = false;
 	}
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::O)) {
+		mouseLock = !mouseLock;
+	}
 
 	if (freeCamera) {
 		if (inSelectionMode) {
 			Window::GetWindow()->ShowOSPointer(true);
-			Window::GetWindow()->LockMouseToWindow(true);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		else {
 			Window::GetWindow()->ShowOSPointer(false);
-			Window::GetWindow()->LockMouseToWindow(true);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		world->GetMainCamera()->UpdateCamera(dt);
 	}
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
-		Window::GetWindow()->LockMouseToWindow(true);
+		Window::GetWindow()->LockMouseToWindow(mouseLock);
 		if (lockedObject == player) {
 			MovePlayer(player, dt);
 		}
@@ -875,7 +879,7 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity(), 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity(), 1, 1);
 	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());

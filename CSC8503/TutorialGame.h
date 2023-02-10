@@ -100,6 +100,7 @@ namespace NCL {
 			bool useGravity;
 			bool inSelectionMode;
 			bool freeCamera;
+			bool mouseLock;
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
