@@ -33,7 +33,7 @@ namespace NCL::CSC8503 {
 		int		lastID;
 		char	buttonstates[8];
 		int		myID;
-		char	orientation[4];
+		float	orientation[4];
 
 		ClientPacket() {
 			type = Received_State;

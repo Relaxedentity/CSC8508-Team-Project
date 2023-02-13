@@ -139,11 +139,11 @@ void NetworkObject::GameobjectMove(int i) {
 	switch (i)
 	{
 	case 1:
-		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -5)); // forward
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, -5)); // forward
 		break;
 
 	case 2:
-		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, 5)); //backward
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, 5)); //backward
 		break;
 
 	case 3:
