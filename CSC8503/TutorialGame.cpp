@@ -39,6 +39,7 @@ TutorialGame::TutorialGame()	{
 	useGravity		= true;
 	inSelectionMode = false;
 	freeCamera		= false;
+	debug           = false;
 	world->SetPlayerHealth(1.0f);
 	InitialiseAssets();
 }
@@ -90,6 +91,13 @@ TutorialGame::~TutorialGame()	{
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
 
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::TAB)) {
+		debug = !debug;
+	}
+	if (debug) {
+		std::string fps = "FPS: " + std::to_string((int)(1 / dt));
+		Debug::Print(fps, Vector2(5, 5), Debug::WHITE);
+	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
 		inSelectionMode = !inSelectionMode;

@@ -101,6 +101,8 @@ namespace NCL {
 
 			float		forceMagnitude;
 
+			bool debug;
+
 			float		health =0.8f;
 			float		timeLimit;
 
