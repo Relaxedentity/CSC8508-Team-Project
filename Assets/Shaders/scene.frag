@@ -9,9 +9,9 @@ uniform float	lightRadius;
 uniform vec4	lightColour;
 
 uniform vec3	cameraPos;
-
+uniform vec4 paintedPos[1000];
 uniform bool hasTexture;
-
+//uniform int paintCount;
 in Vertex
 {
 	vec4 colour;
@@ -55,9 +55,15 @@ void main(void)
 	fragColor.rgb += lightColour.rgb * sFactor * shadow; //specular light
 	
 	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / 2.2f));
-	
+	for(int i = 0; i< 1000;i++){
+		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
+		if(circledist < 10.0f)
+		{
+			fragColor.rgb  *= vec3(1,0,0);
+		}
+	}
 	fragColor.a = albedo.a;
-
+	
 	if(fragColor.a<0.00001f){
 		discard;
 	}

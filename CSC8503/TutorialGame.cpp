@@ -85,12 +85,12 @@ TutorialGame::~TutorialGame()	{
 void TutorialGame::UpdateGame(float dt) {
 	Debug::DrawAxisLines(Matrix4());
 
-	MovePlayer(player, dt);
+	//MovePlayer(player, dt);
 	Debug::Print(std::to_string(player->getScore()), Vector2(5, 95), Debug::RED);
 	Debug::Print(std::to_string(world->GetObjectCount()), Vector2(95, 5), Debug::RED);
-	//if (!inSelectionMode) {
-	//	world->GetMainCamera()->UpdateCamera(dt);
-	//}
+	if (!inSelectionMode) {
+		world->GetMainCamera()->UpdateCamera(dt);
+	}
 	//if (lockedObject) {
 	//	Vector3 objPos = lockedObject->GetPhysicsObject()->getTransform().getPosition();
 	//	Vector3 camPos = (objPos + Quaternion(lockedObject->GetPhysicsObject()->getTransform().getOrientation()) * lockedOffset);
@@ -969,7 +969,7 @@ bool TutorialGame::SelectObject() {
 	if (inSelectionMode) {
 		//Debug::Print("Press Q to change to camera mode!", Vector2(5, 85));
 
-		if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT)) {
+		if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT)) {
 			if (selectionObject) {	//set colour to deselected;
 				selectionObject->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
 				selectionObject = nullptr;
@@ -980,10 +980,16 @@ bool TutorialGame::SelectObject() {
 			Vector3 endPos = r.GetPosition() + r.GetDirection() * 1000;
 			reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(endPos.x, endPos.y, endPos.z));
 			SceneContactPoint* closestCollision = world->Raycast(ray);
+			Debug::DrawLine(startPos, endPos, Vector4(0, 1, 1, 1), 3);
 			if (closestCollision->isHit) {
 				selectionObject = (GameObject*)closestCollision->object;
 
-				selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
+				//selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
+				world->painted.push_back(closestCollision->hitPos);
+				for (Vector4 x : world->painted) {
+					std::cout << x<<"\n";
+				}
+				//std::cout << world->painted[0];
 				return true;
 			}
 			else {

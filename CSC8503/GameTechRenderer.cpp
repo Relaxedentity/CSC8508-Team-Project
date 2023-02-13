@@ -228,10 +228,11 @@ void GameTechRenderer::RenderCamera() {
 	int hasVColLocation = 0;
 	int hasTexLocation  = 0;
 	int shadowLocation  = 0;
-
+	int paintedLocation = 0;
 	int lightPosLocation	= 0;
 	int lightColourLocation = 0;
 	int lightRadiusLocation = 0;
+	int paintCount = 0;
 
 	int cameraLocation = 0;
 
@@ -246,26 +247,36 @@ void GameTechRenderer::RenderCamera() {
 		BindTextureToShader((OGLTexture*)(*i).GetDefaultTexture(), "mainTex", 0);
 
 		if (activeShader != shader) {
-			projLocation	= glGetUniformLocation(shader->GetProgramID(), "projMatrix");
-			viewLocation	= glGetUniformLocation(shader->GetProgramID(), "viewMatrix");
-			modelLocation	= glGetUniformLocation(shader->GetProgramID(), "modelMatrix");
-			shadowLocation  = glGetUniformLocation(shader->GetProgramID(), "shadowMatrix");
-			colourLocation  = glGetUniformLocation(shader->GetProgramID(), "objectColour");
+			projLocation = glGetUniformLocation(shader->GetProgramID(), "projMatrix");
+			viewLocation = glGetUniformLocation(shader->GetProgramID(), "viewMatrix");
+			modelLocation = glGetUniformLocation(shader->GetProgramID(), "modelMatrix");
+			shadowLocation = glGetUniformLocation(shader->GetProgramID(), "shadowMatrix");
+			colourLocation = glGetUniformLocation(shader->GetProgramID(), "objectColour");
 			hasVColLocation = glGetUniformLocation(shader->GetProgramID(), "hasVertexColours");
-			hasTexLocation  = glGetUniformLocation(shader->GetProgramID(), "hasTexture");
+			hasTexLocation = glGetUniformLocation(shader->GetProgramID(), "hasTexture");
 
-			lightPosLocation	= glGetUniformLocation(shader->GetProgramID(), "lightPos");
+			lightPosLocation = glGetUniformLocation(shader->GetProgramID(), "lightPos");
 			lightColourLocation = glGetUniformLocation(shader->GetProgramID(), "lightColour");
 			lightRadiusLocation = glGetUniformLocation(shader->GetProgramID(), "lightRadius");
 
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
+			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
 
 			Vector3 camPos = gameWorld.GetMainCamera()->GetPosition();
+			
+			
+			for (int i = 0; i < gameWorld.painted.size();i++) {
+				Vector4 paintedPos = Vector4(gameWorld.painted[i], 0);
+				char buffer[64];
+				sprintf_s(buffer, "paintedPos[%i]", i);
+				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
+				glUniform4fv(paintedLocation, 1, paintedPos.array);
+			}
 			glUniform3fv(cameraLocation, 1, camPos.array);
-
 			glUniformMatrix4fv(projLocation, 1, false, (float*)&projMatrix);
 			glUniformMatrix4fv(viewLocation, 1, false, (float*)&viewMatrix);
-
+			//int size = gameWorld.painted.size();
+			//glUniform1f(paintCount,size);
 			glUniform3fv(lightPosLocation	, 1, (float*)&lightPosition);
 			glUniform4fv(lightColourLocation, 1, (float*)&lightColour);
 			glUniform1f(lightRadiusLocation , lightRadius);

@@ -121,7 +121,7 @@ namespace NCL {
 			int GetWorldStateID() const {
 				return worldStateCounter;
 			}
-
+			vector<Vector3> painted;
 		protected:
 			std::vector<GameObject*> gameObjects;
 			std::vector<Constraint*> constraints;
