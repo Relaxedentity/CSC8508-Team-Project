@@ -147,6 +147,30 @@ void NetworkedGame::UpdateAsClient(float dt) {
 			newPacket.buttonstates[0] = 5;
 			newPacket.lastID = lastID;
 		}
+		reactphysics3d::Quaternion goatRot;
+		switch (thisClient->clientID) {
+		case 1:
+			goatRot = player2->GetPhysicsObject()->getTransform().getOrientation();
+			newPacket.orientation[0] = goatRot.x;
+			newPacket.orientation[1] = goatRot.y;
+			newPacket.orientation[2] = goatRot.z;
+			newPacket.orientation[3] = goatRot.w;
+			break;
+		case 2:
+			goatRot = player3->GetPhysicsObject()->getTransform().getOrientation();
+			newPacket.orientation[0] = goatRot.x;
+			newPacket.orientation[1] = goatRot.y;
+			newPacket.orientation[2] = goatRot.z;
+			newPacket.orientation[3] = goatRot.w;
+			break;
+		case 3:
+			goatRot = player4->GetPhysicsObject()->getTransform().getOrientation();
+			newPacket.orientation[0] = goatRot.x;
+			newPacket.orientation[1] = goatRot.y;
+			newPacket.orientation[2] = goatRot.z;
+			newPacket.orientation[3] = goatRot.w;
+			break;
+		}
 	
 	lastID++;
 	thisClient->SendPacket(newPacket);
@@ -263,7 +287,8 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 5) {
 					o->GameobjectMove(5);
-				}
+				}			
+				o->GameObjectRotate(reactphysics3d::Quaternion(((ClientPacket*)payload)->orientation[0], ((ClientPacket*)payload)->orientation[1], ((ClientPacket*)payload)->orientation[2], ((ClientPacket*)payload)->orientation[3]));
 			}
 		}
 

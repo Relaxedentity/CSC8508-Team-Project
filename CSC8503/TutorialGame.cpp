@@ -245,6 +245,7 @@ void TutorialGame::UpdateKeys() {
 		DebugObjectMovement();
 	}
 }
+
 void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
 		thirdPerson = !thirdPerson;

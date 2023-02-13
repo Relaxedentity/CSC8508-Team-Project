@@ -159,3 +159,15 @@ void NetworkObject::GameobjectMove(int i) {
 		break;
 	}
 }
+
+void NetworkObject::GameObjectRotate(reactphysics3d::Quaternion goatRot) {
+	GameObject& g = getGameObject();
+
+
+
+	reactphysics3d::Vector3 objPos = g.GetPhysicsObject()->getTransform().getPosition();
+	reactphysics3d::Transform newTransform = reactphysics3d::Transform(objPos, goatRot);
+
+	g.GetPhysicsObject()->setTransform(newTransform);
+
+}
