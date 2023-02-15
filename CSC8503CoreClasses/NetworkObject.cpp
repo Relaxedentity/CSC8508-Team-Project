@@ -2,6 +2,7 @@
 #include "./enet/enet.h"
 #include "Window.h"
 #include <reactphysics3d/reactphysics3d.h>
+#include "Maths.h"
 using namespace NCL;
 using namespace CSC8503;
 
@@ -134,40 +135,55 @@ void NetworkObject::UpdateStateHistory(int minID) {
 	}
 }
 
-void NetworkObject::GameobjectMove(int i) {
+void NetworkObject::GameobjectMove(int i, Quaternion yaw, bool grounded) {
+	Vector3 trajectory;
 	GameObject& g = getGameObject();
 	switch (i)
 	{
 	case 1:
-		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, -5)); // forward
+		trajectory = grounded ? yaw * Vector3(0, 0, -15) : yaw * Vector3(0, 0, -7);
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		//g.GetPhysicsObject()->applyLocalForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, -5)); // forward
 		break;
 
 	case 2:
-		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, 5)); //backward
+		trajectory = grounded ? yaw * Vector3(0, 0, 15) : yaw * Vector3(0, 0, 7);
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		//g.GetPhysicsObject()->applyLocalForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, 5)); //backward
 		break;
 
 	case 3:
-		g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 2, 0)); //left
+		trajectory = grounded ? yaw * Vector3(-15, 0, 0) : yaw * Vector3(-7, 0, 0);
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		//g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 2, 0)); //left
 		break;
 
 	case 4:
-		g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -2, 0)); //right
+		trajectory = grounded ? yaw * Vector3(15, 0, 0) : yaw * Vector3(7, 0, 0);
+		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		//g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -2, 0)); //right
 		break;
 
 	case 5:
-		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 50, 0)); //up
+		if (grounded) {
+			g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0)); //up
+		}
 		break;
 	}
 }
 
-void NetworkObject::GameObjectRotate(reactphysics3d::Quaternion goatRot) {
+void NetworkObject::GameObjectRotate(Quaternion yaw) {
 	GameObject& g = getGameObject();
 
+	Vector3 currentVelocity = Vector3(g.GetPhysicsObject()->getLinearVelocity());
+	float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / NCL::Maths::PI);
+	Quaternion startRotation = Quaternion(g.GetPhysicsObject()->getTransform().getOrientation());
+	Quaternion realRotation = Quaternion::Lerp(startRotation, yaw, 0.5f);
+	Vector3 torque = (startRotation.Conjugate() * realRotation).ToEuler();
+	g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torque.x * 15, torque.y * 15, torque.z * 15));
 
+	//reactphysics3d::Vector3 pos = g.GetPhysicsObject()->getTransform().getPosition();
 
-	reactphysics3d::Vector3 objPos = g.GetPhysicsObject()->getTransform().getPosition();
-	reactphysics3d::Transform newTransform = reactphysics3d::Transform(objPos, goatRot);
-
-	g.GetPhysicsObject()->setTransform(newTransform);
-
+	//reactphysics3d::Transform newTransform = reactphysics3d::Transform(pos, reactphysics3d::Quaternion(realRotation.x, realRotation.y, realRotation.z, realRotation.w));
+	//g.GetPhysicsObject()->setTransform(newTransform);
 }

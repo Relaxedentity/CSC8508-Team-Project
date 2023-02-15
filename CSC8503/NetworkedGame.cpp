@@ -105,19 +105,23 @@ void NetworkedGame::UpdateAsServer(float dt) {
 }
 
 void NetworkedGame::UpdateAsClient(float dt) {
-	reactphysics3d::Quaternion goatRot;
+	reactphysics3d::Quaternion yaw;
+	bool grounded = false;
 	switch (thisClient->clientID) {
 	case 1:
 		MovePlayer(player2, dt);
-		goatRot = player2->GetPhysicsObject()->getTransform().getOrientation();
+		yaw = player2->GetYaw();
+		grounded = player2->IsGrounded();
 		break;
 	case 2:
-		MovePlayer(player3, dt);
-		goatRot = player3->GetPhysicsObject()->getTransform().getOrientation();
+		MovePlayer(player3, dt); 
+		yaw = player3->GetYaw();
+		grounded = player3->IsGrounded();
 		break;
 	case 3:
 		MovePlayer(player4, dt);
-		goatRot = player4->GetPhysicsObject()->getTransform().getOrientation();
+		yaw = player4->GetYaw();
+		grounded = player4->IsGrounded();
 		break;
 	}
 	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
@@ -125,36 +129,37 @@ void NetworkedGame::UpdateAsClient(float dt) {
 
 	ClientPacket newPacket;
 	newPacket.myID = thisClient->clientID;
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-			//fire button pressed!
-			newPacket.buttonstates[0] = 1;
-			newPacket.lastID = lastID; //You'll need to work this out somehow...
-		}
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-			//fire button pressed!
-			newPacket.buttonstates[0] = 2;
-			newPacket.lastID = lastID;
-		}
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-			//fire button pressed!
-			newPacket.buttonstates[0] = 3;
-			newPacket.lastID = lastID;
-		}
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-			//fire button pressed!
-			newPacket.buttonstates[0] = 4;
-			newPacket.lastID = lastID;
-		}
-		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) {
-			//fire button pressed!
-			newPacket.buttonstates[0] = 5;
-			newPacket.lastID = lastID;
-		}
-		newPacket.orientation[0] = goatRot.x;
-		newPacket.orientation[1] = goatRot.y;
-		newPacket.orientation[2] = goatRot.z;
-		newPacket.orientation[3] = goatRot.w;
-		//std::cout << goatRot << "\n";
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
+		//fire button pressed!
+		newPacket.buttonstates[0] = 1;
+		newPacket.lastID = lastID; //You'll need to work this out somehow...
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
+		//fire button pressed!
+		newPacket.buttonstates[0] = 2;
+		newPacket.lastID = lastID;
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
+		//fire button pressed!
+		newPacket.buttonstates[0] = 3;
+		newPacket.lastID = lastID;
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
+		//fire button pressed!
+		newPacket.buttonstates[0] = 4;
+		newPacket.lastID = lastID;
+	}
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE)) {
+		//fire button pressed!
+		newPacket.buttonstates[0] = 5;
+		newPacket.lastID = lastID;
+	}
+	newPacket.yaw[0] = yaw.x;
+	newPacket.yaw[1] = yaw.y;
+	newPacket.yaw[2] = yaw.z;
+	newPacket.yaw[3] = yaw.w;
+	newPacket.yaw[4] = grounded ? 1 : 0;
+	//std::cout << goatRot << "\n";
 
 	
 	lastID++;
@@ -261,31 +266,29 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				// o->GameObjectRotate(reactphysics3d::Quaternion(((ClientPacket*)payload)->orientation[0],
 				//((ClientPacket*)payload)->orientation[1], ((ClientPacket*)payload)->orientation[2], ((ClientPacket*)payload)->orientation[3]));
 				//std::cout << ((ClientPacket*)payload)->orientation[0] << ((ClientPacket*)payload)->orientation[1] << ((ClientPacket*)payload)->orientation[2] << ((ClientPacket*)payload)->orientation[3];
+				Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
+				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
 					std::cout << "poop 1\n";
-					o->GameobjectMove(1);
+					o->GameobjectMove(1, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 2) {
 					std::cout << "poop 2\n";
-					o->GameobjectMove(2);
+					o->GameobjectMove(2, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 3) {
 					std::cout << "poop 3\n";
-					o->GameobjectMove(3);
+					o->GameobjectMove(3, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 4) {
 					std::cout << "poop 4\n";
-					o->GameobjectMove(4);
+					o->GameobjectMove(4, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 5) {
 					std::cout << "poop 5\n";
-					o->GameobjectMove(5);
-				}			
-				if (((ClientPacket*)payload)->orientation[0]) {
-					std::cout << "poop 6\n";
-					o->GameObjectRotate(reactphysics3d::Quaternion(((ClientPacket*)payload)->orientation[0],
-						((ClientPacket*)payload)->orientation[1], ((ClientPacket*)payload)->orientation[2], ((ClientPacket*)payload)->orientation[3]));
-				}
+					o->GameobjectMove(5, yaw, grounded);
+				}	
+				o->GameObjectRotate(yaw);
 			}
 		}
 

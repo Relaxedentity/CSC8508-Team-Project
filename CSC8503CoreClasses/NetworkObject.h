@@ -33,7 +33,7 @@ namespace NCL::CSC8503 {
 		int		lastID;
 		char	buttonstates[8];
 		int		myID;
-		float	orientation[4];
+		float	yaw[5];
 
 		ClientPacket() {
 			type = Received_State;
@@ -66,8 +66,8 @@ namespace NCL::CSC8503 {
 		int GetNetworkID() {
 			return networkID;
 		}
-		void GameobjectMove(int i);
-		void GameObjectRotate(reactphysics3d::Quaternion goatRot);
+		void GameobjectMove(int i, Quaternion yaw, bool grounded);
+		void GameObjectRotate(Quaternion yaw);
 
 	protected:
 
@@ -91,5 +91,7 @@ namespace NCL::CSC8503 {
 		int fullErrors;
 
 		int networkID;
+
+		bool updateWaiting = false;
 	};
 }

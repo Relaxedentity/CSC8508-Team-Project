@@ -270,56 +270,54 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	}
 
 	Quaternion Yaw = Quaternion(world->GetMainCamera()->GetRotationYaw());
+	player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
 
 	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
 	Vector3 endVelocity = Vector3(0, 0, 0);
 
-	bool onFloor = false;
 	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
 	SceneContactPoint* ground = world->Raycast(ray, player);
-	if (ground->isHit) {
-		onFloor = true;
-	}
+	player->setGrounded(ground->isHit);
 
 	bool directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 		directionInput = true;
 	}
-	if (!directionInput && onFloor) {
+	if (!directionInput && player->IsGrounded()) {
 		float scalar = (1 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && onFloor) {
+	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
 		endVelocity.Normalise();
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && onFloor) {
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && player->IsGrounded()) {
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
 
