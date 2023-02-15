@@ -119,6 +119,8 @@ namespace NCL {
 			MeshGeometry*	enemyMesh	= nullptr;
 			MeshGeometry*	bonusMesh	= nullptr;
 
+			MeshGeometry*	 testMesh	= nullptr;
+
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
 			void LockCameraToObject(GameObject* o) {

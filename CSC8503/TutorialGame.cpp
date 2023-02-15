@@ -58,6 +58,7 @@ void TutorialGame::InitialiseAssets() {
 	bonusMesh	= renderer->LoadMesh("apple.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
 	gooseMesh = renderer->LoadMesh("goose.msh");
+	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
@@ -78,6 +79,10 @@ TutorialGame::~TutorialGame()	{
 	delete charMesh;
 	delete enemyMesh;
 	delete bonusMesh;
+	delete capsuleMesh;
+	delete gooseMesh;
+
+	delete testMesh;
 
 	delete basicTex;
 	delete basicShader;
@@ -251,6 +256,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
 	Vector3 objPos = Vector3(playerTransform.getPosition());
 
+	Quaternion goatStartRotation;
 	Quaternion goatRealRotation;
 
 	Vector3 camPos;
@@ -322,18 +328,38 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		Vector3 currentVelocity = Vector3(lockedObject->GetPhysicsObject()->getLinearVelocity());
 		float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
 		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
-		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
 	}
 	else {
 		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
-		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
 	}
 
 	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
-
+	
 	player->GetPhysicsObject()->setTransform(newTransform);
+
+	//reactphysics3d::Quaternion tempQuart = reactphysics3d::Quaternion(goatStartRotation.x, goatStartRotation.y, goatStartRotation.z, goatStartRotation.w);
+	//tempQuart.inverse();
+	//goatRealRotation = Quaternion(tempQuart) * goatRealRotation;
+	//Vector3 torqueVector = goatRealRotation.ToEuler();
+	//
+	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
+		GameObject* projectile = AddSphereToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5);
+		
+		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
+		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+		
+		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -250));
+	}
+
+
+
+	// splines, curves, improve interpolation, TCB curves
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
@@ -378,9 +404,7 @@ void TutorialGame::cameraInterpolation(Vector3 target, float dt) {
 }
 
 Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos) {
-	Matrix4 Pitch = world->GetMainCamera()->GetRotationPitch();
-	Matrix4 Yaw = world->GetMainCamera()->GetRotationYaw();
-	Quaternion rotationAmount = Quaternion(Yaw) * Quaternion(Pitch);
+	Quaternion rotationAmount = Quaternion(world->GetMainCamera()->GetRotationYaw()) * Quaternion(world->GetMainCamera()->GetRotationPitch());
 
 	orbitScalar -= Window::GetMouse()->GetWheelMovement();
 	orbitScalar = NCL::Maths::Clamp(orbitScalar, orbitScalarMin, orbitScalarMax);
@@ -401,11 +425,9 @@ Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos) {
 }
 
 Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos) {
-	Matrix4 Pitch = world->GetMainCamera()->GetRotationPitch();
-	Matrix4 Yaw = world->GetMainCamera()->GetRotationYaw();
 
 	objPos = objPos + Vector3(0, thirdPersonYScalar, 0);
-	Quaternion rotationAmount = Quaternion(Yaw) * Quaternion(Pitch);
+	Quaternion rotationAmount = Quaternion(world->GetMainCamera()->GetRotationYaw()) * Quaternion(world->GetMainCamera()->GetRotationPitch());
 
 	Vector3 endVector = Vector3(thirdPersonXScalar, 0, thirdPersonZScalar);
 
@@ -430,8 +452,7 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos) {
 			endVector.z = distance;
 		}
 	}
-	Vector3 camPos = objPos + rotationAmount * endVector;
-	return camPos;
+	return objPos + rotationAmount * endVector;
 }
 
 
@@ -723,7 +744,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& positi
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(1.5f, 2.5f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, nullptr, charShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), testMesh, nullptr, charShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
