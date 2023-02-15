@@ -744,7 +744,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& positi
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(1.5f, 2.5f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), testMesh, nullptr, charShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, nullptr, charShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
@@ -915,7 +915,7 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity());
+	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, -15, -335), reactphysics3d::Quaternion::identity());
 	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
