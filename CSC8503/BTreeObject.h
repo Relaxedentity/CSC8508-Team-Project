@@ -7,10 +7,10 @@ namespace NCL {
 		class StateMachine;
 		class BTreeObject : public GameObject {
 		public:
-			BTreeObject(std::vector<NCL::Maths::Vector3> testNodes);
+			BTreeObject(GameWorld* world,std::vector<NCL::Maths::Vector3> testNodes);
 			~BTreeObject();
 
-			virtual void Update(float dt);
+			void Update(float dt) override;
 			NCL::Maths::Vector3 getTargerPosition() {
 				return targetPosition;
 			};

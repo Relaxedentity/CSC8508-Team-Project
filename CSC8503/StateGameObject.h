@@ -6,10 +6,10 @@ namespace NCL {
         class StateMachine;
         class StateGameObject : public GameObject  {
         public:
-            StateGameObject(std::vector<NCL::Maths::Vector3> testNodes);
+            StateGameObject(GameWorld* world, std::vector<NCL::Maths::Vector3> testNodes);
             ~StateGameObject();
 
-            virtual void Update(float dt);
+            void Update(float dt) override;
 			NCL::Maths::Vector3 getTargerPosition() {
 				return targetPosition;
 			};
