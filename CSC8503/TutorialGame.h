@@ -30,6 +30,7 @@ namespace NCL {
 			virtual void UpdateGame(float dt);
 			GameObject* player;
 			GameObject* emitter;
+			
 			GameObject* player2;
 			GameWorld* GetGameWorld() {
 				return world;
