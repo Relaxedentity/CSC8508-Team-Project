@@ -15,6 +15,7 @@ namespace reactphysics3d {
 namespace NCL {
 	namespace CSC8503 {
 		class GameObject;
+		class Projectile;
 		class TutorialGame		{
 		public:
 			void InitWorld();
@@ -29,6 +30,7 @@ namespace NCL {
 			virtual void UpdateGame(float dt);
 			GameObject* player;
 			GameObject* emitter;
+			
 			GameObject* player2;
 			GameWorld* GetGameWorld() {
 				return world;
@@ -68,7 +70,7 @@ namespace NCL {
 			BTreeObject* goose;
 
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
-			GameObject* AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
+			Projectile* AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);

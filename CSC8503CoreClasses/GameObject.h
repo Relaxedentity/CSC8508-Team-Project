@@ -6,6 +6,9 @@ namespace reactphysics3d {
 	class Transform;
 	class CollisionCallback;
 }
+namespace NCL::Maths {
+	class Vector3;
+}
 
 namespace NCL::CSC8503 {
 	class NetworkObject;
@@ -24,9 +27,9 @@ namespace NCL::CSC8503 {
 
 	class GameObject{
 	public:
-		GameObject(std::string name = "");
+		GameObject(GameWorld* world, std::string name = "");
 		~GameObject();
-
+		virtual void Update(float dt){};
 		void setActive(bool active){
 			isActive = active;
 		}
@@ -95,7 +98,7 @@ namespace NCL::CSC8503 {
 		int		GetWorldID() const {
 			return worldID;
 		}
-
+		NCL::Maths::Vector3 collisionPoint;
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;
@@ -107,6 +110,8 @@ namespace NCL::CSC8503 {
 		int			worldID;
 		int			objectTag;
 		std::string	name;
+		GameWorld* world;
+		
 	};
 }
 
