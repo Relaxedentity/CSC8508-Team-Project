@@ -84,6 +84,9 @@ namespace NCL {
 			void AddHedgeMazeToWorld();
 
 
+			// Making Rebellion mesh-based objects
+			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
@@ -114,14 +117,24 @@ namespace NCL {
 
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
-			ShaderBase*		charShader = nullptr;
+			ShaderBase*		charShader	= nullptr;
 
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
 			MeshGeometry*	enemyMesh	= nullptr;
 			MeshGeometry*	bonusMesh	= nullptr;
 
-			MeshGeometry*	 testMesh	= nullptr;
+			// Rebellion Assets
+			TextureBase*	chairTex	= nullptr;
+			MeshGeometry*	chairMesh	= nullptr;
+
+			TextureBase*	corridorTexture			= nullptr;
+			MeshGeometry*	corridorStraightMesh	= nullptr;
+			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
+			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
+
+			// Test Mesh for quick changing
+			MeshGeometry*	testMesh	= nullptr;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;

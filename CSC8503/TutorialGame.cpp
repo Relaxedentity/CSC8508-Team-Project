@@ -58,12 +58,24 @@ void TutorialGame::InitialiseAssets() {
 	enemyMesh	= renderer->LoadMesh("Keeper.msh");
 	bonusMesh	= renderer->LoadMesh("apple.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
-	gooseMesh = renderer->LoadMesh("goose.msh");
-	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
+	gooseMesh = renderer->LoadMesh("goose.msh");	
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
+
+	//Rebellion assets
+	//testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
+
+	corridorTexture			= renderer->LoadTexture("corridor_wall_c.tga");
+	corridorStraightMesh	= renderer->LoadMesh("corridor_Wall_Straight_Mid_end_L.msh");
+	corridorCornerRightSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_L.msh");
+	corridorCornerLeftSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_R.msh");
+	
+	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
+	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
+
+	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
 	timeLimit = 300;
 
@@ -83,10 +95,19 @@ TutorialGame::~TutorialGame()	{
 	delete capsuleMesh;
 	delete gooseMesh;
 
-	delete testMesh;
-
 	delete basicTex;
 	delete basicShader;
+
+
+	delete chairTex;
+	delete chairMesh;
+
+	delete corridorTexture;
+	delete corridorStraightMesh;
+	delete corridorCornerRightSideMesh;
+	delete corridorCornerLeftSideMesh;
+
+	delete testMesh;
 
 	delete renderer;
 	delete world;
@@ -744,10 +765,10 @@ GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& positi
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
 	body->setMass(2.0f);
-	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(1.5f, 2.5f);
+	reactphysics3d::SphereShape* shape = physics.createSphereShape(1.0f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), testMesh, nullptr, charShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, basicTex, charShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
@@ -918,7 +939,10 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity());
+	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, -15, -335), reactphysics3d::Quaternion::identity());
+
+	AddRebWallMainToWorld(reactphysics3d::Vector3(-15, -18, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 1, 1));
+
 	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
@@ -958,6 +982,26 @@ void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing,
 		}
 	}
 }
+
+
+// Rebellion Asset Objects
+GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale) {
+	GameObject* wall = new GameObject();
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::STATIC);
+	body->setMass(0);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.5 * scale.y, 0.1 * scale.z));
+	reactphysics3d::Transform collisionOffset(reactphysics3d::Vector3(0, 0, -1), reactphysics3d::Quaternion::identity());
+	reactphysics3d::Collider* collider = body->addCollider(shape, collisionOffset);
+	wall->SetPhysicsObject(body);
+	wall->SetRenderObject(new RenderObject(body, Vector3(scale), corridorStraightMesh, basicTex, basicShader));
+
+	world->AddGameObject(wall);
+
+	return wall;
+}
+
 
 /*
 Every frame, this code will let you perform a raycast, to see if there's an object
