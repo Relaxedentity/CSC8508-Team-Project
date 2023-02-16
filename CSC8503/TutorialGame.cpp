@@ -40,6 +40,7 @@ TutorialGame::TutorialGame()	{
 	useGravity		= true;
 	inSelectionMode = false;
 	freeCamera		= false;
+	mouseLock		= true;
 	world->SetPlayerHealth(1.0f);
 	InitialiseAssets();
 }
@@ -125,27 +126,28 @@ void TutorialGame::UpdateGame(float dt) {
 		freeCamera = !freeCamera;
 		if (!freeCamera) inSelectionMode = false;
 	}
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::O)) {
+		mouseLock = !mouseLock;
+	}
 
 	if (freeCamera) {
 		if (inSelectionMode) {
 			Window::GetWindow()->ShowOSPointer(true);
-			Window::GetWindow()->LockMouseToWindow(true);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		else {
 			Window::GetWindow()->ShowOSPointer(false);
-			Window::GetWindow()->LockMouseToWindow(true);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		world->GetMainCamera()->UpdateCamera(dt);
 	}
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
-		Window::GetWindow()->LockMouseToWindow(true);
+		Window::GetWindow()->LockMouseToWindow(mouseLock);
 		if (lockedObject == player) {
 			MovePlayer(player, dt);
 		}
 	}
-
-
 
 	world->SetPlayerHealth(health);
 	timeLimit -= dt;
@@ -268,6 +270,7 @@ void TutorialGame::UpdateKeys() {
 		DebugObjectMovement();
 	}
 }
+
 void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
 		thirdPerson = !thirdPerson;
@@ -293,56 +296,54 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	}
 
 	Quaternion Yaw = Quaternion(world->GetMainCamera()->GetRotationYaw());
+	player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
 
 	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
 	Vector3 endVelocity = Vector3(0, 0, 0);
 
-	bool onFloor = false;
 	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
 	SceneContactPoint* ground = world->Raycast(ray, player);
-	if (ground->isHit) {
-		onFloor = true;
-	}
+	player->setGrounded(ground->isHit);
 
 	bool directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
-		Vector3 trajectory = onFloor ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 		directionInput = true;
 	}
-	if (!directionInput && onFloor) {
+	if (!directionInput && player->IsGrounded()) {
 		float scalar = (1 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && onFloor) {
+	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
 		endVelocity.Normalise();
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && onFloor) {
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && player->IsGrounded()) {
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
 
@@ -756,7 +757,7 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 	return floor;
 }
 
-GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
+GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID) {
 	GameObject* character = new GameObject(world);
 	character->SetTag(1);
 	character->setScore(0);
@@ -771,33 +772,11 @@ GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& positi
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
-	character->SetWorldID(1);
-	NetworkObject* n = new NetworkObject(*character, 1);
+	character->SetWorldID(worldID);
+	NetworkObject* n = new NetworkObject(*character, netID);
 
 	return character;
 }
-
-GameObject* TutorialGame::AddPlayer2ToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
-	GameObject* character = new GameObject(world);
-	character->SetTag(1);
-	character->setScore(0);
-	reactphysics3d::Transform transform(position, orientation);
-	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
-	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
-	body->setMass(2.0f);
-	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(1.5f, 2.5f);
-	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
-	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, nullptr, basicShader));
-	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
-
-	world->AddGameObject(character);
-	character->SetWorldID(2);
-	NetworkObject* n = new NetworkObject(*character, 2);
-
-	return character;
-}
-
 
 GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
 	GameObject* character = new GameObject(world);
@@ -985,7 +964,7 @@ void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacin
 void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing) {
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
-			reactphysics3d::Vector3 position = reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing);
+		    reactphysics3d::Vector3 position = reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing);
 
 			if (rand() % 2) {
 				AddCubeToWorld(position, reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(0.5f, 0.5f, 0.5f));
