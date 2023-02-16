@@ -22,6 +22,7 @@ Projectile::~Projectile() {
 void Projectile::OnCollisionBegin(GameObject* otherObject) {
 
 	std::cout << collisionPoint << std::endl;
+	world->painted.push_back(collisionPoint);
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-50,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setTransform(temp);
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);

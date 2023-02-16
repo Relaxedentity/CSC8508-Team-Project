@@ -656,9 +656,11 @@ Projectile* TutorialGame::AddSphereToWorld(const reactphysics3d::Vector3& positi
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	reactphysics3d::Material material = collider->getMaterial();
 	material.setBounciness(0.22f);
+	
 	collider->setMaterial(material);
 	sphere->SetPhysicsObject(body);
 	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, basicTex, basicShader));
+	sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
 	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
 
