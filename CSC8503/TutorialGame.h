@@ -32,13 +32,16 @@ namespace NCL {
 			GameObject* emitter;
 			
 			GameObject* player2;
+			GameObject* player3;
+			GameObject* player4;
 			GameWorld* GetGameWorld() {
 				return world;
 			}
+
 			reactphysics3d::PhysicsWorld* GetPhysicsWorld() {
 				return physicsWorld;
 			}
-			
+		    
 		protected:
 			void InitialiseAssets();
 
@@ -76,8 +79,7 @@ namespace NCL {
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			GameObject* AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass = 0.1f);
 			void buildGameworld();
-			GameObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
-			GameObject* AddPlayer2ToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
@@ -102,6 +104,7 @@ namespace NCL {
 			bool useGravity;
 			bool inSelectionMode;
 			bool freeCamera;
+			bool mouseLock;
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;

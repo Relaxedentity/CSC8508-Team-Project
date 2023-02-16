@@ -98,7 +98,19 @@ namespace NCL::CSC8503 {
 		int		GetWorldID() const {
 			return worldID;
 		}
-		NCL::Maths::Vector3 collisionPoint;
+
+		void SetYaw(reactphysics3d::Quaternion yaw) {
+			this->yaw = yaw;
+		}
+		reactphysics3d::Quaternion GetYaw() {
+			return yaw;
+		}
+		void setGrounded(bool groundedness) {
+			isGrounded = groundedness;
+		}
+		bool IsGrounded() const {
+			return isGrounded;
+		}
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;
@@ -110,8 +122,9 @@ namespace NCL::CSC8503 {
 		int			worldID;
 		int			objectTag;
 		std::string	name;
+		reactphysics3d::Quaternion yaw;
+		bool isGrounded = false;
 		GameWorld* world;
-		
 	};
 }
 
