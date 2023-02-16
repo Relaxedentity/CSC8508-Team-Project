@@ -3,7 +3,6 @@
 
 #include "Ray.h"
 #include "CollisionDetection.h"
-#include "QuadTree.h"
 
 namespace reactphysics3d {
 	class PhysicsWorld;
@@ -15,7 +14,6 @@ namespace NCL {
 		using Maths::Ray;
 	namespace CSC8503 {
 		class GameObject;
-		class Constraint;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
@@ -78,9 +76,6 @@ namespace NCL {
 			void AddGameObject(GameObject* o);
 			void RemoveGameObject(GameObject* o, bool andDelete = false);
 
-			void AddConstraint(Constraint* c);
-			void RemoveConstraint(Constraint* c, bool andDelete = false);
-
 			Camera* GetMainCamera() const {
 				return mainCamera;
 			}
@@ -106,10 +101,6 @@ namespace NCL {
 				physicsWorld->setEventListener(listener);
 			}
 
-			void ShuffleConstraints(bool state) {
-				shuffleConstraints = state;
-			}
-
 			void ShuffleObjects(bool state) {
 				shuffleObjects = state;
 			}
@@ -129,21 +120,15 @@ namespace NCL {
 				GameObjectIterator& first,
 				GameObjectIterator& last) const;
 
-			void GetConstraintIterators(
-				std::vector<Constraint*>::const_iterator& first,
-				std::vector<Constraint*>::const_iterator& last) const;
-
 			int GetWorldStateID() const {
 				return worldStateCounter;
 			}
 
 		protected:
 			std::vector<GameObject*> gameObjects;
-			std::vector<Constraint*> constraints;
 
 			Camera* mainCamera;
 
-			bool shuffleConstraints;
 			bool shuffleObjects;
 			int		worldIDCounter;
 			int		worldStateCounter;

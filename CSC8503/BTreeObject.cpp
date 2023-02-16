@@ -5,7 +5,6 @@
 #include "StateMachine.h"
 #include "State.h"
 #include "HierarchicalState.h"
-#include "PhysicsObject.h"
 #include "Window.h"
 #include "BehaviourNode.h"
 #include "BehaviourSelector.h"

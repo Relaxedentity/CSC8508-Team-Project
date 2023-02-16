@@ -1,14 +1,12 @@
 #include <reactphysics3d/reactphysics3d.h>
 #include "TutorialGame.h"
 #include "GameWorld.h"
-#include "PhysicsObject.h"
 #include "RenderObject.h"
 #include "TextureLoader.h"
 #include "NetworkObject.h"
-#include "PositionConstraint.h"
-#include "OrientationConstraint.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
+#include "Debug.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -522,7 +520,6 @@ void TutorialGame::InitCamera() {
 }
 
 void TutorialGame::InitWorld() {
-	//BridgeConstraintTest(Vector3(0,-20,-310));
 	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	InitGameExamples();
 	
@@ -915,38 +912,6 @@ void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing,
 			AddCubeToWorld(reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing), reactphysics3d::Quaternion::identity(), cubeHalfextents, 1.0f);
 		}
 	}
-}
-
-void TutorialGame::BridgeConstraintTest(Vector3 pos) {
-	/*reactphysics3d::Vector3 cubeHalfextents = reactphysics3d::Vector3(2.5f, 2.5f, 2.5f);
-	int numLinks = 7;
-	float maxDistance = 20; // constraint distance
-	float cubeDistance = 17; // distance between links
-
-	reactphysics3d::Vector3 startPos = reactphysics3d::Vector3(pos.x, pos.y, pos.z);
-
-	GameObject* start = AddCubeToWorld(startPos + reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), cubeHalfextents, 0);
-	GameObject* end = AddCubeToWorld(startPos + reactphysics3d::Vector3(0, 0, (numLinks + 2) * cubeDistance), reactphysics3d::Quaternion::identity(), cubeHalfextents, 0);
-
-	GameObject* previous = start;
-
-	for (int i = 0; i < numLinks; ++i) {
-		GameObject* block = AddCubeToWorld(startPos + reactphysics3d::Vector3((i + 1) * cubeDistance, 0, 0), reactphysics3d::Quaternion::identity(), cubeHalfextents, 0.2f);
-		PositionConstraint* constraint1 = new PositionConstraint(previous,
-			block, maxDistance);
-		OrientationConstraint* constraint2 = new OrientationConstraint(previous,
-			block);
-		world->AddConstraint(constraint1);
-		world->AddConstraint(constraint2);
-		previous = block;
-	}
-	PositionConstraint* constraintD = new PositionConstraint(previous,
-		end, maxDistance);
-	world->AddConstraint(constraintD);
-
-	OrientationConstraint* constraintO = new OrientationConstraint(previous,
-		end);
-	world->AddConstraint(constraintO);*/
 }
 
 /*
