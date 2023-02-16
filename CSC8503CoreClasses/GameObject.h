@@ -111,6 +111,7 @@ namespace NCL::CSC8503 {
 		bool IsGrounded() const {
 			return isGrounded;
 		}
+		NCL::Maths::Vector3 collisionPoint;
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;
