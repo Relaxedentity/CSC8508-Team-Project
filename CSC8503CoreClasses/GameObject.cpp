@@ -28,13 +28,17 @@ void GameObjectListener::onContact(const CollisionCallback::CallbackData& callba
 		std::vector<CollisionCallback::ContactPoint> contactPoints;
 		for (uint c = 0; c < contactPair.getNbContactPoints(); c++) {
 			contactPoints.push_back(contactPair.getContactPoint(c));
-			/*CollisionCallback::ContactPoint contactPoint = contactPair.getContactPoint(c);
+			
+			CollisionCallback::ContactPoint contactPoint = contactPair.getContactPoint(c);
 			reactphysics3d::Vector3 worldPoint = contactPair.getCollider1()->getLocalToWorldTransform() * contactPoint.getLocalPointOnCollider1();
-			std::cout << worldPoint.to_string();
+			
+			//std::cout << worldPoint.to_string();
 			Vector3 ncl = Vector3(worldPoint);
-			Debug::DrawLine(Vector3(ncl.x, ncl.y - 3, ncl.z), Vector3(ncl.x, ncl.y + 3, ncl.z), Vector4(1, 0, 0, 1), 2);
-			Debug::DrawLine(Vector3(ncl.x - 3, ncl.y, ncl.z), Vector3(ncl.x + 3, ncl.y, ncl.z), Vector4(1, 0.5f, 0, 1), 2);
-			Debug::DrawLine(Vector3(ncl.x, ncl.y, ncl.z - 3), Vector3(ncl.x, ncl.y, ncl.z + 3), Vector4(1, 0, 0.5f, 1), 2);*/
+			body1->collisionPoint = worldPoint;
+			body2->collisionPoint = worldPoint;
+			//Debug::DrawLine(Vector3(ncl.x, ncl.y - 3, ncl.z), Vector3(ncl.x, ncl.y + 3, ncl.z), Vector4(1, 0, 0, 1), 2);
+			//Debug::DrawLine(Vector3(ncl.x - 3, ncl.y, ncl.z), Vector3(ncl.x + 3, ncl.y, ncl.z), Vector4(1, 0.5f, 0, 1), 2);
+			//Debug::DrawLine(Vector3(ncl.x, ncl.y, ncl.z - 3), Vector3(ncl.x, ncl.y, ncl.z + 3), Vector4(1, 0, 0.5f, 1), 2);
 		}
 		
 		switch (contactPair.getEventType()) {
@@ -50,7 +54,7 @@ void GameObjectListener::onContact(const CollisionCallback::CallbackData& callba
 	}
 }
 
-NCL::CSC8503::GameObject::GameObject(string objectName)	{
+NCL::CSC8503::GameObject::GameObject(GameWorld* world, string objectName)	{
 	name			= objectName;
 	worldID			= -1;
 	objectTag		= 0;
@@ -58,6 +62,8 @@ NCL::CSC8503::GameObject::GameObject(string objectName)	{
 	physicsObject	= nullptr;
 	renderObject	= nullptr;
 	networkObject	= nullptr;
+	this->world = world;
+
 }
 
 NCL::CSC8503::GameObject::~GameObject()	{

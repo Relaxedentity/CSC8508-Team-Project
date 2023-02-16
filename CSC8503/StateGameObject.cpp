@@ -9,7 +9,7 @@
 using namespace NCL;
 using namespace CSC8503;
 
-StateGameObject::StateGameObject(vector <Vector3 > testNodes) {
+StateGameObject::StateGameObject(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world) {
 	counterX = 0.0f;
 	counterY = 0.0f;
 	stateMachine = new StateMachine();

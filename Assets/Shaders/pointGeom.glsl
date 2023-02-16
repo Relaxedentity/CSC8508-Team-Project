@@ -5,6 +5,7 @@ uniform mat4 modelMatrix 	= mat4(1.0f);
 uniform mat4 viewMatrix 	= mat4(1.0f);
 uniform mat4 projMatrix 	= mat4(1.0f);
 uniform mat4 shadowMatrix 	= mat4(1.0f);
+
 layout(points) in;
 layout(triangle_strip , max_vertices = 4) out;
 
@@ -14,6 +15,7 @@ in Vertex {
 	vec4 shadowProj;
 	vec3 normal;
 	vec3 worldPos;
+
 } IN[];
 out Vertex {
 	vec4 colour;
@@ -21,6 +23,7 @@ out Vertex {
 	vec4 shadowProj;
 	vec3 normal;
 	vec3 worldPos;
+
 } OUT;
 
 void main() {
