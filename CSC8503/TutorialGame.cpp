@@ -917,7 +917,7 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, -15, -335), reactphysics3d::Quaternion::identity());
+	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, -15, -335), reactphysics3d::Quaternion::identity(), 1, 1);
 
 	AddRebWallLeftToWorld(reactphysics3d::Vector3(-17.5, -20, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 2, 1));
 	AddRebWallMainToWorld(reactphysics3d::Vector3(-15, -20, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(4, 2, 1));
