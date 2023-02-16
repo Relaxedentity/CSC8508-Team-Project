@@ -6,6 +6,9 @@ namespace reactphysics3d {
 	class Transform;
 	class CollisionCallback;
 }
+namespace NCL::Maths {
+	class Vector3;
+}
 
 namespace NCL::CSC8503 {
 	class NetworkObject;
@@ -24,9 +27,9 @@ namespace NCL::CSC8503 {
 
 	class GameObject{
 	public:
-		GameObject(std::string name = "");
+		GameObject(GameWorld* world, std::string name = "");
 		~GameObject();
-
+		virtual void Update(float dt){};
 		void setActive(bool active){
 			isActive = active;
 		}
@@ -121,6 +124,7 @@ namespace NCL::CSC8503 {
 		std::string	name;
 		reactphysics3d::Quaternion yaw;
 		bool isGrounded = false;
+		GameWorld* world;
 	};
 }
 

@@ -15,6 +15,7 @@ namespace reactphysics3d {
 namespace NCL {
 	namespace CSC8503 {
 		class GameObject;
+		class Projectile;
 		class TutorialGame		{
 		public:
 			void InitWorld();
@@ -29,6 +30,7 @@ namespace NCL {
 			virtual void UpdateGame(float dt);
 			GameObject* player;
 			GameObject* emitter;
+			
 			GameObject* player2;
 			GameObject* player3;
 			GameObject* player4;
@@ -71,7 +73,7 @@ namespace NCL {
 			BTreeObject* goose;
 
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
-			GameObject* AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
+			Projectile* AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
@@ -83,6 +85,9 @@ namespace NCL {
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
 
+
+			// Making Rebellion mesh-based objects
+			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
@@ -115,12 +120,24 @@ namespace NCL {
 
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
-			ShaderBase*		charShader = nullptr;
+			ShaderBase*		charShader	= nullptr;
 
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
 			MeshGeometry*	enemyMesh	= nullptr;
 			MeshGeometry*	bonusMesh	= nullptr;
+
+			// Rebellion Assets
+			TextureBase*	chairTex	= nullptr;
+			MeshGeometry*	chairMesh	= nullptr;
+
+			TextureBase*	corridorTexture			= nullptr;
+			MeshGeometry*	corridorStraightMesh	= nullptr;
+			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
+			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
+
+			// Test Mesh for quick changing
+			MeshGeometry*	testMesh	= nullptr;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
@@ -153,4 +170,3 @@ namespace NCL {
 		};
 	}
 }
-

@@ -15,6 +15,7 @@
 #include "../OpenGLRendering/OGLRenderer.h"
 #include <OGLRenderer.cpp>
 #include "Maths.h"
+#include "Projectile.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -58,11 +59,24 @@ void TutorialGame::InitialiseAssets() {
 	enemyMesh	= renderer->LoadMesh("Keeper.msh");
 	bonusMesh	= renderer->LoadMesh("apple.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
-	gooseMesh = renderer->LoadMesh("goose.msh");
+	gooseMesh = renderer->LoadMesh("goose.msh");	
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
+
+	//Rebellion assets
+	//testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
+
+	corridorTexture			= renderer->LoadTexture("corridor_wall_c.tga");
+	corridorStraightMesh	= renderer->LoadMesh("corridor_Wall_Straight_Mid_end_L.msh");
+	corridorCornerRightSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_L.msh");
+	corridorCornerLeftSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_R.msh");
+	
+	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
+	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
+
+	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
 	timeLimit = 300;
 
@@ -79,9 +93,22 @@ TutorialGame::~TutorialGame()	{
 	delete charMesh;
 	delete enemyMesh;
 	delete bonusMesh;
+	delete capsuleMesh;
+	delete gooseMesh;
 
 	delete basicTex;
 	delete basicShader;
+
+
+	delete chairTex;
+	delete chairMesh;
+
+	delete corridorTexture;
+	delete corridorStraightMesh;
+	delete corridorCornerRightSideMesh;
+	delete corridorCornerLeftSideMesh;
+
+	delete testMesh;
 
 	delete renderer;
 	delete world;
@@ -179,7 +206,7 @@ void TutorialGame::UpdateGame(float dt) {
 
 	SelectObject();
 	MoveSelectedObject();
-
+	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
 	physicsWorld->update(dt);
 	renderer->Update(dt);
@@ -254,6 +281,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
 	Vector3 objPos = Vector3(playerTransform.getPosition());
 
+	Quaternion goatStartRotation;
 	Quaternion goatRealRotation;
 
 	Vector3 camPos;
@@ -323,18 +351,38 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		Vector3 currentVelocity = Vector3(lockedObject->GetPhysicsObject()->getLinearVelocity());
 		float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
 		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
-		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
 	}
 	else {
 		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
-		Quaternion goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
 	}
 
 	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
-
+	
 	player->GetPhysicsObject()->setTransform(newTransform);
+
+	//reactphysics3d::Quaternion tempQuart = reactphysics3d::Quaternion(goatStartRotation.x, goatStartRotation.y, goatStartRotation.z, goatStartRotation.w);
+	//tempQuart.inverse();
+	//goatRealRotation = Quaternion(tempQuart) * goatRealRotation;
+	//Vector3 torqueVector = goatRealRotation.ToEuler();
+	//
+	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
+		Projectile* projectile = AddSphereToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5);
+		
+		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
+		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+		
+		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -250));
+	}
+
+
+
+	// splines, curves, improve interpolation, TCB curves
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
@@ -379,9 +427,7 @@ void TutorialGame::cameraInterpolation(Vector3 target, float dt) {
 }
 
 Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos) {
-	Matrix4 Pitch = world->GetMainCamera()->GetRotationPitch();
-	Matrix4 Yaw = world->GetMainCamera()->GetRotationYaw();
-	Quaternion rotationAmount = Quaternion(Yaw) * Quaternion(Pitch);
+	Quaternion rotationAmount = Quaternion(world->GetMainCamera()->GetRotationYaw()) * Quaternion(world->GetMainCamera()->GetRotationPitch());
 
 	orbitScalar -= Window::GetMouse()->GetWheelMovement();
 	orbitScalar = NCL::Maths::Clamp(orbitScalar, orbitScalarMin, orbitScalarMax);
@@ -402,11 +448,9 @@ Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos) {
 }
 
 Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos) {
-	Matrix4 Pitch = world->GetMainCamera()->GetRotationPitch();
-	Matrix4 Yaw = world->GetMainCamera()->GetRotationYaw();
 
 	objPos = objPos + Vector3(0, thirdPersonYScalar, 0);
-	Quaternion rotationAmount = Quaternion(Yaw) * Quaternion(Pitch);
+	Quaternion rotationAmount = Quaternion(world->GetMainCamera()->GetRotationYaw()) * Quaternion(world->GetMainCamera()->GetRotationPitch());
 
 	Vector3 endVector = Vector3(thirdPersonXScalar, 0, thirdPersonZScalar);
 
@@ -431,8 +475,7 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos) {
 			endVector.z = distance;
 		}
 	}
-	Vector3 camPos = objPos + rotationAmount * endVector;
-	return camPos;
+	return objPos + rotationAmount * endVector;
 }
 
 
@@ -604,7 +647,7 @@ A single function to add a large immoveable cube to the bottom of our world
 
 */
 GameObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents) {
-	GameObject* floor = new GameObject();
+	GameObject* floor = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -626,8 +669,8 @@ rigid body representation. This and the cube function will let you build a lot o
 physics worlds. You'll probably need another function for the creation of OBB cubes too.
 
 */
-GameObject* TutorialGame::AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass) {
-	GameObject* sphere = new GameObject();
+Projectile* TutorialGame::AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass) {
+	Projectile* sphere = new Projectile(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setMass(mass);
@@ -635,16 +678,18 @@ GameObject* TutorialGame::AddSphereToWorld(const reactphysics3d::Vector3& positi
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	reactphysics3d::Material material = collider->getMaterial();
 	material.setBounciness(0.22f);
+	
 	collider->setMaterial(material);
 	sphere->SetPhysicsObject(body);
 	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, basicTex, basicShader));
-
+	sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
+	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
 
 	return sphere;
 }
 GameObject* TutorialGame::AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass) {
-	GameObject* sphere = new GameObject();
+	GameObject* sphere = new GameObject(world);
 	sphere->SetTag(2);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
@@ -664,7 +709,7 @@ GameObject* TutorialGame::AddBreakableToWorld(const reactphysics3d::Vector3& pos
 }
 
 GameObject* TutorialGame::AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass) {
-	GameObject* cube = new GameObject();
+	GameObject* cube = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setMass(mass);
@@ -679,7 +724,7 @@ GameObject* TutorialGame::AddCubeToWorld(const reactphysics3d::Vector3& position
 }
 
 GameObject* TutorialGame::AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents) {
-	GameObject* cube = new GameObject();
+	GameObject* cube = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -695,7 +740,7 @@ GameObject* TutorialGame::AddGWBlocksToWorld(const reactphysics3d::Vector3& posi
 }
 
 GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass) {
-	GameObject* floor = new GameObject();
+	GameObject* floor = new GameObject(world);
 	floor->SetTag(3);
 	reactphysics3d::Vector3 halfextents = reactphysics3d::Vector3(1.0f, 0.05f, 1.0f);
 	reactphysics3d::Transform transform(position, orientation);
@@ -714,17 +759,17 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 }
 
 GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID) {
-	GameObject* character = new GameObject();
+	GameObject* character = new GameObject(world);
 	character->SetTag(1);
 	character->setScore(0);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
 	body->setMass(2.0f);
-	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(1.5f, 2.5f);
+	reactphysics3d::SphereShape* shape = physics.createSphereShape(1.0f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, nullptr, charShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, basicTex, charShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
@@ -735,7 +780,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& positi
 }
 
 GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
-	GameObject* character = new GameObject();
+	GameObject* character = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
@@ -752,7 +797,7 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 }
 
 GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
-	GameObject* emitter = new GameObject();
+	GameObject* emitter = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::KINEMATIC);
@@ -785,7 +830,7 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 }
 
 GameObject* TutorialGame::AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
-	GameObject* apple = new GameObject();
+	GameObject* apple = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setMass(1.0f);
@@ -799,7 +844,7 @@ GameObject* TutorialGame::AddBonusToWorld(const reactphysics3d::Vector3& positio
 	return apple;
 }
 StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes) {
-	StateGameObject* apple = new StateGameObject(testNodes);
+	StateGameObject* apple = new StateGameObject(world,testNodes);
 	apple->setTarget(player);
 	apple->SetTag(5);
 	reactphysics3d::Transform transform(position, orientation);
@@ -815,7 +860,7 @@ StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vecto
 	return apple;
 }
 BTreeObject* TutorialGame::AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes) {
-	BTreeObject* apple = new BTreeObject(testNodes);
+	BTreeObject* apple = new BTreeObject(world,testNodes);
 	apple->setTarget1(player);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
@@ -874,6 +919,7 @@ void TutorialGame::InitDefaultFloor() {
 
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, 5, -335), reactphysics3d::Quaternion::identity(), 1, 1);
+	AddRebWallMainToWorld(reactphysics3d::Vector3(-15, -18, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 1, 1));
 	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
@@ -894,7 +940,7 @@ void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacin
 void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing) {
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
-			reactphysics3d::Vector3 position = reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing);
+		    reactphysics3d::Vector3 position = reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing);
 
 			if (rand() % 2) {
 				AddCubeToWorld(position, reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(0.5f, 0.5f, 0.5f));
@@ -914,6 +960,26 @@ void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing,
 	}
 }
 
+
+// Rebellion Asset Objects
+GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale) {
+	GameObject* wall = new GameObject(world);
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::STATIC);
+	body->setMass(0);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.5 * scale.y, 0.1 * scale.z));
+	reactphysics3d::Transform collisionOffset(reactphysics3d::Vector3(0, 0, -1), reactphysics3d::Quaternion::identity());
+	reactphysics3d::Collider* collider = body->addCollider(shape, collisionOffset);
+	wall->SetPhysicsObject(body);
+	wall->SetRenderObject(new RenderObject(body, Vector3(scale), corridorStraightMesh, basicTex, basicShader));
+
+	world->AddGameObject(wall);
+
+	return wall;
+}
+
+
 /*
 Every frame, this code will let you perform a raycast, to see if there's an object
 underneath the cursor, and if so 'select it' into a pointer, so that it can be 
@@ -925,7 +991,7 @@ bool TutorialGame::SelectObject() {
 	if (inSelectionMode) {
 		//Debug::Print("Press Q to change to camera mode!", Vector2(5, 85));
 
-		if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT)) {
+		if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT)) {
 			if (selectionObject) {	//set colour to deselected;
 				selectionObject->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
 				selectionObject = nullptr;
@@ -936,10 +1002,16 @@ bool TutorialGame::SelectObject() {
 			Vector3 endPos = r.GetPosition() + r.GetDirection() * 1000;
 			reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(endPos.x, endPos.y, endPos.z));
 			SceneContactPoint* closestCollision = world->Raycast(ray);
+			Debug::DrawLine(startPos, endPos, Vector4(0, 1, 1, 1), 3);
 			if (closestCollision->isHit) {
 				selectionObject = (GameObject*)closestCollision->object;
 
-				selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
+				//selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
+				world->painted.push_back(closestCollision->hitPos);
+				for (Vector4 x : world->painted) {
+					std::cout << x<<"\n";
+				}
+				//std::cout << world->painted[0];
 				return true;
 			}
 			else {
