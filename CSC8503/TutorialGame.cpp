@@ -377,7 +377,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 		
-		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -250));
+		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -750));
 	}
 
 
@@ -574,7 +574,7 @@ void TutorialGame::InitWorld() {
 	buildGameworld();
 	//AddBreakableToWorld(Vector3( 200.0f,13.0f, 50.0f), 1.0f);
 	//AddGWBlocksToWorld(Vector3(201.0f,  18.0f,  100.0f), Vector3(5, 5, 5));
-	AddHedgeMazeToWorld();
+	//AddHedgeMazeToWorld();
 	door = AddGWBlocksToWorld(reactphysics3d::Vector3(50,-13,50), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 5, 5));
 	door->GetRenderObject()->SetColour(Vector4(0,0,1,1));
 	door->SetTag(4);
@@ -917,32 +917,37 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(-10, -15, -335), reactphysics3d::Quaternion::identity(), 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(15, -15, -355), reactphysics3d::Quaternion::identity(), 1, 1);
 
-	AddRebWallLeftToWorld(reactphysics3d::Vector3(-17.5, -20, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 2, 1));
-	AddRebWallMainToWorld(reactphysics3d::Vector3(-15, -20, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(4, 2, 1));
-	AddRebWallRightToWorld(reactphysics3d::Vector3(-12.5, -20, -335), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 2, 1));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
 
-	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
-	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -345));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -355));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -365));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -375));
 
-	AddRebWallRightToWorld(reactphysics3d::Vector3(-11.5, -20, -341), realObjectRotation, reactphysics3d::Vector3(1, 2, 1));
-	AddRebWallMainToWorld(reactphysics3d::Vector3(-11.5, -20, -338.5), realObjectRotation, reactphysics3d::Vector3(4, 2, 1));
-	AddRebWallLeftToWorld(reactphysics3d::Vector3(-11.5, -20, -336), realObjectRotation, reactphysics3d::Vector3(1, 2, 1));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -385));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -385));
 
-	objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
-	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-
-	AddRebWallLeftToWorld(reactphysics3d::Vector3(-18.5, -20, -341), realObjectRotation, reactphysics3d::Vector3(1, 2, 1));
-	AddRebWallMainToWorld(reactphysics3d::Vector3(-18.5, -20, -338.5), realObjectRotation, reactphysics3d::Vector3(4, 2, 1));
-	AddRebWallRightToWorld(reactphysics3d::Vector3(-18.5, -20, -336), realObjectRotation, reactphysics3d::Vector3(1, 2, 1));
-
-	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
-	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-
-	AddRebWallRightToWorld(reactphysics3d::Vector3(-17.5, -20, -342), realObjectRotation, reactphysics3d::Vector3(1, 2, 1));
-	AddRebWallMainToWorld(reactphysics3d::Vector3(-15, -20, -342), realObjectRotation, reactphysics3d::Vector3(4, 2, 1));
-	AddRebWallLeftToWorld(reactphysics3d::Vector3(-12.5, -20, -342), realObjectRotation, reactphysics3d::Vector3(1, 2, 1));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -345));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -355));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -365));
+	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -375));
 
 	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
@@ -1035,6 +1040,33 @@ GameObject* TutorialGame::AddRebWallLeftToWorld(const reactphysics3d::Vector3& p
 	world->AddGameObject(wall);
 
 	return wall;
+}
+
+void TutorialGame::AddRebWallSquareToWorld(const reactphysics3d::Vector3& position) {
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(8, 3, 1));
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1));
+
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	
+	objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
+	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+	
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	
+	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
+	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+	
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
 }
 
 

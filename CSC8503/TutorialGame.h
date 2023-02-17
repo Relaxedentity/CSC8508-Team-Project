@@ -91,6 +91,8 @@ namespace NCL {
 			GameObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
 			GameObject* AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
 
+			void AddRebWallSquareToWorld(const reactphysics3d::Vector3& position);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
