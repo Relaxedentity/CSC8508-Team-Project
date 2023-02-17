@@ -3,13 +3,19 @@ set(PROJECT_NAME CSC8503)
 ################################################################################
 # Source groups
 ################################################################################
+set(PSShaders_Files
+    "FragShader.pssl"
+    "VertexShader.pssl"
+)
+source_group("PS4 Shader Files" FILES ${PSShaders_Files})
+
 set(Header_Files
     "GameTechRenderer.h"
     "NetworkedGame.h"
     "NetworkPlayer.h"
     "StateGameObject.h"
     "TutorialGame.h"
-	"BTreeObject.h"
+    "BTreeObject.h"
     "HierarchicalState.h"
     "Projectile.h"
 )
@@ -22,7 +28,7 @@ set(Source_Files
     "NetworkPlayer.cpp"
     "StateGameObject.cpp"
     "TutorialGame.cpp"
-	"BTreeObject.cpp"
+    "BTreeObject.cpp"
     "Projectile.cpp"
 )
 
@@ -39,12 +45,14 @@ endif()
 source_group("Source Files" FILES ${Source_Files})
 
 set(ALL_FILES
+    ${PSShaders_Files}
     ${Header_Files}
     ${Source_Files}
 )
 
 if(USE_VULKAN)
     set(ALL_FILES 
+        ${PSShaders_Files}
         ${Header_Files}
         ${Source_Files}
         ${SHADER_FILES}
