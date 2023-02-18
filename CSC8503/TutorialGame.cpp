@@ -567,27 +567,19 @@ void TutorialGame::InitWorld() {
 	
 	Vector3 startPos(70, 0, -10);
 	
-	TestPathfinding(startPos);
-	testStateObject = AddStateObjectToWorld(reactphysics3d::Vector3(nodes[0].x, nodes[0].y, nodes[0].z), reactphysics3d::Quaternion::identity(), nodes);
+	//TestPathfinding(startPos);
+	//testStateObject = AddStateObjectToWorld(reactphysics3d::Vector3(nodes[0].x, nodes[0].y, nodes[0].z), reactphysics3d::Quaternion::identity(), nodes);
 	
-	button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
+	//button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
 	buildGameworld();
-	//AddBreakableToWorld(Vector3( 200.0f,13.0f, 50.0f), 1.0f);
-	//AddGWBlocksToWorld(Vector3(201.0f,  18.0f,  100.0f), Vector3(5, 5, 5));
-	//AddHedgeMazeToWorld();
-	door = AddGWBlocksToWorld(reactphysics3d::Vector3(50,-13,50), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 5, 5));
-	door->GetRenderObject()->SetColour(Vector4(0,0,1,1));
-	door->SetTag(4);
-	button->SetAssociated(door);
-	TestHedgefinding(Vector3(0, 5, 0));
-	//goose = AddGooseToWorld(nodes2[0], nodes2);
+	
 	InitDefaultFloor();
 }
 
 void TutorialGame::buildGameworld() {
 	srand(time(0));
 	int i = 0;
-	worldGrid = new NavigationGrid("TestGrid2.txt");
+	worldGrid = new NavigationGrid("TestGrid4.txt");
 	GridNode* nodes = worldGrid->GetAllNodes();
 	int gridwidth = worldGrid->GetGridWidth();
 	int gridheight = worldGrid->getGridHeight();
@@ -599,16 +591,9 @@ void TutorialGame::buildGameworld() {
 			switch (n.type) {
 			case '.':
 				break;
-
 			case 'x':
-				object = AddGWBlocksToWorld(reactphysics3d::Vector3(Nposition.x-200.0f, Nposition.y - 13.0f, Nposition.z - 50.0f), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 5, 5));
-				break;
-
-			case 'b':
-				object = AddBreakableToWorld(reactphysics3d::Vector3(Nposition.x - 200.0f, Nposition.y - 13.0f, Nposition.z - 50.0f), reactphysics3d::Quaternion::identity(), 1.0f);
-				i++;
-				world->SetObjectCount(i);
-				break;
+				AddRebWallSquareToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				break; 
 			}
 		}
 	}
@@ -912,47 +897,46 @@ void TutorialGame::TestHedgefinding(Vector3 position) {
 }
 
 void TutorialGame::InitDefaultFloor() {
-	AddFloorToWorld(reactphysics3d::Vector3(0, -20, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
-	AddFloorToWorld(reactphysics3d::Vector3( 0, -20, -400), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(100, 2, 75));
+	AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(15, -15, -355), reactphysics3d::Quaternion::identity(), 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(20, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
 
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
-
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -345));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -355));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -365));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -375));
-
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -385));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -385));
-
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -345));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -355));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -365));
-	AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -375));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
+	//
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -345));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -355));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -365));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -375));
+	//
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -385));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -385));
+	//
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -345));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -355));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -365));
+	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -375));
 
 	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
-	AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
+	//AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);
 
 }
@@ -997,7 +981,7 @@ GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& p
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
 	body->setMass(0);
-	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.5 * scale.y, 0.1 * scale.z));
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.65 * scale.y, 0.1 * scale.z));
 	reactphysics3d::Transform collisionOffset(reactphysics3d::Vector3(0, 0, -0.75 * scale.z), reactphysics3d::Quaternion::identity());
 	reactphysics3d::Collider* collider = body->addCollider(shape, collisionOffset);
 	wall->SetPhysicsObject(body);
@@ -1014,7 +998,7 @@ GameObject* TutorialGame::AddRebWallRightToWorld(const reactphysics3d::Vector3& 
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
 	body->setMass(0);
-	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.5 * scale.y, 0.1 * scale.z));
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.65 * scale.y, 0.1 * scale.z));
 	reactphysics3d::Transform collisionOffset(reactphysics3d::Vector3(0, 0, -0.75 * scale.z), reactphysics3d::Quaternion::identity());
 	reactphysics3d::Collider* collider = body->addCollider(shape, collisionOffset);
 	wall->SetPhysicsObject(body);
@@ -1031,7 +1015,7 @@ GameObject* TutorialGame::AddRebWallLeftToWorld(const reactphysics3d::Vector3& p
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
 	body->setMass(0);
-	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.5 * scale.y, 0.1 * scale.z));
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5 * scale.x, 3.65 * scale.y, 0.1 * scale.z));
 	reactphysics3d::Transform collisionOffset(reactphysics3d::Vector3(0, 0, -0.75 * scale.z), reactphysics3d::Quaternion::identity());
 	reactphysics3d::Collider* collider = body->addCollider(shape, collisionOffset);
 	wall->SetPhysicsObject(body);

@@ -271,21 +271,21 @@ class GameScreen : public PushdownState {
 				pauseReminder += 60.0f;
 				return PushdownResult::Pop;
 			}
-			if ( g->GetGameWorld()->GetObjectCount()==0 && g->getPlayer2() == NULL) {
-				std::cout << "You have won. Returning to main menu!\n";
-				std::cout << "player scored " << player->getScore() << "\n";
-				return PushdownResult::Pop;
-			}
-			if (g->GetGameWorld()->GetObjectCount() == 0 && g->getPlayer2() != NULL) {
-				if (g->getPlayer()->getScore() > g->getPlayer2()->getScore()) {
-					std::cout << "Player 1 has won. Returning to main menu!\n";
-					return PushdownResult::Pop;
-				}
-				else {
-					std::cout << "Player 2 has won. Returning to main menu!\n";
-					return PushdownResult::Pop;
-				}
-			}
+			//if ( g->GetGameWorld()->GetObjectCount()==0 && g->getPlayer2() == NULL) {
+			//	std::cout << "You have won. Returning to main menu!\n";
+			//	std::cout << "player scored " << player->getScore() << "\n";
+			//	return PushdownResult::Pop;
+			//}
+			//if (g->GetGameWorld()->GetObjectCount() == 0 && g->getPlayer2() != NULL) {
+			//	if (g->getPlayer()->getScore() > g->getPlayer2()->getScore()) {
+			//		std::cout << "Player 1 has won. Returning to main menu!\n";
+			//		return PushdownResult::Pop;
+			//	}
+			//	else {
+			//		std::cout << "Player 2 has won. Returning to main menu!\n";
+			//		return PushdownResult::Pop;
+			//	}
+			//}
 			if (rand() % 7 == 0) {
 				coinsMined++;
 			}
