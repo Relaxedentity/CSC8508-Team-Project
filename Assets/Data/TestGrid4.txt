@@ -1,0 +1,14 @@
+10
+11 
+11 
+xxxxxxxxxxx
+x.........x 
+x..x...x..x
+x.........x
+x..x...x..x
+x.........x
+x..x...x..x
+x.........x
+x..x...x..x
+x.........x
+xxxxxxxxxxx
