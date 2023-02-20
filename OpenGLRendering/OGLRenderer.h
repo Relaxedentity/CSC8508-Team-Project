@@ -68,6 +68,8 @@ namespace NCL {
 		protected:			
 			void BeginFrame()	override;
 			void RenderFrame()	override;
+			void RenderFirstFrame() override;
+			void RenderSecFrame() override;
 			void EndFrame()		override;
 			void SwapBuffers()  override;
 

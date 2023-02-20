@@ -39,6 +39,7 @@ bool NetworkObject::ReadDeltaPacket(DeltaPacket &p) {
 	if (p.fullID != lastFullState.stateID) {
 		return false; //cant delta this frame
 	}
+
 	UpdateStateHistory(p.fullID);
 
 	Vector3 fullPos = lastFullState.position;

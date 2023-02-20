@@ -28,6 +28,7 @@ namespace NCL {
 				return player2;
 			}
 			virtual void UpdateGame(float dt);
+			
 			GameObject* player;
 			GameObject* emitter;
 			
@@ -44,8 +45,9 @@ namespace NCL {
 		    
 		protected:
 			void InitialiseAssets();
-
+			
 			void InitCamera();
+			void InitCameraSec();
 			void UpdateKeys();
 
 			
@@ -61,6 +63,7 @@ namespace NCL {
 			void InitDefaultFloor();
 			
 			bool SelectObject();
+
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
@@ -105,6 +108,10 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
+
+			bool initSplitScreen;
+			bool coopMode;
+
 			bool useGravity;
 			bool inSelectionMode;
 			bool freeCamera;
@@ -117,6 +124,7 @@ namespace NCL {
 			float		timeLimit;
 
 			GameObject* selectionObject = nullptr;
+			GameObject* selectionObjectSec = nullptr;
 			MeshGeometry*	capsuleMesh = nullptr;
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
@@ -146,7 +154,10 @@ namespace NCL {
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
 			void LockCameraToObject(GameObject* o) {
-				lockedObject = o;
+				lockFirstObject = o;
+			}
+			void LockCameraToObject2(GameObject* o) {
+				lockSecObject = o;
 			}
 
 			GameObject* objClosest = nullptr;

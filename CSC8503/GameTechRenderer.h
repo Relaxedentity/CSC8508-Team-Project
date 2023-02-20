@@ -35,15 +35,23 @@ namespace NCL {
 			void NewRenderText();
 
 			void RenderFrame()	override;
+			void RenderFirstFrame() override;
+			void RenderSecFrame() override;
+	
 
 			OGLShader*		defaultShader;
-
 			GameWorld&	gameWorld;
+
+			float screenAspectSplit;
+			float screenAspect;
 
 			void BuildObjectList();
 			void SortObjectList();
-			void RenderShadowMap();
-			void RenderCamera(); 
+
+			void RenderShadowMap(int start, int end, int width, int height);
+
+			void RenderCamera(Camera& camera, float& aspectRatio); 
+
 			void RenderSkybox();
 			void Particles();
 			void LoadSkybox();

@@ -79,6 +79,9 @@ namespace NCL {
 			Camera* GetMainCamera() const {
 				return mainCamera;
 			}
+			Camera* GetSecCamera() const {
+				return secCamera;
+			}
 			GameObject* GetPlayer() {
 				return player;
 			}
@@ -128,7 +131,10 @@ namespace NCL {
 			std::vector<GameObject*> gameObjects;
 
 			Camera* mainCamera;
+			Camera* secCamera;
 
+			
+			bool shuffleConstraints;
 			bool shuffleObjects;
 			int		worldIDCounter;
 			int		worldStateCounter;

@@ -211,6 +211,7 @@ void TestBehaviourTree() {
 
 
 }
+
 class PauseScreen : public PushdownState {
 	PushdownResult OnUpdate(float dt,
 		PushdownState** newState) override {
@@ -263,7 +264,7 @@ class GameScreen : public PushdownState {
 			}
 			if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1)) {
 				std::cout << "Returning to main menu!\n";
-				std::cout << "player scored " << player->getScore() << "\n";
+				//std::cout << "player scored " << player->getScore() << "\n";
 				return PushdownResult::Pop;
 			}
 			if (pauseReminder < 0) {

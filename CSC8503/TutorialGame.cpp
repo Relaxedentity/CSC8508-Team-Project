@@ -81,6 +81,7 @@ void TutorialGame::InitialiseAssets() {
 	timeLimit = 300;
 
 	InitCamera();
+	InitCameraSec();
 	InitWorld();
 
 	GameObjectListener* listener = new GameObjectListener(world);
@@ -140,6 +141,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		world->GetMainCamera()->UpdateCamera(dt);
+		world->GetSecCamera()->UpdateCamera(dt);
 	}
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
@@ -157,14 +159,25 @@ void TutorialGame::UpdateGame(float dt) {
 	
 	UpdateKeys();
 
-	if (useGravity) {
-		//Debug::Print("(G)ravity on", Vector2(5, 95), Debug::RED);
-	}
-	else {
-		//Debug::Print("(G)ravity off", Vector2(5, 95), Debug::RED);
+	if (lockSecObject) {
+		//std::cout << lockSecObject << std::endl;
+		Vector3 objPos2 = lockSecObject->GetTransform().GetPosition();
+		Vector3 camPos2 = objPos2 + lockSecObject->GetTransform().GetOrientation() * lockedOffset;
+
+		Matrix4 temp2 = Matrix4::BuildViewMatrix(camPos2, objPos2, Vector3(0, 1, 0));
+		Matrix4 modelMat2 = temp2.Inverse();
+
+		Quaternion q2(modelMat2);
+		Vector3 angles2 = q2.ToEuler(); //nearly there now!
+
+		world->GetSecCamera()->SetPosition(camPos2);
+		world->GetSecCamera()->SetPitch(angles2.x);
+		world->GetSecCamera()->SetYaw(angles2.y);
 	}
 
-	RayCollision closestCollision;
+	UpdateKeys();
+
+	/*RayCollision closestCollision;
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::K) && selectionObject) {
 		reactphysics3d::Vector3 rayDir = selectionObject->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -1);
 		reactphysics3d::Vector3 rayPos = selectionObject->GetPhysicsObject()->getTransform().getPosition();
@@ -211,25 +224,38 @@ void TutorialGame::UpdateGame(float dt) {
 	physicsWorld->update(dt);
 	renderer->Update(dt);
 
-	renderer->Render();
+	if (initSplitScreen && coopMode) {
+		renderer->RenderSplitScreens();
+		MovePlayerTwo(*playerCoop);
+	}else
+		renderer->Render();
+	
+	physics->Update(dt);
 	
 	Debug::UpdateRenderables(dt);
 }
 
 void TutorialGame::UpdateKeys() {
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1)) {
-		InitWorld(); //We can reset the simulation at any time with F1
-		selectionObject = nullptr;
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1)) {
+	//	InitWorld(); //We can reset the simulation at any time with F1
+	//	selectionObject = nullptr;
+	//}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F2)) {
-		InitCamera(); //F2 will reset the camera to a specific default place
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F2)) {
+	//	InitCamera(); //F2 will reset the camera to a specific default place
+	//}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::G)) {
 		useGravity = !useGravity; //Toggle gravity!
 		physicsWorld->setIsGravityEnabled(useGravity);
 	}
+
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::V) ) {
+		
+		initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
+	}
+
+
 	//Running certain physics updates in a consistent order might cause some
 	//bias in the calculations - the same objects might keep 'winning' the constraint
 	//allowing the other one to stretch too much etc. Shuffling the order so that it
@@ -268,7 +294,7 @@ void TutorialGame::UpdateKeys() {
 	}
 	else {
 		DebugObjectMovement();
-	}
+	}*/
 }
 
 void TutorialGame::MovePlayer(GameObject* player, float dt) {
@@ -558,7 +584,17 @@ void TutorialGame::InitCamera() {
 	world->GetMainCamera()->SetPitch(-15.0f);
 	world->GetMainCamera()->SetYaw(315.0f);
 	world->GetMainCamera()->SetPosition(Vector3(-60, 40, 60));
-	lockedObject = nullptr;
+	//lockFirstObject = nullptr;
+}
+
+void NCL::CSC8503::TutorialGame::InitCameraSec()
+{
+	world->GetSecCamera()->SetNearPlane(0.1f);
+	world->GetSecCamera()->SetFarPlane(500.0f);
+	world->GetSecCamera()->SetPitch(-15.0f);
+	world->GetSecCamera()->SetYaw(315.0f);
+	world->GetSecCamera()->SetPosition(Vector3(10, 30, 60));
+	//lockedObject = nullptr;s
 }
 
 void TutorialGame::InitWorld() {
@@ -598,6 +634,7 @@ void TutorialGame::buildGameworld() {
 		}
 	}
 }
+
 
 void TutorialGame::AddHedgeMazeToWorld() {
 	srand(time(0));
@@ -938,7 +975,6 @@ void TutorialGame::InitGameExamples() {
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	//AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);
-
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
@@ -1094,11 +1130,14 @@ bool TutorialGame::SelectObject() {
 		}
 		if (Window::GetKeyboard()->KeyPressed(NCL::KeyboardKeys::L)) {
 			if (selectionObject) {
-				if (lockedObject == selectionObject) {
-					lockedObject = nullptr;
+				if (lockFirstObject == selectionObject) {
+					lockFirstObject = nullptr;
+					//lockSecObject = nullptr;
+					//lockSecObject = nullptr;
 				}
 				else {
-					lockedObject = selectionObject;
+					lockFirstObject = selectionObject;
+					//lockSecObject = selectionObjectSec;
 				}
 			}
 		}
