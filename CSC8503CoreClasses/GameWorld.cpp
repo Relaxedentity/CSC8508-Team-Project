@@ -118,19 +118,19 @@ SceneContactPoint* GameWorld::Raycast(reactphysics3d::Ray& r, GameObject* ignore
 	return closestHit;
 }
 
-void GameWorld::paintTally() {
-	int totalNodes = 0;
-	int colourCountOne = 0;
-	int colourCountTwo = 0;
-	for (auto& i : paintNodes) {
-		totalNodes++;
-		if (i->getColour() == 1) {
-			colourCountOne++;
-		}
-		else if (i->getColour() == 2) {
-			colourCountTwo++;
-		}
-	}
-	colourOneScore = colourCountOne / totalNodes;
-	colourTwoScore = colourCountTwo / totalNodes;
-}
+//void GameWorld::paintTally() {
+//	int totalNodes = 0;
+//	int colourCountOne = 0;
+//	int colourCountTwo = 0;
+//	for (auto& i : paintNodes) {
+//		totalNodes++;
+//		if (i->getColour() == 1) {
+//			colourCountOne++;
+//		}
+//		else if (i->getColour() == 2) {
+//			colourCountTwo++;
+//		}
+//	}
+//	colourOneScore = colourCountOne / totalNodes;
+//	colourTwoScore = colourCountTwo / totalNodes;
+//}
