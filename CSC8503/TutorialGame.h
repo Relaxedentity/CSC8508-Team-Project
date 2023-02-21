@@ -106,6 +106,11 @@ namespace NCL {
 			void AddRebWallOpeningEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& position);
 
+			void AddRebWallCornerNorthEastToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
@@ -184,6 +189,7 @@ namespace NCL {
 			float cameraInterpBaseSpeed = 0.5f;
 
 			Quaternion thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos);
+
 		};
 	}
 }

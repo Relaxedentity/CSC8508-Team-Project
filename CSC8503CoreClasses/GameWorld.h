@@ -11,6 +11,7 @@ namespace reactphysics3d {
 
 namespace NCL {
 		class Camera;
+		class PaintNode;
 		using Maths::Ray;
 	namespace CSC8503 {
 		class GameObject;
@@ -124,6 +125,11 @@ namespace NCL {
 				return worldStateCounter;
 			}
 			vector<Vector3> painted;
+
+			void paintTally();
+			void testPaintNodes(Vector3 inPos);
+			void drawPaintNodes();
+
 		protected:
 			std::vector<GameObject*> gameObjects;
 
@@ -138,6 +144,22 @@ namespace NCL {
 			GameObjectListener* collisionManager;
 			GameObject* player;
 			float playerHealth;
+
+			std::vector<PaintNode*> paintNodes;
+			float colourOneScore;
+			float colourTwoScore;
+		};
+
+		class PaintNode {
+		public:
+			PaintNode(Vector3 inPos) { pos = inPos; }
+			int getColour() const { return colour; }
+			Vector3 getPos() { return pos; }
+			void setColour(int inColour) { colour = inColour; }
+			void setPos(Vector3 inPos) { pos = inPos; }
+		protected:
+			Vector3 pos;
+			int colour = 0;
 		};
 	}
 }

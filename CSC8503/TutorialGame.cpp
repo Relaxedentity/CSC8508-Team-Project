@@ -624,6 +624,18 @@ void TutorialGame::buildGameworld() {
 			case 'd':
 				AddRebWallOpeningWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
 				break;
+			case '9':
+				AddRebWallCornerNorthEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				break;
+			case '7':
+				AddRebWallCornerNorthWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				break;
+			case '3':
+				AddRebWallCornerSouthEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				break;
+			case '1':
+				AddRebWallCornerSouthWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				break;
 			}
 		}
 	}
@@ -1169,6 +1181,56 @@ void TutorialGame::AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& p
 	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
 }
 
+void TutorialGame::AddRebWallCornerNorthEastToWorld(const reactphysics3d::Vector3& position) {
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(1, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
+
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, -1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+}
+
+void TutorialGame::AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position) {
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
+
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, -1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+}
+
+void TutorialGame::AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position) {
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+
+	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
+	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+}
+
+void TutorialGame::AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position) {
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+
+	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
+	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+
+	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1));
+	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+}
+
 /*
 Every frame, this code will let you perform a raycast, to see if there's an object
 underneath the cursor, and if so 'select it' into a pointer, so that it can be 
@@ -1253,8 +1315,3 @@ void TutorialGame::MoveSelectedObject() {
 		}
 	}
 }
-
-void patrolMovement() {
-
- }
-
