@@ -106,6 +106,19 @@ namespace NCL {
 
 			void AddRebWallSquareToWorld(const reactphysics3d::Vector3& position);
 
+			void AddRebWallNorthToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallSouthToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallEastToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallWestToWorld(const reactphysics3d::Vector3& position);
+
+			void AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position);
+
+			void AddRebWallOpeningNorthToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallOpeningSouthToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallOpeningEastToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& position);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else

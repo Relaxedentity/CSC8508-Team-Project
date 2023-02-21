@@ -63,11 +63,11 @@ void main(void)
 			fragColor.rgb  *= vec3(1,0,0);
 		}
 	}
-	fragColor.a = albedo.a;
+	fragColor.a = 1;
 	
-	if(fragColor.a<0.00001f){
-		discard;
-	}
+	//if(fragColor.a<0.00001f){
+	//	discard;
+	//}
 
 //fragColor.rgb = IN.normal;
 
