@@ -30,6 +30,7 @@ GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 	mainCamera = new Camera();
 	this->physicsWorld = physicsWorld;
 	raycastManager = new RaycastManager();
+	secCamera = new Camera();
 
 	shuffleObjects		= false;
 	worldIDCounter		= 0;
@@ -37,6 +38,7 @@ GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 }
 
 GameWorld::~GameWorld()	{
+	
 }
 
 void GameWorld::Clear() {

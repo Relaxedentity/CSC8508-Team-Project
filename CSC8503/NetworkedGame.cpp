@@ -21,19 +21,19 @@ struct MessagePacket : public GamePacket {
 	}
 };
 
-NetworkedGame::NetworkedGame()	{
+NetworkedGame::NetworkedGame() {
 	thisServer = nullptr;
 	thisClient = nullptr;
 	netID = 1;
 	worldCount = 1;
 	playerDistance = 10;
 	NetworkBase::Initialise();
-	timeToNextPacket  = 0.0f;
+	timeToNextPacket = 0.0f;
 	packetsToSnapshot = 0;
 	lastID = 0;
 }
 
-NetworkedGame::~NetworkedGame()	{
+NetworkedGame::~NetworkedGame() {
 	delete thisServer;
 	delete thisClient;
 }
@@ -62,7 +62,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
 	//goose->setTarget2(thisPlayer);
 
-	
+
 	StartLevel();
 }
 
@@ -78,11 +78,14 @@ void NetworkedGame::UpdateGame(float dt) {
 		timeToNextPacket += 1.0f / 40.0f; //20hz server/client update
 	}
 
-	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9)) {
+	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9) && !initSplitScreen) {
 		StartAsServer();
+		coopMode = false;
+		
 	}
-	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10)) {
-		StartAsClient(127,0,0,1);
+	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10) && !initSplitScreen) {
+		StartAsClient(127, 0, 0, 1);
+		coopMode = false;
 	}
 
 	TutorialGame::UpdateGame(dt);
@@ -92,7 +95,7 @@ void NetworkedGame::UpdateAsServer(float dt) {
 	MovePlayer(player, dt);
 	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisServer->UpdateServer();
-	
+
 
 	packetsToSnapshot--;
 	if (packetsToSnapshot < 0) {
@@ -216,15 +219,17 @@ void NetworkedGame::UpdateMinimumState() {
 }
 
 void NetworkedGame::SpawnPlayer() {
-
+	/*player2 = AddPlayerToWorld(Vector3(10, 5, -330), 2, 2);
+	player3 = AddPlayerToWorld(Vector3(15, 5, -330), 3, 3);
+	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);*/
 }
 
 void NetworkedGame::StartLevel() {
-	
+
 }
 
 void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
-	
+
 	std::vector<GameObject*>::const_iterator first;
 	std::vector<GameObject*>::const_iterator last;
 
@@ -299,7 +304,7 @@ void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b) {
 	if (thisServer) { //detected a collision between players!
 		MessagePacket newPacket;
 		newPacket.messageID = COLLISION_MSG;
-		newPacket.playerID  = a->GetPlayerNum();
+		newPacket.playerID = a->GetPlayerNum();
 
 		thisClient->SendPacket(newPacket);
 

@@ -80,6 +80,9 @@ namespace NCL {
 			Camera* GetMainCamera() const {
 				return mainCamera;
 			}
+			Camera* GetSecCamera() const {
+				return secCamera;
+			}
 			GameObject* GetPlayer() {
 				return player;
 			}
@@ -90,6 +93,15 @@ namespace NCL {
 			
 			float GetPlayerHealth() {
 				return playerHealth;
+			}
+
+			float GetPlayerCoopHealth()
+			{
+				return playerCoopHealth;
+			}
+
+			void SetPlayerCoopHealth(float health) {
+				playerCoopHealth = health;
 			}
 
 			void SetPlayerHealth(float health) {
@@ -134,7 +146,10 @@ namespace NCL {
 			std::vector<GameObject*> gameObjects;
 
 			Camera* mainCamera;
+			Camera* secCamera;
 
+			
+			bool shuffleConstraints;
 			bool shuffleObjects;
 			int		worldIDCounter;
 			int		worldStateCounter;
@@ -144,6 +159,9 @@ namespace NCL {
 			GameObjectListener* collisionManager;
 			GameObject* player;
 			float playerHealth;
+
+			GameObject* playerCooop;
+			float playerCoopHealth;
 
 			std::vector<PaintNode*> paintNodes;
 			float colourOneScore;

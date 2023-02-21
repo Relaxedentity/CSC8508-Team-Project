@@ -28,12 +28,15 @@ namespace NCL {
 				return player2;
 			}
 			virtual void UpdateGame(float dt);
+			
 			GameObject* player;
+			GameObject* playerCoop;
 			GameObject* emitter;
 			
 			GameObject* player2;
 			GameObject* player3;
 			GameObject* player4;
+
 			GameWorld* GetGameWorld() {
 				return world;
 			}
@@ -44,8 +47,9 @@ namespace NCL {
 		    
 		protected:
 			void InitialiseAssets();
-
+			
 			void InitCamera();
+			void InitCameraSec();
 			void UpdateKeys();
 
 			
@@ -61,10 +65,17 @@ namespace NCL {
 			void InitDefaultFloor();
 			
 			bool SelectObject();
+
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
 			void MovePlayer(GameObject* player, float dt);
+
+			//test
+			void MovePlayerCoop(GameObject* player, float dt);
+			void FirstController(GameObject& player);
+			void SecondController(GameObject& player);
+
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
 			BTreeObject* AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
@@ -81,6 +92,8 @@ namespace NCL {
 			void buildGameworld();
 			GameObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
@@ -123,6 +136,10 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
+
+			bool initSplitScreen;
+			bool coopMode;
+
 			bool useGravity;
 			bool inSelectionMode;
 			bool freeCamera;
@@ -132,9 +149,11 @@ namespace NCL {
 			float		forceMagnitude;
 
 			float		health =0.8f;
+			float		secHealth = 0.2f;
 			float		timeLimit;
 
 			GameObject* selectionObject = nullptr;
+			GameObject* selectionObjectSec = nullptr;
 			MeshGeometry*	capsuleMesh = nullptr;
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
@@ -163,8 +182,13 @@ namespace NCL {
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
+			GameObject* lockedSecObject = nullptr;
+
 			void LockCameraToObject(GameObject* o) {
 				lockedObject = o;
+			}
+			void LockCameraToObject2(GameObject* o) {
+				lockedSecObject = o;
 			}
 
 			GameObject* objClosest = nullptr;
@@ -181,11 +205,13 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 
+
+
 			bool thirdPerson = true;
 
-			Vector3 orbitCameraProcess(Vector3 objPos);
-			Vector3 thirdPersonCameraProcess(Vector3 objPos);
-			void cameraInterpolation(Vector3 target, float dt);
+			Vector3 orbitCameraProcess(Vector3 objPos, Camera& camera, GameObject* ignorePlayer);
+			Vector3 thirdPersonCameraProcess(Vector3 objPos, Camera& camera, GameObject* currPlayer);
+			void cameraInterpolation(Vector3 target, float dt, Camera& camera);
 			float cameraInterpBaseSpeed = 0.5f;
 
 			Quaternion thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos);

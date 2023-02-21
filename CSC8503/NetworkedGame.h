@@ -15,6 +15,7 @@ namespace NCL {
 
 			void StartAsServer();
 			void StartAsClient(char a, char b, char c, char d);
+			
 
 			void UpdateGame(float dt) override;
 
@@ -29,6 +30,10 @@ namespace NCL {
 			int netID;
 			int playerDistance;
 
+			/*int worldCount;
+			int netID;
+			int playerDistance;*/
+
 		protected:
 			void UpdateAsServer(float dt);
 			void UpdateAsClient(float dt);
@@ -42,6 +47,7 @@ namespace NCL {
 			float timeToNextPacket;
 			int packetsToSnapshot;
 			int lastID;
+
 			std::vector<NetworkObject*> networkObjects;
 
 			std::map<int, GameObject*> serverPlayers;
