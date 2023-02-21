@@ -86,6 +86,10 @@ void NCL::Rendering::OGLRenderer::RenderSecFrame()
 {
 }
 
+void NCL::Rendering::OGLRenderer::RenderHUD()
+{
+}
+
 void OGLRenderer::EndFrame()		{
 }
 

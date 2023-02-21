@@ -82,13 +82,23 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	simpleShader = new OGLShader("simpleVert.glsl", "simpleFrag.glsl");
 	quad = new OGLMesh();
 	quad->GenerateQuad(quad);
-
-	//quad->SetVertexPositions({ Vector3(-0.5, 0.9,-1), Vector3(-0.5,1,-1) , Vector3(0.4, 1,-1) , Vector3(0.4, 0.9,-1) });
-	//quad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
-	//quad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
-	//quad->SetVertexIndices({ 0,1,2,2,3,0 });
-
 	quad->UploadToGPU();
+
+	// crosshair quad 
+	aimShader = new OGLShader("aimVert.glsl", "aimFrag.glsl");
+	aimQuad = new OGLMesh();
+
+	
+	aimTex = new OGLTexture();
+	aimTex = (OGLTexture*)aimTex->RGBATextureFromFilename("crosshair018.png");
+	
+	aimQuad->SetVertexPositions({ Vector3(-0.05, -0.1,-1), Vector3(-0.05, 0.1,-1) , Vector3(0.05, 0.1,-1) , Vector3(0.05, -0.1,-1) });
+	aimQuad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	aimQuad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
+	aimQuad->SetVertexIndices({ 0,1,2,2,3,0 });
+	aimQuad->UploadToGPU();
+
+
 
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
@@ -114,6 +124,10 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete healthQuad;
 	delete progressBar;
 	delete quad;
+
+	delete aimShader;
+	delete aimQuad;
+	delete aimTex;
 
 	
 	glDeleteTextures(1, &shadowTex);
@@ -165,6 +179,7 @@ void GameTechRenderer::LoadSkybox() {
 
 void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
 {
+	glEnable(GL_BLEND);
 	BindShader(healthShader);
 	glUniform1f(glGetUniformLocation(healthShader->GetProgramID(), "health"), health);
 	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "firstColour"), 1,0,0,1);
@@ -193,24 +208,44 @@ void NCL::CSC8503::GameTechRenderer::RenderTimerQuad()
 	DrawBoundMesh();
 }
 
+void NCL::CSC8503::GameTechRenderer::RenderCrossHair()
+{
 
-void GameTechRenderer::RenderFrame( ) {
+	BindShader(aimShader);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, aimTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(aimShader->GetProgramID(), "mainTex"), 0);
+
+	BindMesh(aimQuad);
+	DrawBoundMesh();
+}
+
+
+
+void GameTechRenderer::RenderFrame( ) 
+{
 	glEnable(GL_CULL_FACE);
 	glClearColor(1, 1, 1, 1);
 	BuildObjectList();
 	SortObjectList();
 	RenderShadowMap(0, 0, windowWidth, windowHeight);
 
-	RenderSkybox();
+	RenderSkybox(*gameWorld.GetMainCamera());
 	RenderCamera(*gameWorld.GetMainCamera(), screenAspect);
+
 
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	NewRenderLines();
+	RenderTimerQuad();
+	RenderCrossHair();
 	NewRenderText();
+
+	RenderHealthBar(gameWorld.GetPlayerHealth());
+	RenderProgressBar(0.3f);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -224,14 +259,18 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 	SortObjectList();
 	RenderShadowMap(windowWidth * 0.5, 0, windowWidth * 0.5, windowHeight);
 
-	RenderSkybox();
+	RenderSkybox(*gameWorld.GetSecCamera());
 	RenderCamera(*gameWorld.GetSecCamera(), screenAspectSplit);
+
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	NewRenderLines();
-	NewRenderText();
+
+	glEnable(GL_BLEND);
+	RenderCrossHair();
+
+	RenderHealthBar(gameWorld.GetPlayerCoopHealth());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -246,23 +285,45 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 	SortObjectList();
 	RenderShadowMap(0, 0, windowWidth * 0.5, windowHeight);
 
-	RenderSkybox();
+	RenderSkybox(*gameWorld.GetMainCamera());
 	RenderCamera(*gameWorld.GetMainCamera(), screenAspectSplit);
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	NewRenderLines();
+
+	glEnable(GL_BLEND);
+	RenderCrossHair();
+	RenderHealthBar(gameWorld.GetPlayerHealth());
+
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderHUD()
+{
+
+	glViewport(0, 0, windowWidth, windowHeight);
+	
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	RenderTimerQuad();
 	NewRenderText();
 
-	RenderHealthBar(gameWorld.GetPlayerHealth());
 	RenderProgressBar(0.3f);
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 }
+
+
+
 
 void GameTechRenderer::BuildObjectList() {
 	activeObjects.clear();
@@ -322,14 +383,14 @@ void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height
 }
 
 
-void GameTechRenderer::RenderSkybox() {
+void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
 	float screenAspect = (float)windowWidth / (float)windowHeight;
-	Matrix4 viewMatrix = gameWorld.GetMainCamera()->BuildViewMatrix();
-	Matrix4 projMatrix = gameWorld.GetMainCamera()->BuildProjectionMatrix(screenAspect);
+	Matrix4 viewMatrix = camera.BuildViewMatrix();
+	Matrix4 projMatrix = camera.BuildProjectionMatrix(screenAspect);
 
 	BindShader(skyboxShader);
 
@@ -403,7 +464,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
 
-			Vector3 camPos = gameWorld.GetMainCamera()->GetPosition();
+			Vector3 camPos = camera.GetPosition();
 			
 			
 			for (int i = 0; i < gameWorld.painted.size();i++) {

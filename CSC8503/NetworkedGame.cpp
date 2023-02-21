@@ -219,9 +219,9 @@ void NetworkedGame::UpdateMinimumState() {
 }
 
 void NetworkedGame::SpawnPlayer() {
-	player2 = AddPlayerToWorld(Vector3(10, 5, -330), 2, 2);
+	/*player2 = AddPlayerToWorld(Vector3(10, 5, -330), 2, 2);
 	player3 = AddPlayerToWorld(Vector3(15, 5, -330), 3, 3);
-	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);
+	player4 = AddPlayerToWorld(Vector3(20, 5, -330), 4, 4);*/
 }
 
 void NetworkedGame::StartLevel() {

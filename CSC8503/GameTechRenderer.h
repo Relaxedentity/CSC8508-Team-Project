@@ -27,6 +27,7 @@ namespace NCL {
 			void RenderHealthBar(float health);
 			void RenderProgressBar(float score);
 			void RenderTimerQuad();
+			void RenderCrossHair();
 
 			
 
@@ -37,6 +38,7 @@ namespace NCL {
 			void RenderFrame()	override;
 			void RenderFirstFrame() override;
 			void RenderSecFrame() override;
+			void RenderHUD()	override;
 	
 
 			OGLShader*		defaultShader;
@@ -52,7 +54,7 @@ namespace NCL {
 
 			void RenderCamera(Camera& camera, float& aspectRatio); 
 
-			void RenderSkybox();
+			void RenderSkybox(Camera& camera);
 			void Particles();
 			void LoadSkybox();
 
@@ -78,6 +80,11 @@ namespace NCL {
 			//timer background
 			OGLShader* simpleShader;
 			OGLMesh* quad;
+
+			//crosshair background
+			OGLShader*aimShader;
+			OGLMesh* aimQuad;
+			OGLTexture* aimTex;
 
 			//shadow mapping things
 			OGLShader*	shadowShader;

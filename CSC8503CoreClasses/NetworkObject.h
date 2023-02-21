@@ -48,15 +48,15 @@ namespace NCL::CSC8503 {
 		}
 	};
 
-	struct InitialPacket : public GamePacket {
-		int count;
-		//int myID;
+	//struct InitialPacket : public GamePacket {
+	//	int count;
+	//	//int myID;
 
-		InitialPacket() {
-			type = Player_Connected;
-			size = sizeof(InitialPacket);
-		}
-	};
+	//	InitialPacket() {
+	//		type = Player_Connected;
+	//		size = sizeof(InitialPacket);
+	//	}
+	//};
 
 	class NetworkObject		{
 	public:

@@ -94,6 +94,15 @@ namespace NCL {
 				return playerHealth;
 			}
 
+			float GetPlayerCoopHealth()
+			{
+				return playerCoopHealth;
+			}
+
+			void SetPlayerCoopHealth(float health) {
+				playerCoopHealth = health;
+			}
+
 			void SetPlayerHealth(float health) {
 				playerHealth = health;
 			}
@@ -144,6 +153,9 @@ namespace NCL {
 			GameObjectListener* collisionManager;
 			GameObject* player;
 			float playerHealth;
+
+			GameObject* playerCooop;
+			float playerCoopHealth;
 		};
 	}
 }

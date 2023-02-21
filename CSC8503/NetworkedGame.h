@@ -30,9 +30,9 @@ namespace NCL {
 			int netID;
 			int playerDistance;
 
-			int worldCount;
+			/*int worldCount;
 			int netID;
-			int playerDistance;
+			int playerDistance;*/
 
 		protected:
 			void UpdateAsServer(float dt);
