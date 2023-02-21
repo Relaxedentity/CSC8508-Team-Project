@@ -11,10 +11,10 @@ namespace reactphysics3d {
 
 namespace NCL {
 		class Camera;
-		class PaintNode;
 		using Maths::Ray;
 	namespace CSC8503 {
 		class GameObject;
+		class PaintNode;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
