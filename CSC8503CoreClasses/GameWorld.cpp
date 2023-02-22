@@ -157,7 +157,7 @@ void GameWorld::paintTally() {
 void GameWorld::testPaintNodes(Vector3 inPos, char iChar) {
 	bool hasChanged = false;
 	for (auto& i : paintNodes) {
-		if ( (inPos-i->getPos()).Length() < 2 && i->getColour() != iChar ) {
+		if ( (inPos-i->getPos()).Length() < 2.5 && i->getColour() != iChar ) {
 			hasChanged = true;
 			std::cout << "we got a hit!\n";
 			i->setColour(iChar);
