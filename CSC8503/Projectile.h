@@ -16,6 +16,9 @@ namespace NCL::CSC8503 {
 		void OnCollisionBegin(GameObject* otherObject) override;
 		void Update(float dt) override;
 		float time;
+		void setPaintColour(char input) { paintColour = input; }
+		char getPaintColour() { return paintColour; }
+	protected:
+		char paintColour;
 	};
-
 }

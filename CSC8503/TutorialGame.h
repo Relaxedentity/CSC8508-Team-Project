@@ -7,6 +7,8 @@
 #include "StateGameObject.h"
 #include "BTreeObject.h"
 
+#include "PlayerObject.h"
+
 namespace reactphysics3d {
 	class PhysicsCommon;
 	class PhysicsWorld;
@@ -29,13 +31,13 @@ namespace NCL {
 			}
 			virtual void UpdateGame(float dt);
 			
-			GameObject* player;
-			GameObject* playerCoop;
+			PlayerObject* player;
+			PlayerObject* playerCoop;
 			GameObject* emitter;
 			
-			GameObject* player2;
-			GameObject* player3;
-			GameObject* player4;
+			PlayerObject* player2;
+			PlayerObject* player3;
+			PlayerObject* player4;
 
 			GameWorld* GetGameWorld() {
 				return world;
@@ -59,8 +61,6 @@ namespace NCL {
 			test scenarios (constraints, collision types, and so on). 
 			*/
 			void InitGameExamples();
-			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
-			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
 			
@@ -69,10 +69,10 @@ namespace NCL {
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
-			void MovePlayer(GameObject* player, float dt);
+			void MovePlayer(PlayerObject* player, float dt);
 
 			//test
-			void MovePlayerCoop(GameObject* player, float dt);
+			void MovePlayerCoop(PlayerObject* player, float dt);
 			void FirstController(GameObject& player);
 			void SecondController(GameObject& player);
 
@@ -84,15 +84,15 @@ namespace NCL {
 			BTreeObject* goose;
 
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
-			Projectile* AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
+			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			GameObject* AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass = 0.1f);
 			void buildGameworld();
-			GameObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID);
+			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
-			GameObject* AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			PlayerObject* AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);

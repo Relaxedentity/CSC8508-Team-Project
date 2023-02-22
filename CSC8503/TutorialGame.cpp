@@ -288,7 +288,7 @@ void TutorialGame::UpdateKeys()
 
 }
 
-void TutorialGame::MovePlayer(GameObject* player, float dt) {
+void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
 		thirdPerson = !thirdPerson;
 	}
@@ -389,7 +389,9 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
-		Projectile* projectile = AddSphereToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5);
+		char colourInput = player->getPaintColour();
+		
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
 		
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
@@ -400,7 +402,7 @@ void TutorialGame::MovePlayer(GameObject* player, float dt) {
 	// splines, curves, improve interpolation, TCB curves
 }
 
-void NCL::CSC8503::TutorialGame::MovePlayerCoop(GameObject* player, float dt)
+void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
 		thirdPerson = !thirdPerson;
@@ -503,7 +505,8 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(GameObject* player, float dt)
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::N)) {
-		Projectile* projectile = AddSphereToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5);
+		char colourInput = player->getPaintColour();
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
 
 		Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
@@ -835,7 +838,7 @@ rigid body representation. This and the cube function will let you build a lot o
 physics worlds. You'll probably need another function for the creation of OBB cubes too.
 
 */
-Projectile* TutorialGame::AddSphereToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass) {
+Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass) {
 	Projectile* sphere = new Projectile(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
@@ -847,8 +850,20 @@ Projectile* TutorialGame::AddSphereToWorld(const reactphysics3d::Vector3& positi
 	
 	collider->setMaterial(material);
 	sphere->SetPhysicsObject(body);
-	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, nullptr, basicShader));
-	sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
+	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, nullptr, charShader));
+
+	Vector4 colourVector;
+	switch (colour) {
+	case 'r':
+		colourVector = Vector4(1, 0, 0, 1);
+		break;
+	case 'b':
+		colourVector = Vector4(0, 0, 1, 1);
+		break;
+	}
+
+	sphere->GetRenderObject()->SetColour(colourVector);
+	//sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
 	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
 
@@ -924,8 +939,8 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 	return floor;
 }
 
-GameObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID) {
-	GameObject* character = new GameObject(world);
+PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID) {
+	PlayerObject* character = new PlayerObject(world);
 	character->SetTag(1);
 	character->setScore(0);
 	reactphysics3d::Transform transform(position, orientation);
@@ -962,9 +977,9 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 	return character;
 }
 
-GameObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation)
+PlayerObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation)
 {
-	GameObject* character = new GameObject(world);
+	PlayerObject* character = new PlayerObject(world);
 	character->SetTag(1);
 	character->setScore(0);
 	reactphysics3d::Transform transform(position, orientation);
@@ -1104,38 +1119,9 @@ void TutorialGame::InitDefaultFloor() {
 
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(20, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
+	player->setPaintColour('r');
 	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 10, 20), reactphysics3d::Quaternion::identity());
-
-
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
-	//
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -345));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -355));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -365));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-35, -21, -375));
-	//
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-25, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-15, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(-5, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(5, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(15, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(25, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(35, -21, -385));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -385));
-	//
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -335));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -345));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -355));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -365));
-	//AddRebWallSquareToWorld(reactphysics3d::Vector3(45, -21, -375));
+	playerCoop->setPaintColour('b');
 
 	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
@@ -1144,30 +1130,6 @@ void TutorialGame::InitGameExamples() {
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	//AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);
-}
-
-void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
-	for (int x = 0; x < numCols; ++x) {
-		for (int z = 0; z < numRows; ++z) {
-			AddSphereToWorld(reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing), reactphysics3d::Quaternion::identity(), radius, 1.0f);
-		}
-	}
-	AddFloorToWorld(reactphysics3d::Vector3(0, -2, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
-}
-
-void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing) {
-	for (int x = 0; x < numCols; ++x) {
-		for (int z = 0; z < numRows; ++z) {
-		    reactphysics3d::Vector3 position = reactphysics3d::Vector3(x * colSpacing, 10.0f, z * rowSpacing);
-
-			if (rand() % 2) {
-				AddCubeToWorld(position, reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(0.5f, 0.5f, 0.5f));
-			}
-			else {
-				AddSphereToWorld(position, reactphysics3d::Quaternion::identity(), 1.0f);
-			}
-		}
-	}
 }
 
 void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents) {
