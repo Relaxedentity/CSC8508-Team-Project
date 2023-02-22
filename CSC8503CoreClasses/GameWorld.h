@@ -139,8 +139,14 @@ namespace NCL {
 			vector<Vector3> painted;
 
 			void paintTally();
-			void testPaintNodes(Vector3 inPos);
+			void testPaintNodes(Vector3 inPos, char iChar);
 			void drawPaintNodes();
+
+			void AddPaintNode(PaintNode* o);
+			void RemovePaintNode(PaintNode* o, bool andDelete);
+
+			float getColourOneScore() { return colourOneScore; }
+			float getColourTwoScore() { return colourTwoScore; }
 
 		protected:
 			std::vector<GameObject*> gameObjects;
@@ -164,21 +170,20 @@ namespace NCL {
 			float playerCoopHealth;
 
 			std::vector<PaintNode*> paintNodes;
-			float colourOneScore;
-			float colourTwoScore;
+			float colourOneScore = 0;
+			float colourTwoScore = 0;
 		};
 
 		class PaintNode {
 		public:
 			PaintNode(Vector3 inPos) { pos = inPos; }
-			int getColour() const { return colour; }
+			char getColour() const { return colour; }
 			Vector3 getPos() { return pos; }
-			void setColour(int inColour) { colour = inColour; }
+			void setColour(char inColour) { colour = inColour; }
 			void setPos(Vector3 inPos) { pos = inPos; }
 		protected:
 			Vector3 pos;
-			int colour = 0;
+			char colour = 'n';
 		};
 	}
 }
-

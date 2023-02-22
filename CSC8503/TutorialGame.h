@@ -216,6 +216,8 @@ namespace NCL {
 
 			Quaternion thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos);
 
+			// Paint Node Functions
+			void addPaintNodeToWorld(Vector3 location);
 		};
 	}
 }

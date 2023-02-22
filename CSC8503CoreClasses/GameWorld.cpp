@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "CollisionDetection.h"
 #include "Camera.h"
+#include "Debug.h"
 
 using namespace NCL;
 using namespace NCL::CSC8503;
@@ -118,19 +119,68 @@ SceneContactPoint* GameWorld::Raycast(reactphysics3d::Ray& r, GameObject* ignore
 	return closestHit;
 }
 
+void GameWorld::AddPaintNode(PaintNode* o) {
+	paintNodes.emplace_back(o);
+}
+
+void GameWorld::RemovePaintNode(PaintNode* o, bool andDelete) {
+	paintNodes.erase(std::remove(paintNodes.begin(), paintNodes.end(), o), paintNodes.end());
+	if (andDelete) {
+		delete o;
+	}
+}
+
 void GameWorld::paintTally() {
 	int totalNodes = 0;
 	int colourCountOne = 0;
 	int colourCountTwo = 0;
 	for (auto& i : paintNodes) {
 		totalNodes++;
-		if (i->getColour() == 1) {
+		if (i->getColour() == 'r') {
 			colourCountOne++;
 		}
-		else if (i->getColour() == 2) {
+		else if (i->getColour() == 'b') {
 			colourCountTwo++;
 		}
 	}
-	colourOneScore = colourCountOne / totalNodes;
-	colourTwoScore = colourCountTwo / totalNodes;
+	std::cout << "Total nodes: " << totalNodes << "\n";
+
+	std::cout << "colour count 1: " << colourCountOne << "\n";
+	colourOneScore = (float)colourCountOne / totalNodes;
+	std::cout << "colour score 1: " << colourOneScore << "\n";
+
+	std::cout << "colour count 2: " << colourCountTwo << "\n";
+	colourTwoScore = (float)colourCountTwo / totalNodes;
+	std::cout << "colour score 2: " << colourTwoScore << "\n";
+}
+
+void GameWorld::testPaintNodes(Vector3 inPos, char iChar) {
+	bool hasChanged = false;
+	for (auto& i : paintNodes) {
+		if ( (inPos-i->getPos()).Length() < 2 && i->getColour() != iChar ) {
+			hasChanged = true;
+			std::cout << "we got a hit!\n";
+			i->setColour(iChar);
+			std::cout << "node colour: " << i->getColour() << "\n";
+		}
+	}
+	if (hasChanged) paintTally();
+}
+
+void GameWorld::drawPaintNodes() {
+	for (auto& i : paintNodes) {
+		Vector4 paintColour;
+
+		Vector4 colourVector;
+		switch (i->getColour()) {
+		case 'r':
+			colourVector = Vector4(1, 0, 0, 1);
+			break;
+		case 'b':
+			colourVector = Vector4(0, 0, 1, 1);
+			break;
+		}
+
+		Debug::DrawPoint(i->getPos(), colourVector, 0.1f);
+	}
 }

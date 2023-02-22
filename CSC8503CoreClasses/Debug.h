@@ -30,6 +30,8 @@ namespace NCL {
 
 		static void DrawAxisLines(const Matrix4& modelMatrix, float scaleBoost = 1.0f, float time = 0.0f);
 
+		static void DrawPoint(const Vector3& point, const Vector4& colour, float time);
+
 		static void UpdateRenderables(float dt);
 
 		static SimpleFont* GetDebugFont();

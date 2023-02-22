@@ -54,6 +54,12 @@ void Debug::DrawAxisLines(const Matrix4& modelMatrix, float scaleBoost, float ti
 	DrawLine(worldPos, worldPos + (fwd * scaleBoost), Debug::BLUE, time);
 }
 
+void Debug::DrawPoint(const Vector3& point, const Vector4& colour, float time) {
+	DrawLine(point + Vector3(0, 0, 1), point - Vector3(0, 0, 1), colour, time);
+	DrawLine(point + Vector3(0, 1, 0), point - Vector3(0, 1, 0), colour, time);
+	DrawLine(point + Vector3(1, 0, 0), point - Vector3(1, 0, 0), colour, time);
+}
+
 void Debug::UpdateRenderables(float dt) {
 	int trim = 0;
 	for (int i = 0; i < lineEntries.size(); ) {

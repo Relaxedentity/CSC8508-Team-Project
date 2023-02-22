@@ -18,3 +18,17 @@ PlayerObject::PlayerObject(GameWorld* world, std::string name) :GameObject(world
 PlayerObject::~PlayerObject() {
 
 }
+
+void PlayerObject::setPaintColour(char input) {
+	paintColour = input;
+	Vector4 colourVector;
+	switch (input) {
+	case 'r':
+		colourVector = Vector4(1, 0, 0, 1);
+		break;
+	case 'b':
+		colourVector = Vector4(0, 0, 1, 1);
+		break;
+	}
+	GetRenderObject()->SetColour(colourVector);
+}

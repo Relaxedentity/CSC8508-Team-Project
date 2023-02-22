@@ -120,7 +120,7 @@ TutorialGame::~TutorialGame()	{
 }
 
 void TutorialGame::UpdateGame(float dt) {
-	Debug::DrawAxisLines(Matrix4());
+	//Debug::DrawAxisLines(Matrix4());
 
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
@@ -161,6 +161,11 @@ void TutorialGame::UpdateGame(float dt) {
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
+	float scoreOne = world->getColourOneScore();
+	Debug::Print(std::to_string((float)scoreOne), Vector2(5, 15), Debug::WHITE);
+	float scoreTwo = world->getColourTwoScore();
+	Debug::Print(std::to_string((float)scoreTwo), Vector2(5, 17), Debug::WHITE);
+
 	UpdateKeys();
 
 	RayCollision closestCollision;
@@ -397,6 +402,10 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 		
 		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
+		world->drawPaintNodes();
 	}
 
 	// splines, curves, improve interpolation, TCB curves
@@ -861,6 +870,7 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 		colourVector = Vector4(0, 0, 1, 1);
 		break;
 	}
+	sphere->setPaintColour(colour);
 
 	sphere->GetRenderObject()->SetColour(colourVector);
 	//sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
@@ -1154,6 +1164,9 @@ GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& p
 	wall->SetRenderObject(new RenderObject(body, Vector3(scale), corridorStraightMesh, corridorTexture, basicShader));
 
 	world->AddGameObject(wall);
+
+	addPaintNodeToWorld(position + reactphysics3d::Vector3(0, 5, 0));
+
 
 	return wall;
 }
@@ -1469,4 +1482,10 @@ void TutorialGame::MoveSelectedObject() {
 			}
 		}
 	}
+}
+
+// Paint Node Functions
+void TutorialGame::addPaintNodeToWorld(Vector3 location) {
+	PaintNode* node = new PaintNode(location);
+	world->AddPaintNode(node);
 }

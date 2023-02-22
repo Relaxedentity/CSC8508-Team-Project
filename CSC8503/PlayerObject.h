@@ -13,7 +13,7 @@ namespace NCL::CSC8503 {
 	public:
 		PlayerObject(GameWorld* world, std::string name = "");
 		~PlayerObject();
-		void setPaintColour(char input) { paintColour = input; }
+		void setPaintColour(char input);
 		char getPaintColour() { return paintColour; }
 	protected:
 		char paintColour;
