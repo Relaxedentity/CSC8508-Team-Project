@@ -65,7 +65,7 @@ void TutorialGame::InitialiseAssets() {
 	gooseMesh = renderer->LoadMesh("goose.msh");	
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
-	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
+	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
 
 	//Rebellion assets
@@ -1141,9 +1141,9 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(20, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
 	player->setPaintColour('r');
-	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 10, 20), reactphysics3d::Quaternion::identity());
+	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity());
 	playerCoop->setPaintColour('b');
 
 	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
