@@ -360,7 +360,8 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
+	//if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
+	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
 		endVelocity.Normalise();
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
