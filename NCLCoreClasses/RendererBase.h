@@ -29,6 +29,7 @@ namespace NCL::Rendering {
 		void Render() {
 			BeginFrame();
 			RenderFrame( );
+			RenderHUD();
 			EndFrame();
 			SwapBuffers();
 		}
@@ -37,7 +38,7 @@ namespace NCL::Rendering {
 			BeginFrame();
 			RenderFirstFrame();
 			RenderSecFrame();
-			RenderHUD();
+			RenderCoopHUD();
 			EndFrame();
 			SwapBuffers();
 		}
@@ -55,6 +56,7 @@ namespace NCL::Rendering {
 		virtual void RenderFirstFrame() = 0;
 		virtual void RenderSecFrame() = 0;
 		virtual void RenderHUD() = 0;
+		virtual void RenderCoopHUD() = 0;
 		virtual void EndFrame()		= 0;
 		virtual void SwapBuffers()	= 0;
 		Window& hostWindow;

@@ -90,6 +90,12 @@ void NCL::Rendering::OGLRenderer::RenderHUD()
 {
 }
 
+void NCL::Rendering::OGLRenderer::RenderCoopHUD()
+{
+}
+
+
+
 void OGLRenderer::EndFrame()		{
 }
 

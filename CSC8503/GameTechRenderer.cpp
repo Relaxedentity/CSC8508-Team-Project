@@ -88,7 +88,6 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	aimShader = new OGLShader("aimVert.glsl", "aimFrag.glsl");
 	aimQuad = new OGLMesh();
 
-	
 	aimTex = new OGLTexture();
 	aimTex = (OGLTexture*)aimTex->RGBATextureFromFilename("crosshair018.png");
 	
@@ -98,6 +97,11 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	aimQuad->SetVertexIndices({ 0,1,2,2,3,0 });
 	aimQuad->UploadToGPU();
 
+	// mini map
+
+	miniMapWall = new OGLShader("circle.vert", "circle.frag");
+	//miniMapEnemy = new OGLShader()
+	miniMapPlayer = new OGLShader("triangle.vert", "triangle.frag");
 
 
 	glGenVertexArrays(1, &lineVAO);
@@ -128,6 +132,10 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete aimShader;
 	delete aimQuad;
 	delete aimTex;
+
+	delete miniMapPlayer;
+	delete miniMapEnemy;
+	delete miniMapWall;
 
 	
 	glDeleteTextures(1, &shadowTex);
@@ -177,6 +185,209 @@ void GameTechRenderer::LoadSkybox() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
+void NCL::CSC8503::GameTechRenderer::RenderCircle(float cx, float cy, float r, const Vector4& color)
+{
+	BindShader(miniMapWall);
+	const auto& u_center = glGetUniformLocation(miniMapWall->GetProgramID(), "u_Center");
+	const auto& u_color = glGetUniformLocation(miniMapWall->GetProgramID(), "u_Color");
+	const auto& u_radius = glGetUniformLocation(miniMapWall->GetProgramID(), "u_Radius");
+
+	// rectangle that covers the whole screen
+	// cause we might draw circles anywhere in the screen
+	float map_area[] = {
+		-1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+	};
+
+	// bind a new vertex array
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// bind vertex buffers
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), (const void*)map_area, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+	// set shader uniforms
+	glUniform2f(u_center, cx, cy);
+	glUniform4f(u_color, color.x, color.y, color.z, color.w);
+	glUniform1f(u_radius, r);
+
+	// perform draw call
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color)
+{
+	
+	BindShader(miniMapPlayer);
+	const auto& u_color = glGetUniformLocation(miniMapPlayer->GetProgramID(), "u_Color");
+
+	v1.x = (v1.x / windowWidth) * 2 - 1.0f;
+	v1.y = (v1.y / windowHeight) * 2 - 1.0f;
+
+	v2.x = (v2.x / windowWidth) * 2 - 1.0f;
+	v2.y = (v2.y / windowHeight) * 2 - 1.0f;
+
+	v3.x = (v3.x / windowWidth) * 2 - 1.0f;
+	v3.y = (v3.y / windowHeight) * 2 - 1.0f;
+
+	// form the triangle in constrained format
+	float map_area[] = {
+		v1.x,
+		v1.y,
+		v2.x,
+		v2.y,
+		v3.x,
+		v3.y,
+	};
+
+	// bind a new vertex array
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// bind vertex buffers
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), (const void*)map_area, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+	// set shader uniforms
+	glUniform4f(u_color, color.x, color.y, color.z, color.w);
+
+	// perform draw call
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderMap()
+{
+	float map_x = 1100.0f;
+	float map_y = 100.0f;
+	float map_size = 80.0f;
+	float draw_distance = 25.0f;
+	Vector4 map_color(0.8f, 0.8f, 0.8f, 0.7f);
+	RenderCircle(map_x, map_y, map_size, map_color);
+
+	// player triangle(center in map)
+	// in counter clock order
+	float p_size = 10.0f;
+	Vector2 p_left(map_x - p_size, map_y - p_size);
+	Vector2 p_right(map_x + p_size, map_y - p_size);
+	Vector2 p_up(map_x, map_y + p_size);
+	Vector4 p_color(0.0f, 0.8f, 0.0f, 0.7f);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	RenderTriangle(p_left, p_right, p_up, p_color);
+
+	const auto& player = gameWorld.GetPlayer();
+	const auto& camera = gameWorld.GetMainCamera();
+
+	// objects that is near the player
+	vector<GameObject*> near_objects;
+
+	gameWorld.OperateOnContents(
+		[&](GameObject* o)
+		{
+			if (o->GetName() != "cube" && o->GetName() != "goose")
+				return;
+			Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
+			Vector2 o_pos(o->GetPhysicsObject()->getTransform().getPosition().x, o->GetPhysicsObject()->getTransform().getPosition().z);
+			float dis = (p_pos - o_pos).Length();
+			if (dis < draw_distance)
+			{
+				near_objects.push_back(o);
+			}
+		});
+
+	// rotation matrix of camera
+	// the built in yaw is a little bit strange , which is not continous
+	// make it continous here
+	float camera_yaw = camera->GetYaw() < 0 ? -camera->GetYaw() : 360.0f - camera->GetYaw();
+	// cause the initial pos of the player is facing down , offset the yaw by 180 degress
+	// but at the same time , rotated map is x mirrored , will inverse that in the code below
+	Matrix2 rotation = Matrix2::Matrix2().Rotation(camera_yaw - 180.0f);
+	const auto& rot_array = rotation.array;
+
+	// get inverse of the rotation
+	float coe = 1.0f / (rot_array[1][1] * rot_array[0][0] - rot_array[1][0] * rot_array[0][1]);
+	Matrix2 inverse = rotation
+		.SetColumn(0, Vector2(rot_array[0][0], -rot_array[0][1]) * coe)
+		.SetColumn(1, Vector2(-rot_array[1][0], rot_array[1][1]) * coe);
+
+	Vector4 cubeColor(0.3f, 0.3f, 0.3f, 0.7f);
+	Vector4 gooseColor(0.0f, 0.0f, 0.3f, 0.7f);
+
+	for (const auto& object : near_objects)
+	{
+		Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
+		Vector2 o_pos(object->GetPhysicsObject()->getTransform().getPosition().x, object->GetPhysicsObject()->getTransform().getPosition().z);
+
+		// the relative vector without any rotation for the object
+		Vector2 object_vec = o_pos - p_pos;
+
+		const float dis = object_vec.Length();
+
+		// inverse the yaw of the camera
+		Vector2 object_vec_inverse = inverse * object_vec.Normalised();
+
+		// determin how far we should draw from the player ?
+		float draw_ratio = dis / draw_distance;
+		object_vec_inverse.x *= -1;
+
+		// the final position in the map
+		Vector2 object_pos = Vector2(map_x, map_y) + ((object_vec_inverse * map_size) * draw_ratio);
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		RenderCircle(object_pos.x, object_pos.y, object->GetName() == "cube" ? 15.0f : 10.0f, object->GetName() == "cube" ? cubeColor : gooseColor);
+	}
+
+	//std::cout << "near item count: " << near_objects.size() << std::endl;
+
+	//std::cout << "player"<< ": " << player->GetPhysicsObject()->getTransform().getPosition() << std::endl;
+
+	//std::cout << "camera"
+	///	<< ": "
+	//	<< " pos:" << camera->GetPosition()
+	//	<< " pitch:" << camera->GetPitch()
+	//	<< " yaw:" << camera_yaw
+	//	<< std::endl;
+
+	return;
+
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
+{
+	Vector2 p_triangle1, p_triangle2, p_triangle3;
+	p_triangle1 = Vector2(px, py);
+	p_triangle2 = Vector2(px, py - height);
+	p_triangle3 = Vector2(px + width, py);
+	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+
+	p_triangle1 = Vector2(px, py - height);
+	p_triangle2 = Vector2(px + width, py - height);
+	p_triangle3 = Vector2(px + width, py);
+	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+}
+
 void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
 {
 	glEnable(GL_BLEND);
@@ -221,8 +432,6 @@ void NCL::CSC8503::GameTechRenderer::RenderCrossHair()
 	DrawBoundMesh();
 }
 
-
-
 void GameTechRenderer::RenderFrame( ) 
 {
 	glEnable(GL_CULL_FACE);
@@ -239,18 +448,33 @@ void GameTechRenderer::RenderFrame( )
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	NewRenderLines();
-	RenderTimerQuad();
-	RenderCrossHair();
-	NewRenderText();
+	
+	RenderHUD();
+}
+void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
+{
+	glEnable(GL_CULL_FACE);
+	glClearColor(1, 1, 1, 1);
+	BuildObjectList();
+	SortObjectList();
+	RenderShadowMap(0, 0, windowWidth * 0.5, windowHeight);
 
+	RenderSkybox(*gameWorld.GetMainCamera());
+	RenderCamera(*gameWorld.GetMainCamera(), screenAspectSplit);
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+	RenderCrossHair();
+	RenderMap();
 	RenderHealthBar(gameWorld.GetPlayerHealth());
-	RenderProgressBar(0.3f);
+
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
 void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 {
 	glEnable(GL_CULL_FACE);
@@ -269,7 +493,7 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 	glEnable(GL_BLEND);
 	RenderCrossHair();
-
+	RenderMap();
 	RenderHealthBar(gameWorld.GetPlayerCoopHealth());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -277,32 +501,21 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
+void NCL::CSC8503::GameTechRenderer::RenderHUD()
 {
-	glEnable(GL_CULL_FACE);
-	glClearColor(1, 1, 1, 1);
-	BuildObjectList();
-	SortObjectList();
-	RenderShadowMap(0, 0, windowWidth * 0.5, windowHeight);
-
-	RenderSkybox(*gameWorld.GetMainCamera());
-	RenderCamera(*gameWorld.GetMainCamera(), screenAspectSplit);
-	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
-	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_BLEND);
+	NewRenderLines();
+	RenderTimerQuad();
 	RenderCrossHair();
-	RenderHealthBar(gameWorld.GetPlayerHealth());
+	NewRenderText();
+	RenderMap();
 
+	RenderHealthBar(gameWorld.GetPlayerHealth());
+	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 }
-
-void NCL::CSC8503::GameTechRenderer::RenderHUD()
+void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
 {
 
 	glViewport(0, 0, windowWidth, windowHeight);
@@ -315,15 +528,12 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 	RenderTimerQuad();
 	NewRenderText();
 
-	RenderProgressBar(0.3f);
+	RenderProgressBar(gameWorld.getColourOneScore() + gameWorld.getColourTwoScore());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 }
-
-
-
 
 void GameTechRenderer::BuildObjectList() {
 	activeObjects.clear();
@@ -339,7 +549,6 @@ void GameTechRenderer::BuildObjectList() {
 		}
 	);
 }
-
 void GameTechRenderer::SortObjectList() 
 {
 
@@ -381,8 +590,6 @@ void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height
 
 	glCullFace(GL_BACK);
 }
-
-
 void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
@@ -511,7 +718,6 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 	}
 }
 
-
 MeshGeometry* GameTechRenderer::LoadMesh(const string& name) {
 	OGLMesh* mesh = new OGLMesh(name);
 	mesh->SetPrimitiveType(GeometryPrimitive::Triangles);
@@ -592,7 +798,6 @@ void GameTechRenderer::NewRenderText() {
 		float size = 20.0f;
 		Debug::GetDebugFont()->BuildVerticesForString(s.data, s.position, s.colour, size, debugTextPos, debugTextUVs, debugTextColours);
 	}
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, textVertVBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, frameVertCount * sizeof(Vector3), debugTextPos.data());

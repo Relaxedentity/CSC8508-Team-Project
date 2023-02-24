@@ -35,10 +35,11 @@ namespace NCL {
 			void NewRenderLines();
 			void NewRenderText();
 
-			void RenderFrame()	override;
+			void RenderFrame()		override;
 			void RenderFirstFrame() override;
-			void RenderSecFrame() override;
-			void RenderHUD()	override;
+			void RenderSecFrame()	override;
+			void RenderHUD()		override;
+			void RenderCoopHUD()	override;
 	
 
 			OGLShader*		defaultShader;
@@ -58,6 +59,11 @@ namespace NCL {
 			void Particles();
 			void LoadSkybox();
 
+			void RenderCircle(float cx, float cy, float r, const Vector4& color);
+			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color);
+			void RenderMap();
+			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
+
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
 			void SetDebugLineBufferSizes(size_t newVertCount);
@@ -68,6 +74,11 @@ namespace NCL {
 			OGLShader*  skyboxShader;
 			OGLMesh*	skyboxMesh;
 			GLuint		skyboxTex;
+
+			//map shading
+			OGLShader* miniMapWall;
+			OGLShader* miniMapEnemy;
+			OGLShader* miniMapPlayer;
 
 			// health bar shading
 			OGLShader* healthShader;

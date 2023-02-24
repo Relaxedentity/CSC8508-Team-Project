@@ -111,6 +111,7 @@ namespace NCL::CSC8503 {
 		bool IsGrounded() const {
 			return isGrounded;
 		}
+
 		NCL::Maths::Vector3 collisionPoint;
 
 	protected:
@@ -126,6 +127,8 @@ namespace NCL::CSC8503 {
 		reactphysics3d::Quaternion yaw;
 		bool isGrounded = false;
 		GameWorld* world;
+
+	//	std::string name;
 	};
 }
 
