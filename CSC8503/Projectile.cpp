@@ -22,7 +22,9 @@ Projectile::~Projectile() {
 void Projectile::OnCollisionBegin(GameObject* otherObject) {
 
 	std::cout << collisionPoint << std::endl;
-	world->painted.push_back(collisionPoint);
+	int colourInt = (paintColour == 'r') ? 1 : 2;
+	Vector4 paintCollision = Vector4(collisionPoint, colourInt);
+	world->painted.push_back(paintCollision);
 
 	std::cout << "projectile paint colour: " << paintColour << "\n";
 

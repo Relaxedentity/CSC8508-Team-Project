@@ -1444,7 +1444,7 @@ bool TutorialGame::SelectObject() {
 	if (inSelectionMode) {
 		//Debug::Print("Press Q to change to camera mode!", Vector2(5, 85));
 
-		if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT)) {
+		if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT) || Window::GetMouse()->ButtonPressed(NCL::MouseButtons::RIGHT)) {
 			if (selectionObject) {	//set colour to deselected;
 				selectionObject->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
 				selectionObject = nullptr;
@@ -1460,7 +1460,11 @@ bool TutorialGame::SelectObject() {
 				selectionObject = (GameObject*)closestCollision->object;
 
 				//selectionObject->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
-				world->painted.push_back(closestCollision->hitPos);
+
+				int colourInt = (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT)) ? 1 : 2;
+				Vector4 paintCollision = Vector4(closestCollision->hitPos, colourInt);
+
+				world->painted.push_back(paintCollision);
 				for (Vector4 x : world->painted) {
 					std::cout << x<<"\n";
 				}

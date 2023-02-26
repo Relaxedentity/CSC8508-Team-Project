@@ -48,7 +48,10 @@ void main(void)
 	for(int i = 0; i< 1000;i++) {
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
 		if(circledist < 2.0f) {
-			albedo.rgb  *= vec3(1,0,0);
+
+			vec3 paintColour = (paintedPos[i].w == 1) ? vec3(1, 0, 0) : vec3(0, 0, 1);
+			albedo.rgb  *= paintColour;
+
 			sFactor *= 2;
 			break;
 		}

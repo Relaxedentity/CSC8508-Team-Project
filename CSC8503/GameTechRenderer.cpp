@@ -675,7 +675,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			
 			
 			for (int i = 0; i < gameWorld.painted.size();i++) {
-				Vector4 paintedPos = Vector4(gameWorld.painted[i], 0);
+				Vector4 paintedPos = gameWorld.painted[i];
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", i);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);

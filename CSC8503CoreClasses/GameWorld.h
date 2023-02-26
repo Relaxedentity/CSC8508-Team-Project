@@ -136,7 +136,7 @@ namespace NCL {
 			int GetWorldStateID() const {
 				return worldStateCounter;
 			}
-			vector<Vector3> painted;
+			vector<Vector4> painted;
 
 			void paintTally();
 			void testPaintNodes(Vector3 inPos, char iChar);
