@@ -1,11 +1,12 @@
+#pragma once
 #include <reactphysics3d/reactphysics3d.h>
 #include "TutorialGame.h"
 #include "GameWorld.h"
 #include "RenderObject.h"
 #include "TextureLoader.h"
 #include "NetworkObject.h"
-#include "StateGameObject.h"
-#include "BTreeObject.h"
+//#include "StateGameObject.h"
+//#include "BTreeObject.h"
 #include "Debug.h"
 #include <iostream>
 #include <fstream>
