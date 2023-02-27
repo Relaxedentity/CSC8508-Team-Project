@@ -11,24 +11,10 @@
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
 
-PlayerObject::PlayerObject(GameWorld* world, std::string name) :GameObject(world, name) {
+PlayerObject::PlayerObject(GameWorld* world, std::string name) :PaintClass(world, name) {
 
 }
 
 PlayerObject::~PlayerObject() {
 
-}
-
-void PlayerObject::setPaintColour(char input) {
-	paintColour = input;
-	Vector4 colourVector;
-	switch (input) {
-	case 'r':
-		colourVector = Vector4(1, 0, 0, 1);
-		break;
-	case 'b':
-		colourVector = Vector4(0, 0, 1, 1);
-		break;
-	}
-	GetRenderObject()->SetColour(colourVector);
 }

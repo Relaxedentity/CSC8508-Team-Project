@@ -11,7 +11,7 @@
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
 
-Projectile::Projectile(GameWorld* world, std::string name) :GameObject(world,name) {
+Projectile::Projectile(GameWorld* world, std::string name) : PaintClass(world,name) {
 
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "PaintClass.h"
 #include <string>
 
 namespace reactphysics3d {
@@ -9,14 +10,9 @@ namespace reactphysics3d {
 }
 
 namespace NCL::CSC8503 {
-	class PlayerObject : public GameObject {
+	class PlayerObject : public PaintClass {
 	public:
 		PlayerObject(GameWorld* world, std::string name = "");
 		~PlayerObject();
-		void setPaintColour(char input);
-		char getPaintColour() { return paintColour; }
-	protected:
-		char paintColour;
 	};
 }
-
