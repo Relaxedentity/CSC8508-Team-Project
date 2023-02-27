@@ -15,6 +15,16 @@ set(Header_Files
 )
 source_group("Header Files" FILES ${Header_Files})
 
+set(Menu_Files
+    "IntroScreen.h"
+    "GameScreen.h"
+    "GameIntroduction.h"
+    "GameEnd.h"
+    "PauseScreen.h"
+)
+
+source_group("Menu_Files" FILES ${Menu_Files})
+
 set(Source_Files
     "GameTechRenderer.cpp"
     "Main.cpp"
@@ -41,6 +51,7 @@ source_group("Source Files" FILES ${Source_Files})
 set(ALL_FILES
     ${Header_Files}
     ${Source_Files}
+    ${Menu_Files}
 )
 
 if(USE_VULKAN)
@@ -48,6 +59,7 @@ if(USE_VULKAN)
         ${Header_Files}
         ${Source_Files}
         ${SHADER_FILES}
+        ${Menu_Files}
     )
 
 foreach (file ${SHADER_FILES})
