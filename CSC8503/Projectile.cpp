@@ -11,7 +11,7 @@
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
 
-Projectile::Projectile(GameWorld* world, std::string name) :GameObject(world,name) {
+Projectile::Projectile(GameWorld* world, std::string name) : PaintClass(world,name) {
 
 }
 
@@ -20,6 +20,10 @@ Projectile::~Projectile() {
 }
 
 void Projectile::OnCollisionBegin(GameObject* otherObject) {
+	if (dynamic_cast<Projectile*>(otherObject)) {
+		return;
+	}
+
 
 	std::cout << collisionPoint << std::endl;
 	int colourInt = (paintColour == 'r') ? 1 : 2;

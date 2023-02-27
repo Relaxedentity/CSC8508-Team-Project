@@ -966,7 +966,6 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID) {
 	PlayerObject* character = new PlayerObject(world);
 	character->SetTag(1);
-	character->setScore(0);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
@@ -1005,7 +1004,6 @@ PlayerObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d:
 {
 	PlayerObject* character = new PlayerObject(world);
 	character->SetTag(1);
-	character->setScore(0);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
