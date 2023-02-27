@@ -20,6 +20,10 @@ Projectile::~Projectile() {
 }
 
 void Projectile::OnCollisionBegin(GameObject* otherObject) {
+	if (dynamic_cast<Projectile*>(otherObject)) {
+		return;
+	}
+
 
 	std::cout << collisionPoint << std::endl;
 	int colourInt = (paintColour == 'r') ? 1 : 2;

@@ -12,6 +12,7 @@ set(Header_Files
 	"BTreeObject.h"
     "HierarchicalState.h"
     "Projectile.h"
+    "PaintClass.h"
     "PlayerObject.h"
 )
 source_group("Header Files" FILES ${Header_Files})
@@ -25,6 +26,7 @@ set(Source_Files
     "TutorialGame.cpp"
 	"BTreeObject.cpp"
     "Projectile.cpp"
+    "PaintClass.cpp"
     "PlayerObject.cpp"
 )
 

@@ -510,7 +510,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 	RenderMap();
 
 	RenderHealthBar(gameWorld.GetPlayerHealth());
-	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
+	RenderProgressBar(gameWorld.getColourOneScore() );
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -528,7 +528,7 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
 	RenderTimerQuad();
 	NewRenderText();
 
-	RenderProgressBar(gameWorld.getColourOneScore() + gameWorld.getColourTwoScore());
+	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -40,9 +40,9 @@ NetworkedGame::~NetworkedGame() {
 
 void NetworkedGame::StartAsServer() {
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 4);
-	player2 = AddPlayerToWorld(reactphysics3d::Vector3(10, 5, -330), reactphysics3d::Quaternion::identity(), 2, 2);
-	player3 = AddPlayerToWorld(reactphysics3d::Vector3(15, 5, -330), reactphysics3d::Quaternion::identity(), 3, 3);
-	player4 = AddPlayerToWorld(reactphysics3d::Vector3(20, 5, -330), reactphysics3d::Quaternion::identity(), 4, 4);
+	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), 2, 2);
+	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), 3, 3);
+	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), 4, 4);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	//goose->setTarget2(player2);
 	
@@ -52,9 +52,9 @@ void NetworkedGame::StartAsServer() {
 void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient = new GameClient();
 	thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
-	player2 = AddPlayerToWorld(reactphysics3d::Vector3(10, 5, -330), reactphysics3d::Quaternion::identity(), 2, 2);
-	player3 = AddPlayerToWorld(reactphysics3d::Vector3(15, 5, -330), reactphysics3d::Quaternion::identity(), 3, 3);
-	player4 = AddPlayerToWorld(reactphysics3d::Vector3(20, 5, -330), reactphysics3d::Quaternion::identity(), 4, 4);
+	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), 2, 2);
+	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), 3, 3);
+	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), 4, 4);
 
 	thisClient->RegisterPacketHandler(Delta_State, this);
 	thisClient->RegisterPacketHandler(Full_State, this);
@@ -93,7 +93,6 @@ void NetworkedGame::UpdateGame(float dt) {
 
 void NetworkedGame::UpdateAsServer(float dt) {
 	MovePlayer(player, dt);
-	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisServer->UpdateServer();
 
 
@@ -127,7 +126,6 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		grounded = player4->IsGrounded();
 		break;
 	}
-	Debug::Print(std::to_string(player2->getScore()), Vector2(15, 95), Debug::RED);
 	thisClient->UpdateClient();
 
 	ClientPacket newPacket;
