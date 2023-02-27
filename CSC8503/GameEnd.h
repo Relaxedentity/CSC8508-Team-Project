@@ -25,14 +25,15 @@ namespace NCL {
 					}
 				}
 				if (t->GetGameWorld()->GetObjectCount() == 0 && t->getPlayer2() == NULL) {
-					Debug::Print("You have won. And player scored: " + t->player->getScore(), Vector2(30, 60), Vector4(1.0, 0.0, 0.0, 0.0));
+					//Debug::Print("You have won. And player scored: " + t->player->getScore(), Vector2(30, 60), Vector4(1.0, 0.0, 0.0, 0.0));
 					if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1))
 					{
 						return PushdownResult::Pop;
 					}
 				}
 				if (t->GetGameWorld()->GetObjectCount() == 0 && t->getPlayer2() != NULL) {
-					if (t->getPlayer()->getScore() > t->getPlayer2()->getScore()) {
+					//if (t->getPlayer()->getScore() > t->getPlayer2()->getScore()) {
+					if (false) {
 						Debug::Print("Player 1 has won.\n", Vector2(40, 50), Vector4(1.0, 0.0, 0.0, 0.0));
 						if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1))
 						{
