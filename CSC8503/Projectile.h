@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "PaintClass.h"
 #include <string>
 
 namespace reactphysics3d {
@@ -9,7 +10,7 @@ namespace reactphysics3d {
 }
 
 namespace NCL::CSC8503 {
-	class Projectile : public GameObject {
+	class Projectile : public PaintClass {
 	public:
 		Projectile(GameWorld* world, std::string name = "");
 		~Projectile();
@@ -17,5 +18,4 @@ namespace NCL::CSC8503 {
 		void Update(float dt) override;
 		float time;
 	};
-
 }

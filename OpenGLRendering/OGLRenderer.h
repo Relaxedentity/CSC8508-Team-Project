@@ -66,10 +66,14 @@ namespace NCL {
 			//virtual Matrix4 SetupDebugStringMatrix()const;
 
 		protected:			
-			void BeginFrame()	override;
-			void RenderFrame()	override;
-			void EndFrame()		override;
-			void SwapBuffers()  override;
+			void BeginFrame()		override;
+			void RenderFrame()		override;
+			void RenderFirstFrame() override;
+			void RenderSecFrame()	override;
+			void RenderHUD()		override;
+			void RenderCoopHUD()	override;
+			void EndFrame()			override;
+			void SwapBuffers()		override;
 
 			void DrawDebugData();
 			void DrawDebugStrings();

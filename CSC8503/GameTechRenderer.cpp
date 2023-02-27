@@ -19,25 +19,31 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	debugShader  = new OGLShader("debug.vert", "debug.frag");
 	shadowShader = new OGLShader("shadow.vert", "shadow.frag");
 
-
+	screenAspectSplit = ((float)windowWidth * 0.5) / (float)windowHeight;
+	screenAspect = (float)windowWidth / (float)windowHeight;
+	
+	// build texture that serves as the shadow attachment of the first framebuffer
 	glGenTextures(1, &shadowTex);
 	glBindTexture(GL_TEXTURE_2D, shadowTex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-			     SHADOWSIZE, SHADOWSIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,SHADOWSIZE, SHADOWSIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+
+	// build texture that will serve as colour attachment of the second framebuffer
+
+	// shadow buffer
 	glGenFramebuffers(1, &shadowFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, shadowTex, 0);
 	glDrawBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	
 	glClearColor(1, 1, 1, 1);
 
 	//Set up the light properties
@@ -76,13 +82,27 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	simpleShader = new OGLShader("simpleVert.glsl", "simpleFrag.glsl");
 	quad = new OGLMesh();
 	quad->GenerateQuad(quad);
-
-	//quad->SetVertexPositions({ Vector3(-0.5, 0.9,-1), Vector3(-0.5,1,-1) , Vector3(0.4, 1,-1) , Vector3(0.4, 0.9,-1) });
-	//quad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
-	//quad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
-	//quad->SetVertexIndices({ 0,1,2,2,3,0 });
-
 	quad->UploadToGPU();
+
+	// crosshair quad 
+	aimShader = new OGLShader("aimVert.glsl", "aimFrag.glsl");
+	aimQuad = new OGLMesh();
+
+	aimTex = new OGLTexture();
+	aimTex = (OGLTexture*)aimTex->RGBATextureFromFilename("crosshair018.png");
+	
+	aimQuad->SetVertexPositions({ Vector3(-0.05, -0.1,-1), Vector3(-0.05, 0.1,-1) , Vector3(0.05, 0.1,-1) , Vector3(0.05, -0.1,-1) });
+	aimQuad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	aimQuad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
+	aimQuad->SetVertexIndices({ 0,1,2,2,3,0 });
+	aimQuad->UploadToGPU();
+
+	// mini map
+
+	miniMapWall = new OGLShader("circle.vert", "circle.frag");
+	//miniMapEnemy = new OGLShader()
+	miniMapPlayer = new OGLShader("triangle.vert", "triangle.frag");
+
 
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
@@ -109,9 +129,20 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete progressBar;
 	delete quad;
 
+	delete aimShader;
+	delete aimQuad;
+	delete aimTex;
+
+	delete miniMapPlayer;
+	delete miniMapEnemy;
+	delete miniMapWall;
+
 	
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
+
+	//glDeleteTextures(1, &secScreenTex);
+	//glDeleteFramebuffers(1, &secScreenFBO);
 }
 
 void GameTechRenderer::LoadSkybox() {
@@ -154,8 +185,212 @@ void GameTechRenderer::LoadSkybox() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
+void NCL::CSC8503::GameTechRenderer::RenderCircle(float cx, float cy, float r, const Vector4& color)
+{
+	BindShader(miniMapWall);
+	const auto& u_center = glGetUniformLocation(miniMapWall->GetProgramID(), "u_Center");
+	const auto& u_color = glGetUniformLocation(miniMapWall->GetProgramID(), "u_Color");
+	const auto& u_radius = glGetUniformLocation(miniMapWall->GetProgramID(), "u_Radius");
+
+	// rectangle that covers the whole screen
+	// cause we might draw circles anywhere in the screen
+	float map_area[] = {
+		-1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+	};
+
+	// bind a new vertex array
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// bind vertex buffers
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), (const void*)map_area, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+	// set shader uniforms
+	glUniform2f(u_center, cx, cy);
+	glUniform4f(u_color, color.x, color.y, color.z, color.w);
+	glUniform1f(u_radius, r);
+
+	// perform draw call
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color)
+{
+	
+	BindShader(miniMapPlayer);
+	const auto& u_color = glGetUniformLocation(miniMapPlayer->GetProgramID(), "u_Color");
+
+	v1.x = (v1.x / windowWidth) * 2 - 1.0f;
+	v1.y = (v1.y / windowHeight) * 2 - 1.0f;
+
+	v2.x = (v2.x / windowWidth) * 2 - 1.0f;
+	v2.y = (v2.y / windowHeight) * 2 - 1.0f;
+
+	v3.x = (v3.x / windowWidth) * 2 - 1.0f;
+	v3.y = (v3.y / windowHeight) * 2 - 1.0f;
+
+	// form the triangle in constrained format
+	float map_area[] = {
+		v1.x,
+		v1.y,
+		v2.x,
+		v2.y,
+		v3.x,
+		v3.y,
+	};
+
+	// bind a new vertex array
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// bind vertex buffers
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), (const void*)map_area, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+	// set shader uniforms
+	glUniform4f(u_color, color.x, color.y, color.z, color.w);
+
+	// perform draw call
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderMap()
+{
+	float map_x = 1100.0f;
+	float map_y = 100.0f;
+	float map_size = 80.0f;
+	float draw_distance = 25.0f;
+	Vector4 map_color(0.8f, 0.8f, 0.8f, 0.7f);
+	RenderCircle(map_x, map_y, map_size, map_color);
+
+	// player triangle(center in map)
+	// in counter clock order
+	float p_size = 10.0f;
+	Vector2 p_left(map_x - p_size, map_y - p_size);
+	Vector2 p_right(map_x + p_size, map_y - p_size);
+	Vector2 p_up(map_x, map_y + p_size);
+	Vector4 p_color(0.0f, 0.8f, 0.0f, 0.7f);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	RenderTriangle(p_left, p_right, p_up, p_color);
+
+	const auto& player = gameWorld.GetPlayer();
+	const auto& camera = gameWorld.GetMainCamera();
+
+	// objects that is near the player
+	vector<GameObject*> near_objects;
+
+	gameWorld.OperateOnContents(
+		[&](GameObject* o)
+		{
+			if (o->GetName() != "cube" && o->GetName() != "goose")
+				return;
+			Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
+			Vector2 o_pos(o->GetPhysicsObject()->getTransform().getPosition().x, o->GetPhysicsObject()->getTransform().getPosition().z);
+			float dis = (p_pos - o_pos).Length();
+			if (dis < draw_distance)
+			{
+				near_objects.push_back(o);
+			}
+		});
+
+	// rotation matrix of camera
+	// the built in yaw is a little bit strange , which is not continous
+	// make it continous here
+	float camera_yaw = camera->GetYaw() < 0 ? -camera->GetYaw() : 360.0f - camera->GetYaw();
+	// cause the initial pos of the player is facing down , offset the yaw by 180 degress
+	// but at the same time , rotated map is x mirrored , will inverse that in the code below
+	Matrix2 rotation = Matrix2::Matrix2().Rotation(camera_yaw - 180.0f);
+	const auto& rot_array = rotation.array;
+
+	// get inverse of the rotation
+	float coe = 1.0f / (rot_array[1][1] * rot_array[0][0] - rot_array[1][0] * rot_array[0][1]);
+	Matrix2 inverse = rotation
+		.SetColumn(0, Vector2(rot_array[0][0], -rot_array[0][1]) * coe)
+		.SetColumn(1, Vector2(-rot_array[1][0], rot_array[1][1]) * coe);
+
+	Vector4 cubeColor(0.3f, 0.3f, 0.3f, 0.7f);
+	Vector4 gooseColor(0.0f, 0.0f, 0.3f, 0.7f);
+
+	for (const auto& object : near_objects)
+	{
+		Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
+		Vector2 o_pos(object->GetPhysicsObject()->getTransform().getPosition().x, object->GetPhysicsObject()->getTransform().getPosition().z);
+
+		// the relative vector without any rotation for the object
+		Vector2 object_vec = o_pos - p_pos;
+
+		const float dis = object_vec.Length();
+
+		// inverse the yaw of the camera
+		Vector2 object_vec_inverse = inverse * object_vec.Normalised();
+
+		// determin how far we should draw from the player ?
+		float draw_ratio = dis / draw_distance;
+		object_vec_inverse.x *= -1;
+
+		// the final position in the map
+		Vector2 object_pos = Vector2(map_x, map_y) + ((object_vec_inverse * map_size) * draw_ratio);
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		RenderCircle(object_pos.x, object_pos.y, object->GetName() == "cube" ? 15.0f : 10.0f, object->GetName() == "cube" ? cubeColor : gooseColor);
+	}
+
+	//std::cout << "near item count: " << near_objects.size() << std::endl;
+
+	//std::cout << "player"<< ": " << player->GetPhysicsObject()->getTransform().getPosition() << std::endl;
+
+	//std::cout << "camera"
+	///	<< ": "
+	//	<< " pos:" << camera->GetPosition()
+	//	<< " pitch:" << camera->GetPitch()
+	//	<< " yaw:" << camera_yaw
+	//	<< std::endl;
+
+	return;
+
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
+{
+	Vector2 p_triangle1, p_triangle2, p_triangle3;
+	p_triangle1 = Vector2(px, py);
+	p_triangle2 = Vector2(px, py - height);
+	p_triangle3 = Vector2(px + width, py);
+	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+
+	p_triangle1 = Vector2(px, py - height);
+	p_triangle2 = Vector2(px + width, py - height);
+	p_triangle3 = Vector2(px + width, py);
+	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+}
+
 void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
 {
+	glEnable(GL_BLEND);
 	BindShader(healthShader);
 	glUniform1f(glGetUniformLocation(healthShader->GetProgramID(), "health"), health);
 	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "firstColour"), 1,0,0,1);
@@ -184,30 +419,120 @@ void NCL::CSC8503::GameTechRenderer::RenderTimerQuad()
 	DrawBoundMesh();
 }
 
+void NCL::CSC8503::GameTechRenderer::RenderCrossHair()
+{
 
-void GameTechRenderer::RenderFrame( ) {
+	BindShader(aimShader);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, aimTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(aimShader->GetProgramID(), "mainTex"), 0);
+
+	BindMesh(aimQuad);
+	DrawBoundMesh();
+}
+
+void GameTechRenderer::RenderFrame( ) 
+{
 	glEnable(GL_CULL_FACE);
 	glClearColor(1, 1, 1, 1);
 	BuildObjectList();
 	SortObjectList();
-	RenderShadowMap();
-	RenderSkybox();
-	RenderCamera();
+	RenderShadowMap(0, 0, windowWidth, windowHeight);
+
+	RenderSkybox(*gameWorld.GetMainCamera());
+	RenderCamera(*gameWorld.GetMainCamera(), screenAspect);
+
+
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	RenderHUD();
+}
+void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
+{
+	glEnable(GL_CULL_FACE);
+	glClearColor(1, 1, 1, 1);
+	BuildObjectList();
+	SortObjectList();
+	RenderShadowMap(0, 0, windowWidth * 0.5, windowHeight);
+
+	RenderSkybox(*gameWorld.GetMainCamera());
+	RenderCamera(*gameWorld.GetMainCamera(), screenAspectSplit);
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+	RenderCrossHair();
+	RenderMap();
+	RenderHealthBar(gameWorld.GetPlayerHealth());
+
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
+{
+	glEnable(GL_CULL_FACE);
+	glClearColor(1, 1, 1, 1);
+	BuildObjectList();
+	SortObjectList();
+	RenderShadowMap(windowWidth * 0.5, 0, windowWidth * 0.5, windowHeight);
+
+	RenderSkybox(*gameWorld.GetSecCamera());
+	RenderCamera(*gameWorld.GetSecCamera(), screenAspectSplit);
+
+	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+	RenderCrossHair();
+	RenderMap();
+	RenderHealthBar(gameWorld.GetPlayerCoopHealth());
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderHUD()
+{
+	NewRenderLines();
+	RenderTimerQuad();
+	RenderCrossHair();
+	NewRenderText();
+	RenderMap();
+
+	RenderHealthBar(gameWorld.GetPlayerHealth());
+	RenderProgressBar(gameWorld.getColourOneScore() );
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
+{
+
+	glViewport(0, 0, windowWidth, windowHeight);
 	
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	NewRenderLines();
+
 	RenderTimerQuad();
 	NewRenderText();
 
-	RenderHealthBar(gameWorld.GetPlayerHealth());
-	RenderProgressBar(0.3f);
+	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 }
 
 void GameTechRenderer::BuildObjectList() {
@@ -224,12 +549,12 @@ void GameTechRenderer::BuildObjectList() {
 		}
 	);
 }
-
-void GameTechRenderer::SortObjectList() {
+void GameTechRenderer::SortObjectList() 
+{
 
 }
 
-void GameTechRenderer::RenderShadowMap() {
+void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height) {
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -259,21 +584,20 @@ void GameTechRenderer::RenderShadowMap() {
 		}
 	}
 
-	glViewport(0, 0, windowWidth, windowHeight);
+	glViewport(start, end, width, height);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glCullFace(GL_BACK);
 }
-
-void GameTechRenderer::RenderSkybox() {
+void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
 	float screenAspect = (float)windowWidth / (float)windowHeight;
-	Matrix4 viewMatrix = gameWorld.GetMainCamera()->BuildViewMatrix();
-	Matrix4 projMatrix = gameWorld.GetMainCamera()->BuildProjectionMatrix(screenAspect);
+	Matrix4 viewMatrix = camera.BuildViewMatrix();
+	Matrix4 projMatrix = camera.BuildProjectionMatrix(screenAspect);
 
 	BindShader(skyboxShader);
 
@@ -296,10 +620,14 @@ void GameTechRenderer::RenderSkybox() {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void GameTechRenderer::RenderCamera() {
-	float screenAspect = (float)windowWidth / (float)windowHeight;
-	Matrix4 viewMatrix = gameWorld.GetMainCamera()->BuildViewMatrix();
-	Matrix4 projMatrix = gameWorld.GetMainCamera()->BuildProjectionMatrix(screenAspect);
+void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
+	//float screenAspect = ((float)windowWidth/2) / (float)windowHeight;
+	Matrix4 viewMatrix = camera.BuildViewMatrix();
+		
+	//	gameWorld.GetMainCamera()->BuildViewMatrix();
+	Matrix4 projMatrix = camera.BuildProjectionMatrix(aspectRatio);
+		
+		//gameWorld.GetMainCamera()->BuildProjectionMatrix(aspectRatio);
 
 	OGLShader* activeShader = nullptr;
 	int projLocation	= 0;
@@ -343,11 +671,11 @@ void GameTechRenderer::RenderCamera() {
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
 
-			Vector3 camPos = gameWorld.GetMainCamera()->GetPosition();
+			Vector3 camPos = camera.GetPosition();
 			
 			
 			for (int i = 0; i < gameWorld.painted.size();i++) {
-				Vector4 paintedPos = Vector4(gameWorld.painted[i], 0);
+				Vector4 paintedPos = gameWorld.painted[i];
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", i);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
@@ -470,7 +798,6 @@ void GameTechRenderer::NewRenderText() {
 		float size = 20.0f;
 		Debug::GetDebugFont()->BuildVerticesForString(s.data, s.position, s.colour, size, debugTextPos, debugTextUVs, debugTextColours);
 	}
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, textVertVBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, frameVertCount * sizeof(Vector3), debugTextPos.data());

@@ -78,6 +78,24 @@ void OGLRenderer::RenderFrame()		{
 
 }
 
+void NCL::Rendering::OGLRenderer::RenderFirstFrame()
+{
+}
+
+void NCL::Rendering::OGLRenderer::RenderSecFrame()
+{
+}
+
+void NCL::Rendering::OGLRenderer::RenderHUD()
+{
+}
+
+void NCL::Rendering::OGLRenderer::RenderCoopHUD()
+{
+}
+
+
+
 void OGLRenderer::EndFrame()		{
 }
 

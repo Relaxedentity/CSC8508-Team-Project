@@ -79,13 +79,6 @@ namespace NCL::CSC8503 {
 			//std::cout << "OnCollisionEnd event occured!\n";
 		}
 
-		int getScore() {
-			return score;
-		}
-		void setScore(int point) {
-			score = point;
-		}
-
 		void SetWorldID(int newID) {
 			worldID = newID;
 		}
@@ -111,6 +104,7 @@ namespace NCL::CSC8503 {
 		bool IsGrounded() const {
 			return isGrounded;
 		}
+
 		NCL::Maths::Vector3 collisionPoint;
 
 	protected:
@@ -118,7 +112,6 @@ namespace NCL::CSC8503 {
 		RenderObject*		renderObject;
 		NetworkObject*		networkObject;
 		GameObject*			associated;
-		int score;
 		bool		isActive;
 		int			worldID;
 		int			objectTag;
@@ -126,6 +119,8 @@ namespace NCL::CSC8503 {
 		reactphysics3d::Quaternion yaw;
 		bool isGrounded = false;
 		GameWorld* world;
+
+	//	std::string name;
 	};
 }
 

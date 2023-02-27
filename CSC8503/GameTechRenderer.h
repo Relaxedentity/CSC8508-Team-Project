@@ -27,6 +27,7 @@ namespace NCL {
 			void RenderHealthBar(float health);
 			void RenderProgressBar(float score);
 			void RenderTimerQuad();
+			void RenderCrossHair();
 
 			
 
@@ -34,19 +35,34 @@ namespace NCL {
 			void NewRenderLines();
 			void NewRenderText();
 
-			void RenderFrame()	override;
+			void RenderFrame()		override;
+			void RenderFirstFrame() override;
+			void RenderSecFrame()	override;
+			void RenderHUD()		override;
+			void RenderCoopHUD()	override;
+	
 
 			OGLShader*		defaultShader;
-
 			GameWorld&	gameWorld;
+
+			float screenAspectSplit;
+			float screenAspect;
 
 			void BuildObjectList();
 			void SortObjectList();
-			void RenderShadowMap();
-			void RenderCamera(); 
-			void RenderSkybox();
+
+			void RenderShadowMap(int start, int end, int width, int height);
+
+			void RenderCamera(Camera& camera, float& aspectRatio); 
+
+			void RenderSkybox(Camera& camera);
 			void Particles();
 			void LoadSkybox();
+
+			void RenderCircle(float cx, float cy, float r, const Vector4& color);
+			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color);
+			void RenderMap();
+			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
 
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -59,6 +75,11 @@ namespace NCL {
 			OGLMesh*	skyboxMesh;
 			GLuint		skyboxTex;
 
+			//map shading
+			OGLShader* miniMapWall;
+			OGLShader* miniMapEnemy;
+			OGLShader* miniMapPlayer;
+
 			// health bar shading
 			OGLShader* healthShader;
 			OGLMesh* healthQuad;
@@ -70,6 +91,11 @@ namespace NCL {
 			//timer background
 			OGLShader* simpleShader;
 			OGLMesh* quad;
+
+			//crosshair background
+			OGLShader*aimShader;
+			OGLMesh* aimQuad;
+			OGLTexture* aimTex;
 
 			//shadow mapping things
 			OGLShader*	shadowShader;
