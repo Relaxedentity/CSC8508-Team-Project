@@ -28,7 +28,7 @@ namespace NCL::CSC8503 {
 	class GameObject{
 	public:
 		GameObject(GameWorld* world, std::string name = "");
-		~GameObject();
+		virtual ~GameObject();
 		virtual void Update(float dt){};
 		void setActive(bool active){
 			isActive = active;
