@@ -86,6 +86,5 @@ void PS4Mesh::SubmitPreDraw(Gnmx::GnmxGfxContext& cmdList, Gnm::ShaderStage stag
 void PS4Mesh::SubmitDraw(Gnmx::GnmxGfxContext& cmdList, Gnm::ShaderStage stage) {
 	cmdList.setPrimitiveType(primitiveType);
 	cmdList.setIndexSize(indexType);
-	cmdList.drawIndex(numIndixes, indexBuffer);
+	cmdList.drawIndex(numIndices, indexBuffer);
 }
-
