@@ -5,6 +5,7 @@ set(PROJECT_NAME PS4Rendering)
 ################################################################################
 set(Header_Files
     "PS4Renderer.h"
+    "PS4MemoryAware.h"
 )
 source_group("Header Files" FILES ${Header_Files})
 
