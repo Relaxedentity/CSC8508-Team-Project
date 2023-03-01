@@ -42,8 +42,7 @@ class GameScreen : public PushdownState {
 	void OnAwake() override {
 		w->GetTimer()->GetTimeDeltaSeconds();
 	}
-	PushdownResult OnUpdate(float dt,
-		PushdownState** newState) override {
+	PushdownResult OnUpdate(float dt, PushdownState** newState) override {
 		
 		w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
 		//TestPathfinding();
@@ -76,7 +75,7 @@ class GameScreen : public PushdownState {
 			}
 			if (pauseReminder < 0) {
 				std::cout << "Time has elapsed. You have lost. Returning to main menu!\n";
-				pauseReminder += 60.0f;
+				pauseReminder += 300.0f;
 				return PushdownResult::Pop;
 			}
 			if (rand() % 7 == 0) {
@@ -94,7 +93,7 @@ class GameScreen : public PushdownState {
 
 protected:
 	int coinsMined = 0;
-	float pauseReminder = 240;
+	float pauseReminder = 300;
 };
 
 class IntroScreen : public PushdownState {
