@@ -124,6 +124,8 @@ namespace NCL {
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
 
+			void RenderDebug(float dt);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else

@@ -16,6 +16,8 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
+#include "windows.h"
+#include "psapi.h"
 
 #include <Xinput.h>
 
@@ -130,8 +132,7 @@ void TutorialGame::UpdateGame(float dt) {
 		debug = !debug;
 	}
 	if (debug) {
-		std::string fps = "FPS: " + std::to_string((int)(1 / dt));
-		Debug::Print(fps, Vector2(5, 5), Debug::WHITE);
+		RenderDebug(dt);
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
@@ -173,9 +174,9 @@ void TutorialGame::UpdateGame(float dt) {
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
 	float scoreOne = world->getColourOneScore();
-	Debug::Print(std::to_string((float)scoreOne), Vector2(5, 15), Debug::WHITE);
+	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 15), Debug::WHITE);
 	float scoreTwo = world->getColourTwoScore();
-	Debug::Print(std::to_string((float)scoreTwo), Vector2(5, 17), Debug::WHITE);
+	Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 17), Debug::WHITE);
 
 	UpdateKeys();
 
@@ -236,6 +237,32 @@ void TutorialGame::UpdateGame(float dt) {
 	Debug::UpdateRenderables(dt);
 }
 
+void TutorialGame::RenderDebug(float dt) {
+	std::string fps = "FPS: " + std::to_string((int)(1 / dt));
+	Debug::Print(fps, Vector2(5, 8), Debug::WHITE);
+	std::string ft = "Frame Time: " + std::to_string(1000.0f * dt) + "ms";
+	Debug::Print(ft, Vector2(5, 13), Debug::WHITE);
+
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	DWORDLONG totalVirtualMem = memInfo.ullTotalPageFile;
+	DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+	SIZE_T virtualMemUsedByMe = pmc.PrivateUsage;
+	SIZE_T physMemUsedByMe = pmc.WorkingSetSize;
+
+	std::string vramA = "Virtual Mem available: " + std::to_string(totalVirtualMem / (1024 * 1024)) + "MB";
+	std::string vramT = "Virtual Mem in use: " + std::to_string(virtualMemUsedByMe / (1024 * 1024)) + "MB";
+	Debug::Print(vramA, Vector2(5, 18), Debug::WHITE);
+	Debug::Print(vramT, Vector2(5, 23), Debug::WHITE);
+
+	std::string pramA = "Physical RAM available: " + std::to_string(totalPhysMem / (1024 * 1024)) + "MB";
+	std::string pramT = "Physical RAM in use: " + std::to_string(physMemUsedByMe / (1024 * 1024)) + "MB";
+	Debug::Print(pramA, Vector2(5, 28), Debug::WHITE);
+	Debug::Print(pramT, Vector2(5, 33), Debug::WHITE);
+}
 
 void TutorialGame::UpdateKeys()
 {
