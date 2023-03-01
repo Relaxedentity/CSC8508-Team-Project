@@ -1,6 +1,7 @@
 #include "GameServer.h"
 #include "GameWorld.h"
 #include "./enet/enet.h"
+#include "NetworkObject.h"
 using namespace NCL;
 using namespace CSC8503;
 
@@ -59,6 +60,10 @@ void GameServer::UpdateServer() {
 
 		if (type == ENetEventType::ENET_EVENT_TYPE_CONNECT) {
 			std::cout << "Server: New client connected" << std::endl;
+			clientCount++;
+			InitialPacket newPacket;
+			newPacket.count = GetClientCount();
+			SendGlobalPacket(newPacket);
 		}
 		else if (type == ENetEventType::ENET_EVENT_TYPE_DISCONNECT) {
 			std::cout << "Server: A client has disconnected" << std::endl;

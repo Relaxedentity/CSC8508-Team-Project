@@ -31,12 +31,32 @@ namespace NCL::CSC8503 {
 	struct ClientPacket : public GamePacket {
 		int		lastID;
 		char	buttonstates[8];
+		int		myID;
+		float	yaw[5];
 
 		ClientPacket() {
 			type = Received_State;
 			size = sizeof(ClientPacket);
 		}
 	};
+	struct InitialPacket : public GamePacket {
+		int count;
+
+		InitialPacket() {
+			type = Player_Connected;
+			size = sizeof(InitialPacket);
+		}
+	};
+
+	//struct InitialPacket : public GamePacket {
+	//	int count;
+	//	//int myID;
+
+	//	InitialPacket() {
+	//		type = Player_Connected;
+	//		size = sizeof(InitialPacket);
+	//	}
+	//};
 
 	class NetworkObject		{
 	public:
@@ -55,7 +75,8 @@ namespace NCL::CSC8503 {
 		int GetNetworkID() {
 			return networkID;
 		}
-		void GameobjectMove(int i);
+		void GameobjectMove(int i, Quaternion yaw, bool grounded);
+		void GameObjectRotate(Quaternion yaw);
 
 	protected:
 
@@ -79,5 +100,7 @@ namespace NCL::CSC8503 {
 		int fullErrors;
 
 		int networkID;
+
+		bool updateWaiting = false;
 	};
 }

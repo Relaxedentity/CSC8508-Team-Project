@@ -6,6 +6,9 @@ namespace reactphysics3d {
 	class Transform;
 	class CollisionCallback;
 }
+namespace NCL::Maths {
+	class Vector3;
+}
 
 namespace NCL::CSC8503 {
 	class NetworkObject;
@@ -24,9 +27,9 @@ namespace NCL::CSC8503 {
 
 	class GameObject{
 	public:
-		GameObject(std::string name = "");
-		~GameObject();
-
+		GameObject(GameWorld* world, std::string name = "");
+		virtual ~GameObject();
+		virtual void Update(float dt){};
 		void setActive(bool active){
 			isActive = active;
 		}
@@ -76,13 +79,6 @@ namespace NCL::CSC8503 {
 			//std::cout << "OnCollisionEnd event occured!\n";
 		}
 
-		int getScore() {
-			return score;
-		}
-		void setScore(int point) {
-			score = point;
-		}
-
 		void SetWorldID(int newID) {
 			worldID = newID;
 		}
@@ -96,17 +92,35 @@ namespace NCL::CSC8503 {
 			return worldID;
 		}
 
+		void SetYaw(reactphysics3d::Quaternion yaw) {
+			this->yaw = yaw;
+		}
+		reactphysics3d::Quaternion GetYaw() {
+			return yaw;
+		}
+		void setGrounded(bool groundedness) {
+			isGrounded = groundedness;
+		}
+		bool IsGrounded() const {
+			return isGrounded;
+		}
+
+		NCL::Maths::Vector3 collisionPoint;
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;
 		RenderObject*		renderObject;
 		NetworkObject*		networkObject;
 		GameObject*			associated;
-		int score;
 		bool		isActive;
 		int			worldID;
 		int			objectTag;
 		std::string	name;
+		reactphysics3d::Quaternion yaw;
+		bool isGrounded = false;
+		GameWorld* world;
+
+	//	std::string name;
 	};
 }
 

@@ -14,6 +14,7 @@ namespace NCL {
 		using Maths::Ray;
 	namespace CSC8503 {
 		class GameObject;
+		class PaintNode;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
@@ -79,6 +80,9 @@ namespace NCL {
 			Camera* GetMainCamera() const {
 				return mainCamera;
 			}
+			Camera* GetSecCamera() const {
+				return secCamera;
+			}
 			GameObject* GetPlayer() {
 				return player;
 			}
@@ -91,10 +95,26 @@ namespace NCL {
 				return playerHealth;
 			}
 
+			float GetPlayerCoopHealth()
+			{
+				return playerCoopHealth;
+			}
+
+			void SetPlayerCoop(GameObject* p) {
+				playerCoop = p;
+			}
+
+			GameObject* GetPlayerCoop() {
+				return playerCoop;
+			}
+
+			void SetPlayerCoopHealth(float health) {
+				playerCoopHealth = health;
+			}
+
 			void SetPlayerHealth(float health) {
 				playerHealth = health;
 			}
-
 
 			void SetCollisionListener(GameObjectListener* listener) {
 				collisionManager = listener;
@@ -123,12 +143,26 @@ namespace NCL {
 			int GetWorldStateID() const {
 				return worldStateCounter;
 			}
+			vector<Vector4> painted;
+
+			void paintTally();
+			void testPaintNodes(Vector3 inPos, char iChar);
+			void drawPaintNodes();
+
+			void AddPaintNode(PaintNode* o);
+			void RemovePaintNode(PaintNode* o, bool andDelete);
+
+			float getColourOneScore() { return colourOneScore; }
+			float getColourTwoScore() { return colourTwoScore; }
 
 		protected:
 			std::vector<GameObject*> gameObjects;
 
 			Camera* mainCamera;
+			Camera* secCamera;
 
+			
+			bool shuffleConstraints;
 			bool shuffleObjects;
 			int		worldIDCounter;
 			int		worldStateCounter;
@@ -138,7 +172,25 @@ namespace NCL {
 			GameObjectListener* collisionManager;
 			GameObject* player;
 			float playerHealth;
+
+			GameObject* playerCoop;
+			float playerCoopHealth;
+
+			std::vector<PaintNode*> paintNodes;
+			float colourOneScore = 0;
+			float colourTwoScore = 0;
+		};
+
+		class PaintNode {
+		public:
+			PaintNode(Vector3 inPos) { pos = inPos; }
+			char getColour() const { return colour; }
+			Vector3 getPos() { return pos; }
+			void setColour(char inColour) { colour = inColour; }
+			void setPos(Vector3 inPos) { pos = inPos; }
+		protected:
+			Vector3 pos;
+			char colour = 'n';
 		};
 	}
 }
-

@@ -3,27 +3,16 @@
 
 #include "Debug.h"
 
-#include "StateMachine.h"
-#include "StateTransition.h"
-#include "State.h"
-
 #include "GameServer.h"
 #include "GameClient.h"
 
 #include "NavigationGrid.h"
 #include "NavigationMesh.h"
 
-#include "TutorialGame.h"
 #include "NetworkedGame.h"
 
 #include "PushdownMachine.h"
-
 #include "PushdownState.h"
-#include "GameObject.h"
-#include "BehaviourNode.h"
-#include "BehaviourSelector.h"
-#include "BehaviourSequence.h"
-#include "BehaviourAction.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -31,186 +20,7 @@ using namespace CSC8503;
 #include <chrono>
 #include <thread>
 #include <sstream>
-vector <Vector3> testNodes;
-void TestPathfinding() {
-	NavigationGrid grid("TestGrid2.txt");
-	NavigationPath outPath;
 
-	Vector3 startPos(100, 0, 0);
-	Vector3 endPos(80, 0, 100);
-
-	bool found = grid.FindPath(startPos, endPos, outPath);
-
-	Vector3 pos;
-	while (outPath.PopWaypoint(pos)) {
-		testNodes.push_back(pos);
-	}
-}
-
-void DisplayPathfinding() {
-	for (int i = 1; i < testNodes.size(); ++i) {
-		Vector3 a = testNodes[i - 1];
-		Vector3 b = testNodes[i];
-
-		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-	}
-}
-
-void TestStateMachine() {
-	StateMachine* testMachine = new StateMachine();
-	int data = 0;
-
-	State* A = new State([&](float dt)->void
-		{
-			std::cout << "I’m in state A!\n";
-			data++;
-		}
-	);
-	State* B = new State([&](float dt)->void
-		{
-			std::cout << "I’m in state B!\n";
-			data--;
-		}
-	);
-	StateTransition* stateAB = new StateTransition(A, B, [&](void)->bool
-		{
-			return data > 10;
-		}
-	);
-	StateTransition* stateBA = new StateTransition(B, A, [&](void)->bool
-		{
-			return data < 0;
-		}
-	);
-	testMachine->AddState(A);
-	testMachine->AddState(B);
-	testMachine->AddTransition(stateAB);
-	testMachine->AddTransition(stateBA);
-
-	for (int i = 0; i < 100; ++i) {
-		testMachine->Update(1.0f);
-	}
-}
-
-void TestBehaviourTree() {
-	float behaviourTimer;
-	float distanceToTarget;
-	BehaviourAction* findKey = new BehaviourAction("Find Key",
-		[&](float dt, BehaviourState state)->BehaviourState {
-			if (state == Initialise) {
-				std::cout << "Looking for a key!\n";
-				behaviourTimer = rand() % 100;
-				state = Ongoing;
-			}
-			else if (state == Ongoing) {
-				behaviourTimer -= dt;
-				if (behaviourTimer <= 0.0f) {
-					std::cout << "Found a key!\n";
-					return Success;
-				}
-			}
-			return state; //will be ’ongoing ’ until success
-		}
-	);
-	BehaviourAction* goToRoom = new BehaviourAction("Go To Room",
-		[&](float dt, BehaviourState state)->BehaviourState {
-			if (state == Initialise) {
-				std::cout << "Going to the loot room!\n";
-				state = Ongoing;
-			}
-			else if (state == Ongoing) {
-				distanceToTarget -= dt;
-				if (distanceToTarget <= 0.0f) {
-					std::cout << "Reached room!\n";
-					return Success;
-				}
-			}
-			return state; //will be ’ongoing ’ until success
-		}
-	);
-	BehaviourAction* openDoor = new BehaviourAction("Open Door",
-		[&](float dt, BehaviourState state)->BehaviourState {
-			if (state == Initialise) {
-				std::cout << "Opening Door!\n";
-				return Success;
-			}
-			return state;
-		}
-	);
-	BehaviourAction* lookForTreasure = new BehaviourAction(
-		"Look For Treasure",
-		[&](float dt, BehaviourState state)->BehaviourState {
-			if (state == Initialise) {
-				std::cout << "Looking for treasure !\n";
-				return Ongoing;
-			}
-			else if (state == Ongoing) {
-				bool found = rand() % 2;
-				if (found) {
-					std::cout << "I found some treasure !\n";
-					return Success;
-				}
-				std::cout << "No treasure in here ...\n";
-				return Failure;
-			}
-			return state;
-		}
-	);
-	BehaviourAction* lookForItems = new BehaviourAction(
-		"Look For Items",
-		[&](float dt, BehaviourState state)->BehaviourState {
-			if (state == Initialise) {
-				std::cout << "Looking for items!\n";
-				return Ongoing;
-			}
-			else if (state == Ongoing) {
-				bool found = rand() % 2;
-				if (found) {
-					std::cout << "I found some items!\n";
-					return Success;
-				}
-				std::cout << "No items in here ...\n";
-				return Failure;
-			}
-			return state;
-		}
-	);
-	BehaviourSequence* sequence =
-		new BehaviourSequence("Room Sequence");
-	sequence->AddChild(findKey);
-	sequence->AddChild(goToRoom);
-	sequence->AddChild(openDoor);
-
-	BehaviourSelector* selection =
-		new BehaviourSelector("Loot Selection");
-	selection->AddChild(lookForTreasure);
-	selection->AddChild(lookForItems);
-
-	BehaviourSequence* rootSequence =
-		new BehaviourSequence("Root Sequence");
-	rootSequence->AddChild(sequence);
-	rootSequence->AddChild(selection);
-
-	for (int i = 0; i < 5; ++i) {
-		rootSequence->Reset();
-		behaviourTimer = 0.0f;
-		distanceToTarget = rand() % 250;
-		BehaviourState state = Ongoing;
-		std::cout << "We’re going on an adventure !\n";
-		while (state == Ongoing) {
-			state = rootSequence->Execute(1.0f); //fake dt
-		}
-		if (state == Success) {
-			std::cout << "What a successful adventure !\n";
-		}
-		else if (state == Failure) {
-			std::cout << "What a waste of time!\n";
-		}
-	}
-	std::cout << "All done!\n";
-
-
-}
 class PauseScreen : public PushdownState {
 	PushdownResult OnUpdate(float dt,
 		PushdownState** newState) override {
@@ -232,14 +42,12 @@ class GameScreen : public PushdownState {
 	void OnAwake() override {
 		w->GetTimer()->GetTimeDeltaSeconds();
 	}
-	PushdownResult OnUpdate(float dt,
-		PushdownState** newState) override {
+	PushdownResult OnUpdate(float dt, PushdownState** newState) override {
 		
 		w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
 		//TestPathfinding();
 		//TestBehaviourTree();
 		while (w->UpdateWindow()) {
-			DisplayPathfinding();
 			float dt = w->GetTimer()->GetTimeDeltaSeconds();
 			pauseReminder -= dt;
 			if (dt > 0.1f) {
@@ -263,28 +71,12 @@ class GameScreen : public PushdownState {
 			}
 			if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1)) {
 				std::cout << "Returning to main menu!\n";
-				std::cout << "player scored " << player->getScore() << "\n";
 				return PushdownResult::Pop;
 			}
 			if (pauseReminder < 0) {
 				std::cout << "Time has elapsed. You have lost. Returning to main menu!\n";
-				pauseReminder += 60.0f;
+				pauseReminder += 300.0f;
 				return PushdownResult::Pop;
-			}
-			if ( g->GetGameWorld()->GetObjectCount()==0 && g->getPlayer2() == NULL) {
-				std::cout << "You have won. Returning to main menu!\n";
-				std::cout << "player scored " << player->getScore() << "\n";
-				return PushdownResult::Pop;
-			}
-			if (g->GetGameWorld()->GetObjectCount() == 0 && g->getPlayer2() != NULL) {
-				if (g->getPlayer()->getScore() > g->getPlayer2()->getScore()) {
-					std::cout << "Player 1 has won. Returning to main menu!\n";
-					return PushdownResult::Pop;
-				}
-				else {
-					std::cout << "Player 2 has won. Returning to main menu!\n";
-					return PushdownResult::Pop;
-				}
 			}
 			if (rand() % 7 == 0) {
 				coinsMined++;
@@ -294,10 +86,6 @@ class GameScreen : public PushdownState {
 
 			g->UpdateGame(dt);
 		}
-		//if (pauseReminder < 0) {
-		//	std::cout << "Press P to pause game ,or F1 to return to main menu!\n";
-		//	pauseReminder += 1.0f;
-		//}
 		Window::DestroyGameWindow();
 
 		return PushdownResult::NoChange;
@@ -305,7 +93,7 @@ class GameScreen : public PushdownState {
 
 protected:
 	int coinsMined = 0;
-	float pauseReminder = 240;
+	float pauseReminder = 300;
 };
 
 class IntroScreen : public PushdownState {
@@ -403,7 +191,6 @@ hide or show the
 int main() {
 	w = Window::CreateGameWindow("CSC8503 Game technology!", 1280, 720);
 	g = new NetworkedGame();
-	//g = new TutorialGame();
 	player = g->getPlayer();
 	if (g->getPlayer2() != NULL) {
 		player2 = g->getPlayer2();
@@ -418,10 +205,7 @@ int main() {
 
 	
 	w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
-	TestPathfinding();
-	//TestBehaviourTree();
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
-		DisplayPathfinding();
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
 		if (dt > 0.1f) {
 			std::cout << "Skipping large time delta" << std::endl;
