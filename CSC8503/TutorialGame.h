@@ -124,6 +124,8 @@ namespace NCL {
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
 
+			void RenderDebug(float dt);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
@@ -147,6 +149,8 @@ namespace NCL {
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
+
+			bool debug;
 
 			float		health =0.8f;
 			float		secHealth = 0.2f;
