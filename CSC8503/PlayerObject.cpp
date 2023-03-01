@@ -32,3 +32,6 @@ void PlayerObject::setPaintColour(char input) {
 	}
 	GetRenderObject()->SetColour(colourVector);
 }
+void PlayerObject::Update(float dt) {
+	
+}

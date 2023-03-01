@@ -46,6 +46,9 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	
 	glClearColor(1, 1, 1, 1);
 
+	//Animated Objects
+	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag"); 
+
 	//Set up the light properties
 	lightColour = Vector4(0.8f, 0.8f, 0.5f, 1.0f);
 	lightRadius = 1000.0f;
@@ -57,7 +60,6 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	skyboxMesh->SetVertexPositions({Vector3(-1, 1,-1), Vector3(-1,-1,-1) , Vector3(1,-1,-1) , Vector3(1,1,-1) });
 	skyboxMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	skyboxMesh->UploadToGPU();
-
 	LoadSkybox();
 
 	// healthbar
@@ -451,6 +453,13 @@ void GameTechRenderer::RenderFrame( )
 	
 	RenderHUD();
 }
+void NCL::CSC8503::GameTechRenderer::AnimUpdate(MeshAnimation* playerAnim, float dt) {
+	frameTime -= dt;
+	while (frameTime < 0.0f) {
+		currentFrame = (currentFrame + 1) % playerAnim->GetFrameCount();
+		frameTime += 1.0f / playerAnim->GetFrameRate();
+	}
+}
 void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 {
 	glEnable(GL_CULL_FACE);
@@ -590,6 +599,40 @@ void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height
 
 	glCullFace(GL_BACK);
 }
+void GameTechRenderer::RenderAnim(MeshGeometry* playerMesh, MeshAnimation* playerAnim) {
+	BindShader(animatedShader);
+	glUniform1i(glGetUniformLocation(animatedShader->GetProgramID(),
+		"diffuseTex"), 0);
+	//Vector3 var = Vector3(0.0f, 0.0f, 0.0f);
+	//Matrix4 model = Matrix4::Translation(var) *
+	//	Matrix4::Scale(Vector3(200.0f, 200.0f, 200.0f)) *
+	//	Matrix4::Rotation(0, Vector3(0, 1, 0));
+
+	//glUniformMatrix4fv(glGetUniformLocation(animatedShader->GetProgramID(),
+	//	"modelMatrix"), 1, false, model.values);
+
+
+	vector <Matrix4 > frameMatrices;
+
+	const vector<Matrix4> invBindPose = playerMesh->GetInverseBindPose();
+	const Matrix4* frameData = playerAnim->GetJointData(currentFrame);
+	for (unsigned int i = 0; i < playerMesh->GetJointCount(); ++i) {
+		frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
+	}
+
+	int j = glGetUniformLocation(animatedShader->GetProgramID(), "joints");
+	glUniformMatrix4fv(j, frameMatrices.size(), false, (float*)frameMatrices.data());
+	for (int i = 0; i < playerMesh->GetSubMeshCount(); ++i) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, NULL);
+		BindMesh(playerMesh);
+		int layerCount = playerMesh->GetSubMeshCount();
+		for (int i = 0; i < layerCount; ++i) {
+			DrawBoundMesh(i);
+		}
+	}
+}
+
 void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
@@ -667,10 +710,10 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			lightPosLocation = glGetUniformLocation(shader->GetProgramID(), "lightPos");
 			lightColourLocation = glGetUniformLocation(shader->GetProgramID(), "lightColour");
 			lightRadiusLocation = glGetUniformLocation(shader->GetProgramID(), "lightRadius");
-
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
-
+			int j = glGetUniformLocation(shader->GetProgramID(), "joints");
+			glUniformMatrix4fv(j, gameWorld.frameMatrices.size(), false, (float*)gameWorld.frameMatrices.data());
 			Vector3 camPos = camera.GetPosition();
 			
 			
@@ -689,7 +732,6 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			glUniform3fv(lightPosLocation	, 1, (float*)&lightPosition);
 			glUniform4fv(lightColourLocation, 1, (float*)&lightColour);
 			glUniform1f(lightRadiusLocation , lightRadius);
-
 			int shadowTexLocation = glGetUniformLocation(shader->GetProgramID(), "shadowTex");
 			glUniform1i(shadowTexLocation, 1);
 

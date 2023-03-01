@@ -15,6 +15,7 @@ namespace NCL::CSC8503 {
 		~PlayerObject();
 		void setPaintColour(char input);
 		char getPaintColour() { return paintColour; }
+		void Update(float dt) override;
 	protected:
 		char paintColour;
 	};

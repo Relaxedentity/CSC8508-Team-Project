@@ -16,6 +16,8 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
+#include "MeshMaterial.h"
+#include "MeshAnimation.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -62,12 +64,13 @@ void TutorialGame::InitialiseAssets() {
 	enemyMesh	= renderer->LoadMesh("Keeper.msh");
 	bonusMesh	= renderer->LoadMesh("apple.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
-	gooseMesh = renderer->LoadMesh("goose.msh");	
+	gooseMesh = renderer->LoadMesh("goose.msh");
+	playerMesh = renderer->LoadMesh("splatPlayer.msh");
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
-
+	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag");
 	//Rebellion assets
 	//testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
@@ -75,10 +78,11 @@ void TutorialGame::InitialiseAssets() {
 	corridorStraightMesh	= renderer->LoadMesh("corridor_Wall_Straight_Mid_end_L.msh");
 	corridorCornerRightSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_L.msh");
 	corridorCornerLeftSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_R.msh");
-	
+	playerTex = renderer->LoadTexture("splatPlayer.tga");
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
-
+	playerMat = new MeshMaterial("splatPlayer.mat");
+	playerAnim = new MeshAnimation("splatPlayer.anm");
 	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
 	timeLimit = 300;
@@ -121,7 +125,6 @@ TutorialGame::~TutorialGame()	{
 
 void TutorialGame::UpdateGame(float dt) {
 	//Debug::DrawAxisLines(Matrix4());
-
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
 		inSelectionMode = !inSelectionMode;
@@ -214,6 +217,12 @@ void TutorialGame::UpdateGame(float dt) {
 	world->UpdateWorld(dt);
 	physicsWorld->update(dt);
 	renderer->Update(dt);
+	frameTime -= dt;
+	while (frameTime < 0.0f) {
+		currentFrame = (currentFrame + 1) % playerAnim->GetFrameCount();
+		frameTime += 1.0f / playerAnim->GetFrameRate();
+	}
+	DrawAnim(player);
 
 	if (initSplitScreen && coopMode && !freeCamera) {
 		renderer->RenderSplitScreens();
@@ -974,9 +983,13 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::SphereShape* shape = physics.createSphereShape(1.0f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, basicTex, charShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), playerMesh, basicTex, animatedShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
-
+	const vector <Matrix4 > invBindPose = playerMesh->GetInverseBindPose();
+	frameData = playerAnim->GetJointData(currentFrame);
+	for (unsigned int i = 0; i < playerMesh->GetJointCount(); ++i) {
+		world->frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
+	}
 	world->AddGameObject(character);
 	character->SetWorldID(worldID);
 	NetworkObject* n = new NetworkObject(*character, netID);
@@ -993,6 +1006,7 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 2.0f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
+
 	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), enemyMesh, nullptr, basicShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
@@ -1013,13 +1027,24 @@ PlayerObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d:
 	reactphysics3d::SphereShape* shape = physics.createSphereShape(1.0f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, basicTex, charShader));
+
+	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), charMesh, basicTex,charShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 
 	world->AddGameObject(character);
 	return character;
 
 }
+
+void TutorialGame::DrawAnim(PlayerObject* p) {
+	const vector <Matrix4 > invBindPose = playerMesh->GetInverseBindPose();
+	frameData = playerAnim->GetJointData(currentFrame);
+	world->frameMatrices.clear();
+	for (unsigned int i = 0; i < playerMesh->GetJointCount(); ++i) {
+		world->frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
+	}
+}
+	
 
 GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
 	GameObject* emitter = new GameObject(world);
@@ -1146,6 +1171,7 @@ void TutorialGame::InitGameExamples() {
 	player->setPaintColour('r');
 	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity());
 	playerCoop->setPaintColour('b');
+	
 
 	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);

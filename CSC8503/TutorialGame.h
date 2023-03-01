@@ -6,8 +6,9 @@
 #include "NavigationGrid.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
-
+#include "MeshMaterial.h"
 #include "PlayerObject.h"
+#include "MeshAnimation.h"
 
 namespace reactphysics3d {
 	class PhysicsCommon;
@@ -82,7 +83,7 @@ namespace NCL {
 			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* testStateObject;
 			BTreeObject* goose;
-
+			void DrawAnim(PlayerObject* p);
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
@@ -158,11 +159,14 @@ namespace NCL {
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
 			MeshGeometry*   gooseMesh   = nullptr;
-
+			MeshGeometry* playerMesh = nullptr;
+			MeshAnimation* playerAnim = nullptr;
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
+			OGLShader* animatedShader = nullptr;
 			ShaderBase*		charShader	= nullptr;
-
+			MeshMaterial* playerMat = nullptr;
+			vector <GLuint > playerTextures;
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
 			MeshGeometry*	enemyMesh	= nullptr;
@@ -171,12 +175,12 @@ namespace NCL {
 			// Rebellion Assets
 			TextureBase*	chairTex	= nullptr;
 			MeshGeometry*	chairMesh	= nullptr;
-
+			TextureBase* playerTex = nullptr;
 			TextureBase*	corridorTexture			= nullptr;
 			MeshGeometry*	corridorStraightMesh	= nullptr;
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
-
+			const Matrix4* frameData;
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
 
@@ -205,7 +209,8 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 
-
+			int currentFrame;
+			float frameTime;
 
 			bool thirdPerson = true;
 

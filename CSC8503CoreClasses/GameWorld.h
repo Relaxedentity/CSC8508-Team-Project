@@ -137,7 +137,7 @@ namespace NCL {
 				return worldStateCounter;
 			}
 			vector<Vector4> painted;
-
+			vector <Matrix4 > frameMatrices;
 			void paintTally();
 			void testPaintNodes(Vector3 inPos, char iChar);
 			void drawPaintNodes();
