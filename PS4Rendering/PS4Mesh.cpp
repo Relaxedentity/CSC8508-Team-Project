@@ -2,6 +2,7 @@
 #include "PS4Mesh.h"
 #include "Vector3.h"
 
+using namespace PS4;
 using namespace NCL::Maths;
 
 PS4Mesh::PS4Mesh() : NCL::MeshGeometry() {
@@ -18,25 +19,15 @@ PS4Mesh::~PS4Mesh() {
 PS4Mesh* PS4Mesh::GenerateQuad() {
 	PS4Mesh* mesh = new PS4Mesh();
 
-	mesh->numVertices = 4;
-	mesh->numIndices = 4;
 	mesh->indexType = sce::Gnm::IndexSize::kIndexSize32;
 	mesh->primitiveType = sce::Gnm::PrimitiveType::kPrimitiveTypeTriStrip;
-	mesh->positions = new Vector3[mesh->numVertices];
-	mesh->texCoords = new Vector2[mesh->numVertices];
-	mesh->normals = new Vector3[mesh->numVertices];
-	mesh->tangents = new Vector3[mesh->numVertices];
-	mesh->indices = new int[mesh->numIndices];
 
-	mesh->positions[0] = Vector3(-1.0f, -1.0f, 0.0f);
-	mesh->positions[1] = Vector3(-1.0f, 1.0f, 0.0f);
-	mesh->positions[2] = Vector3(1.0f, -1.0f, 0.0f);
-	mesh->positions[3] = Vector3(1.0f, 1.0f, 0.0f);
+	mesh->SetVertexPositions({ Vector3(-1.0f, -1.0f, 0.0f), Vector3(-1.0f, 1.0f, 0.0f), Vector3(1.0f, -1.0f, 0.0f), Vector3(1.0f, 1.0f, 0.0f) });
 
-	for (int i = 0; i < mesh->numVertices; ++i) {
-		mesh->normals[i] = Vector3(0, 0, 1);
-		mesh->tangents[i] = Vector3(1, 0, 0);
-		mesh->indices[i] = i;
+	for (int i = 0; i < mesh->GetVertexCount(); ++i) {
+		mesh->normals.emplace_back(Vector3(0, 0, 1));
+		mesh->tangents.emplace_back(Vector3(1, 0, 0));
+		mesh->indices.emplace_back(i);
 	}
 
 	mesh->BufferData();
@@ -44,8 +35,8 @@ PS4Mesh* PS4Mesh::GenerateQuad() {
 }
 
 void PS4Mesh::BufferData() {
-	vertexDataSize = numVertices * sizeof(MeshVertex);
-	indexDataSize = numIndices * sizeof(int);
+	vertexDataSize = GetVertexCount() * sizeof(MeshVertex);
+	indexDataSize = GetVertexCount() * sizeof(int);
 
 	indexBuffer = static_cast<int*>(GarlicAllocator.allocate(indexDataSize, Gnm::kAlignmentOfBufferInBytes));
 	vertexBuffer = static_cast<MeshVertex*>(GarlicAllocator.allocate(vertexDataSize, Gnm::kAlignmentOfBufferInBytes));
@@ -54,14 +45,14 @@ void PS4Mesh::BufferData() {
 	Gnm::registerResource(nullptr, *ownerHandle, vertexBuffer, vertexDataSize, "VertexData", Gnm::kResourceTypeIndexBufferBaseAddress, 0);
 
 	int flt = sizeof(float);
-	for (int i = 0; i < numVertices; ++i) {
+	for (int i = 0; i < GetVertexCount(); ++i) {
 		memcpy(&vertexBuffer[i].position, &positions[i], flt * 3);
 		memcpy(&vertexBuffer[i].textureCoord, &texCoords[i], flt * 2);
 		memcpy(&vertexBuffer[i].normal, &normals[i], flt * 3);
 		memcpy(&vertexBuffer[i].tangent, &tangents[i], flt * 3);
 	}
 
-	for (int i = 0; i < numIndices; ++i) {
+	for (int i = 0; i < GetIndexCount(); ++i) {
 		indexBuffer[i] = indices[i];
 	}
 
@@ -75,7 +66,7 @@ void PS4Mesh::BufferData() {
 }
 
 void PS4Mesh::InitAttributeBuffer(sce::Gnm::Buffer& buffer, Gnm::DataFormat format, void* offset) {
-	buffer.initAsVertexBuffer(offset, format, sizeof(MeshVertex), numVertices);
+	buffer.initAsVertexBuffer(offset, format, sizeof(MeshVertex), GetVertexCount());
 	buffer.setResourceMemoryType(Gnm::kResourceMemoryTypeRO);
 }
 
@@ -86,5 +77,5 @@ void PS4Mesh::SubmitPreDraw(Gnmx::GnmxGfxContext& cmdList, Gnm::ShaderStage stag
 void PS4Mesh::SubmitDraw(Gnmx::GnmxGfxContext& cmdList, Gnm::ShaderStage stage) {
 	cmdList.setPrimitiveType(primitiveType);
 	cmdList.setIndexSize(indexType);
-	cmdList.drawIndex(numIndices, indexBuffer);
+	cmdList.drawIndex(GetIndexCount(), indexBuffer);
 }

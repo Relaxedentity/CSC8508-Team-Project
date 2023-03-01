@@ -2,6 +2,7 @@
 #include "PS4Frame.h"
 #include <gnmx\basegfxcontext.h>
 
+using namespace PS4;
 using namespace sce;
 
 enum FrameState {
