@@ -192,3 +192,14 @@ void GameWorld::AddPaintBall() {
 int GameWorld::GetPaintBalls() {
 	return paintBallAmount;
 }
+
+void GameWorld::AddMapNode(MapNode* o) {
+	mapNodes.emplace_back(o);
+}
+
+void GameWorld::RemoveMapNode(MapNode* o, bool andDelete) {
+	mapNodes.erase(std::remove(mapNodes.begin(), mapNodes.end(), o), mapNodes.end());
+	if (andDelete) {
+		delete o;
+	}
+}

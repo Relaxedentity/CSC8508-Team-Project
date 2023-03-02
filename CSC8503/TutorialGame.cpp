@@ -16,6 +16,7 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
+#include "MapNode.h"
 #include "windows.h"
 #include "psapi.h"
 
@@ -783,6 +784,7 @@ void TutorialGame::buildGameworld() {
 			GameObject* object;
 			switch (n.type) {
 			case 'N':
+
 				break;
 			case '.':
 				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x-3.5, Nposition.y + 1, Nposition.z-3.5));
@@ -1564,8 +1566,12 @@ void TutorialGame::MoveSelectedObject() {
 	}
 }
 
-// Paint Node Functions
 void TutorialGame::addPaintNodeToWorld(Vector3 location) {
 	PaintNode* node = new PaintNode(location);
 	world->AddPaintNode(node);
+}
+
+void TutorialGame::addMapNodeToWorld(Vector3 location) {
+	MapNode* node = new MapNode(location);
+	world->AddMapNode(node);
 }

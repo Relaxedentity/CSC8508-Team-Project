@@ -15,6 +15,7 @@ namespace NCL {
 	namespace CSC8503 {
 		class GameObject;
 		class PaintNode;
+		class MapNode;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
@@ -152,6 +153,9 @@ namespace NCL {
 			void AddPaintNode(PaintNode* o);
 			void RemovePaintNode(PaintNode* o, bool andDelete);
 
+			void AddMapNode(MapNode* o);
+			void RemoveMapNode(MapNode* o, bool andDelete);
+
 			float getColourOneScore() { return colourOneScore; }
 			float getColourTwoScore() { return colourTwoScore; }
 
@@ -184,6 +188,8 @@ namespace NCL {
 			float colourTwoScore = 0;
 
 			int paintBallAmount;
+
+			std::vector<MapNode*> mapNodes;
 		};
 
 		class PaintNode {

@@ -13,6 +13,7 @@ set(Header_Files
     "HierarchicalState.h"
     "Projectile.h"
     "IKSystem.h"
+    "MapNode.h"
     "PaintClass.h"
     "PlayerObject.h"
 )
@@ -28,6 +29,7 @@ set(Source_Files
 	"BTreeObject.cpp"
     "Projectile.cpp"
     "IKSystem.cpp"
+    "MapNode.cpp"
     "PaintClass.cpp"
     "PlayerObject.cpp"
 )

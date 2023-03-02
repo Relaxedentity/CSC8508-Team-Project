@@ -222,6 +222,8 @@ namespace NCL {
 
 			// Paint Node Functions
 			void addPaintNodeToWorld(Vector3 location);
+
+			void addMapNodeToWorld(Vector3 location);
 		};
 	}
 }
