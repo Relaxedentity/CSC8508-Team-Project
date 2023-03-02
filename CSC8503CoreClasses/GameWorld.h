@@ -138,6 +138,7 @@ namespace NCL {
 			}
 			vector<Vector4> painted;
 			vector <Matrix4 > frameMatrices;
+			vector <Matrix4 > frameMatricesA;
 			void paintTally();
 			void testPaintNodes(Vector3 inPos, char iChar);
 			void drawPaintNodes();

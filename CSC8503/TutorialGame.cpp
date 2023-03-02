@@ -82,7 +82,8 @@ void TutorialGame::InitialiseAssets() {
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
 	playerMat = new MeshMaterial("splatPlayer.mat");
-	playerAnim = new MeshAnimation("splatPlayer.anm");
+	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
+	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
 	timeLimit = 300;
@@ -217,12 +218,21 @@ void TutorialGame::UpdateGame(float dt) {
 	world->UpdateWorld(dt);
 	physicsWorld->update(dt);
 	renderer->Update(dt);
+	
 	frameTime -= dt;
-	while (frameTime < 0.0f) {
-		currentFrame = (currentFrame + 1) % playerAnim->GetFrameCount();
-		frameTime += 1.0f / playerAnim->GetFrameRate();
+
+	if (directionInput) {
+		UpdateAnim(frameTime,currentFrame,dt,playerWalkAnim, world->frameMatrices);
 	}
-	DrawAnim(player);
+	else {
+		UpdateAnim(frameTimeA, currentFrame, dt, playerIdleAnim, world->frameMatrices);
+	}
+	
+	/*else {
+		frameTimeA -= dt;
+		UpdateAnim(frameTimeA, currentFrameA, dt, playerWalkAnim);
+		DrawAnim(player, playerWalkAnim, frameDataA, currentFrameA, world->frameMatricesA);
+	}*/
 
 	if (initSplitScreen && coopMode && !freeCamera) {
 		renderer->RenderSplitScreens();
@@ -233,7 +243,13 @@ void TutorialGame::UpdateGame(float dt) {
 	
 	Debug::UpdateRenderables(dt);
 }
-
+void TutorialGame::UpdateAnim(float ftime,int cframe,float dt,MeshAnimation* anim, vector <Matrix4 > fmatrices) {
+	while (frameTime < 0.0f) {
+		currentFrame = (currentFrame + 1) % anim->GetFrameCount();
+		frameTime += 1.0f / anim->GetFrameRate();
+	}
+	DrawAnim(player, anim, currentFrame, fmatrices);
+}
 
 void TutorialGame::UpdateKeys()
 {
@@ -332,11 +348,12 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
 	Vector3 endVelocity = Vector3(0, 0, 0);
 
-	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
+	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition() + reactphysics3d::Vector3(0, 0.1, 0), playerTransform.getPosition() + reactphysics3d::Vector3(0, -2.9, 0));
+	Debug::DrawLine(Vector3(playerTransform.getPosition()) + Vector3(0, 0.1, 0), Vector3(playerTransform.getPosition()) - Vector3(0, 2.9, 0), Vector4(1, 0.5f, 0.5f, 1), 100);
 	SceneContactPoint* ground = world->Raycast(ray, player);
 	player->setGrounded(ground->isHit);
 
-	bool directionInput = false;
+	directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
@@ -980,13 +997,15 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
 	body->setMass(2.0f);
-	reactphysics3d::SphereShape* shape = physics.createSphereShape(1.0f);
-	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.0f);
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1.1, 0),reactphysics3d::Quaternion::identity()));
+	Debug::DrawLine(Vector3(position) + Vector3(0, 0.1, 0), Vector3(position) + Vector3(0, 0.1, 0) + (Quaternion(orientation) * Vector3(0, 0, -1)), Vector4(0.25f, 1, 0, 1), 100);
+	Debug::DrawLine(Vector3(position) + Vector3(0, 2.1, 0), Vector3(position) + Vector3(0, 2.1, 0) + (Quaternion(orientation) * Vector3(0, 0, -1)), Vector4(0.25f, 1, 0, 1), 100);
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), playerMesh, basicTex, animatedShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, animatedShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 	const vector <Matrix4 > invBindPose = playerMesh->GetInverseBindPose();
-	frameData = playerAnim->GetJointData(currentFrame);
+	const Matrix4* frameData = playerWalkAnim->GetJointData(currentFrame);
 	for (unsigned int i = 0; i < playerMesh->GetJointCount(); ++i) {
 		world->frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
 	}
@@ -1036,9 +1055,9 @@ PlayerObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d:
 
 }
 
-void TutorialGame::DrawAnim(PlayerObject* p) {
+void TutorialGame::DrawAnim(PlayerObject* p, MeshAnimation* anim, int cframe, vector <Matrix4 > fmatrices, const Matrix4* fdata) {
 	const vector <Matrix4 > invBindPose = playerMesh->GetInverseBindPose();
-	frameData = playerAnim->GetJointData(currentFrame);
+	const Matrix4* frameData = anim->GetJointData(currentFrame % anim->GetFrameCount());
 	world->frameMatrices.clear();
 	for (unsigned int i = 0; i < playerMesh->GetJointCount(); ++i) {
 		world->frameMatrices.emplace_back(frameData[i] * invBindPose[i]);

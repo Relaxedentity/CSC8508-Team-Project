@@ -83,7 +83,7 @@ namespace NCL {
 			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* testStateObject;
 			BTreeObject* goose;
-			void DrawAnim(PlayerObject* p);
+			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int cframe, vector <Matrix4 > fmatrices, const Matrix4* fdata = NULL);
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
@@ -98,7 +98,7 @@ namespace NCL {
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
-
+			void UpdateAnim(float ftime, int cframe, float dt, MeshAnimation* anim, vector <Matrix4 >fmatrices);
 
 			// Making Rebellion mesh-based objects
 			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
@@ -160,7 +160,8 @@ namespace NCL {
 			MeshGeometry*	sphereMesh	= nullptr;
 			MeshGeometry*   gooseMesh   = nullptr;
 			MeshGeometry* playerMesh = nullptr;
-			MeshAnimation* playerAnim = nullptr;
+			MeshAnimation* playerWalkAnim = nullptr;
+			MeshAnimation* playerIdleAnim = nullptr;
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
 			OGLShader* animatedShader = nullptr;
@@ -180,7 +181,7 @@ namespace NCL {
 			MeshGeometry*	corridorStraightMesh	= nullptr;
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
-			const Matrix4* frameData;
+			
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
 
@@ -208,9 +209,11 @@ namespace NCL {
 			float thirdPersonYScalar = 1;
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
-
+			bool directionInput;
 			int currentFrame;
 			float frameTime;
+			int currentFrameA;
+			float frameTimeA;
 
 			bool thirdPerson = true;
 
