@@ -262,6 +262,9 @@ void TutorialGame::RenderDebug(float dt) {
 	std::string pramT = "Physical RAM in use: " + std::to_string(physMemUsedByMe / (1024 * 1024)) + "MB";
 	Debug::Print(pramA, Vector2(5, 28), Debug::WHITE);
 	Debug::Print(pramT, Vector2(5, 33), Debug::WHITE);
+
+	std::string paintAmount = "Paint Balls in World: " + std::to_string(world->GetPaintBalls());
+	Debug::Print(paintAmount, Vector2(5, 38), Debug::WHITE);
 }
 
 void TutorialGame::UpdateKeys()
@@ -928,6 +931,7 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	//sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
 	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
+	world->AddPaintBall();
 
 	return sphere;
 }

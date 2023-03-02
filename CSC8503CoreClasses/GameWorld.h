@@ -155,6 +155,9 @@ namespace NCL {
 			float getColourOneScore() { return colourOneScore; }
 			float getColourTwoScore() { return colourTwoScore; }
 
+			void AddPaintBall();
+			int GetPaintBalls();
+
 		protected:
 			std::vector<GameObject*> gameObjects;
 
@@ -179,6 +182,8 @@ namespace NCL {
 			std::vector<PaintNode*> paintNodes;
 			float colourOneScore = 0;
 			float colourTwoScore = 0;
+
+			int paintBallAmount;
 		};
 
 		class PaintNode {

@@ -184,3 +184,11 @@ void GameWorld::drawPaintNodes() {
 		Debug::DrawPoint(i->getPos(), colourVector, 0.1f);
 	}
 }
+
+void GameWorld::AddPaintBall() {
+	paintBallAmount += 1;
+}
+
+int GameWorld::GetPaintBalls() {
+	return paintBallAmount;
+}
