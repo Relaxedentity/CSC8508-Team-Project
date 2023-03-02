@@ -13,7 +13,7 @@ using namespace sce;
 
 namespace PS4 {
 	class PS4Mesh : public NCL::MeshGeometry, public PS4MemoryAware {
-		friend class PS4RendererBase;
+		friend class PS4Renderer;
 	public:
 		static PS4Mesh* GenerateQuad();
 		~PS4Mesh();

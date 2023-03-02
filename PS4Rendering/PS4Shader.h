@@ -6,7 +6,7 @@ using namespace sce;
 
 namespace PS4 {
 	class PS4Shader : public NCL::Rendering::ShaderBase, public PS4MemoryAware {
-		friend class PS4RendererBase;
+		friend class PS4Renderer;
 	public:
 		~PS4Shader();
 

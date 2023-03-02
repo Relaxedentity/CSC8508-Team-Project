@@ -4,13 +4,22 @@ set(PROJECT_NAME PS4Rendering)
 # Source groups
 ################################################################################
 set(Header_Files
-    "PS4Renderer.h"
+    "PS4Frame.h"
     "PS4MemoryAware.h"
+    "PS4Mesh.h"
+    "PS4Renderer.h"
+    "PS4Shader.h"
+    "PS4Texture.h"
 )
 source_group("Header Files" FILES ${Header_Files})
 
 set(Source_Files
+    "PS4Frame.cpp"
+    "PS4MemoryAware.cpp"
+    "PS4Mesh.cpp"
     "PS4Renderer.cpp"
+    "PS4Shader.cpp"
+    "PS4Texture.cpp"
 )
 source_group("Source Files" FILES ${Source_Files})
 
