@@ -1,9 +1,14 @@
 #pragma once
 #include "PS4Renderer.h"
+#include "PS4Shader.h"
+#include "PS4Mesh.h"
+#include "PS4Texture.h"
+#include "PS4Frame.h"
 #include "Matrix4.h"
 #include "Vector4.h"
 
 using namespace PS4;
+using namespace sce;
 
 PS4Renderer::PS4Renderer() : _MaxCMDBufferCount(3), _bufferCount(3), _GarlicMemory(1024 * 1024 * 512), _OnionMemory(1024 * 1024 * 256) {
 	framesSubmitted = 0;
@@ -42,7 +47,7 @@ void PS4Renderer::IniialiseVideoSystem() {
 	videoHandle = sceVideoOutOpen(0, SCE_VIDEO_OUT_BUS_TYPE_MAIN, 0, NULL);
 
 	SceVideoOutBufferAttribute attribute;
-	aceVideoOutSetBufferattribute(&attribute, SCE_VIDEO_OUT_PIXEL_FORMAT_B8_G8_R8_A8_SRGB, SCE_VIDEO_OUT_TILING_MODE_TILE, SCE_VIDEO_OUT_ASPECT_RATIO_16_9,
+	sceVideoOutSetBufferattribute(&attribute, SCE_VIDEO_OUT_PIXEL_FORMAT_B8_G8_R8_A8_SRGB, SCE_VIDEO_OUT_TILING_MODE_TILE, SCE_VIDEO_OUT_ASPECT_RATIO_16_9,
 		screenBuffers[0]->colourTarget.getWidth(), screenBuffers[0]->colourTarget.getHeight(), screenBuffers[0]->colourTarget.getPitch());
 
 	void* bufferAddresses[_bufferCount];
@@ -71,7 +76,7 @@ void PS4Renderer::InitialiseGCMRendering() {
 		new (&frames[i])PS4Frame());
 	}
 
-	sce::Gnmx::Toolkit::Allocators allocators = sce::Gnmx::Toolkit::Allocators(*OnionAllocator, *GarlicAllocator, resourceOwner);
+	Gnmx::Toolkit::Allocators allocators = sce::Gnmx::Toolkit::Allocators(*OnionAllocator, *GarlicAllocator, resourceOwner);
 
 	Gnmx::Toolkit::initializeWithAllocators(&allocators);
 }
@@ -180,11 +185,11 @@ void PS4Renderer::RenderFrame() {
 }
 
 void PS4Renderer::DrawMesh(PS4Mesh& mesh) {
-	NCL::Maths::Matrix4* modelViewProj = (Matrix4*)currentGFXContext->allocateFromCommandBuffer(sizeof(Matrix4), Gnm::kEmbeddedDataAlignment4);
-	*modelViewProj = NCL::Maths::Matrix4::rotationZ(rad);
+	NCL::Maths::Matrix4* modelViewProj = (NCL::Maths::Matrix4*)currentGFXContext->allocateFromCommandBuffer(sizeof(NCL::Maths::Matrix4), Gnm::kEmbeddedDataAlignment4);
+	*modelViewProj = NCL::Maths::Matrix4::Rotation(rad, NCL::Maths::Vector3(0, 0, 1));
 	
 	Gnm::Buffer constantBuffer;
-	constantBuffer.initAsConstantBuffer(modelViewProj, sizeof(Matrix4));
+	constantBuffer.initAsConstantBuffer(modelViewProj, sizeof(NCL::Maths::Matrix4));
 	constantBuffer.setResourceMemoryType(Gnm::kResourceMemoryTypeRO);
 	
 	int indexA = defaultShader->GetConstantBuffer("ShaderConstants");
@@ -233,15 +238,15 @@ void PS4Renderer::SetRenderBuffer(PS4ScreenBuffer* buffer,
 void PS4Renderer::ClearBuffer(bool colour,
 	bool depth, bool stencil) {
 	if (colour) {
-		SurfaceUtil::clearRenderTarget(*currentGFXContext, &currentPS4Buffer->colourTarget, NCL::Maths::Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+		Gnmx::Toolkit::SurfaceUtil::clearRenderTarget(*currentGFXContext, &currentPS4Buffer->colourTarget, NCL::Maths::Vector4(0.1f, 0.1f, 0.1f, 1.0f);
 	}
 	
 	if (depth) {
-		SurfaceUtil::clearDepthTarget(*currentGFXContext, & currentPS4Buffer->depthTarget, 1.0f);
+		Gnmx::Toolkit::SurfaceUtil::clearDepthTarget(*currentGFXContext, & currentPS4Buffer->depthTarget, 1.0f);
 	}
 	if (stencil &&
 		currentPS4Buffer->depthTarget.getStencilReadAddress()) {
 		
-		SurfaceUtil::clearStencilTarget(*currentGFXContext, &currentPS4Buffer->depthTarget, 0);
+		Gnmx::Toolkit::SurfaceUtil::clearStencilTarget(*currentGFXContext, &currentPS4Buffer->depthTarget, 0);
 	}
 }

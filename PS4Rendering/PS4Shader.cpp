@@ -1,8 +1,11 @@
 #pragma once
 #include <iostream>
 #include "PS4Shader.h"
+#include <gnmx.h>
+#include <shader/binary.h>
 
 using namespace PS4;
+using namespace sce;
 
 PS4Shader::PS4Shader() {
 	fetchShader = NULL;
@@ -129,7 +132,7 @@ void PS4Shader::SubmitShaderSwitch(Gnmx::GnmxGfxContext& cmdList) {
 }
 
 int PS4Shader::GetConstantBuffer(const string& name) {
-	sce::Shader::Binary::Buffer* constantBuffer = vertexBinary.getBufferResourceByName(name.c_str());
+	Shader::Binary::Buffer* constantBuffer = vertexBinary.getBufferResourceByName(name.c_str());
 
 	if (!constantBuffer) {
 		return -1;

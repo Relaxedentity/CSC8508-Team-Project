@@ -51,7 +51,7 @@ namespace PS4 {
 
 		PS4Frame* frames;
 		PS4ScreenBuffer* currentPS4Buffer;
-		Gnmx::GnmxGfxContext* currentGFXContext;
+		sce::Gnmx::GnmxGfxContext* currentGFXContext;
 		PS4Frame* currentFrame;
 	private:
 		void InitialiseMemoryAllocators();
