@@ -471,8 +471,6 @@ void GameTechRenderer::RenderFrame( )
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	RenderHUD();
-
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
