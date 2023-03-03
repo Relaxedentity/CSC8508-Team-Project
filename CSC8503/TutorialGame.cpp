@@ -439,7 +439,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
 		char colourInput = player->getPaintColour();
 		
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
 		
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
@@ -556,9 +556,9 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	//
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::N)) {
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
 		char colourInput = player->getPaintColour();
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
 
 		Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
