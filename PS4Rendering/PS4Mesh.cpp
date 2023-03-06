@@ -41,8 +41,8 @@ void PS4Mesh::BufferData() {
 	indexBuffer = static_cast<int*>(GarlicAllocator.allocate(indexDataSize, Gnm::kAlignmentOfBufferInBytes));
 	vertexBuffer = static_cast<MeshVertex*>(GarlicAllocator.allocate(vertexDataSize, Gnm::kAlignmentOfBufferInBytes));
 
-	Gnm::registerResource(nullptr, *ownerHandle, indexBuffer, indexDataSize, "IndexData", Gnm::kResourceTypeIndexBufferBaseAddress, 0);
-	Gnm::registerResource(nullptr, *ownerHandle, vertexBuffer, vertexDataSize, "VertexData", Gnm::kResourceTypeIndexBufferBaseAddress, 0);
+	Gnm::registerResource(nullptr, ownerHandle, indexBuffer, indexDataSize, "IndexData", Gnm::kResourceTypeIndexBufferBaseAddress, 0);
+	Gnm::registerResource(nullptr, ownerHandle, vertexBuffer, vertexDataSize, "VertexData", Gnm::kResourceTypeIndexBufferBaseAddress, 0);
 
 	int flt = sizeof(float);
 	for (int i = 0; i < GetVertexCount(); ++i) {

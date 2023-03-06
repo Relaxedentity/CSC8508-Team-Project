@@ -1,7 +1,10 @@
 #pragma once
-#include <iostream>
 #include "PS4Shader.h"
 #include <gnmx.h>
+#include <gnmx\shader_parser.h>
+#include <C:\Program Files (x86)\SCE\ORBIS SDKs\10.000\target\samples\sample_code\graphics\api_gnm\toolkit\shader_loader.h>
+#include <iostream>
+#include <fstream>
 
 using namespace PS4;
 using namespace sce;
@@ -28,7 +31,7 @@ PS4Shader* PS4Shader::GenerateShader(const string& vertex, const string& pixel) 
 void PS4Shader::GenerateVertexShader(const string& name, bool makeFetch) {
 	char* binData = NULL;
 	int binSize = 0;
-	Gnmx::ShaderInfo shaderInfo;
+	sce::Gnmx::ShaderInfo shaderInfo;
 
 	if (ShaderIsBinary(name)) {
 		if (LoadShaderBinary(name, binData, binSize)) {
@@ -36,7 +39,7 @@ void PS4Shader::GenerateVertexShader(const string& name, bool makeFetch) {
 			Gnmx::parseShader(&shaderInfo, binData);
 
 			void* shaderBinary = GarlicAllocator.allocate(shaderInfo.m_gpuShaderCodeSize, Gnm::kAlignmentOfShaderInBytes);
-			void* shaderHeader = OnionAllocator->allocate(shaderInfo.m_vsShader->computeSize(), Gnm::kAlignmentOfBufferInBytes);
+			void* shaderHeader = OnionAllocator.allocate(shaderInfo.m_vsShader->computeSize(), Gnm::kAlignmentOfBufferInBytes);
 			
 			vertexShader = (Gnmx::VsShader*)shaderHeader;
 			vertexShader->patchShaderGpuAddress(shaderBinary);
@@ -50,7 +53,7 @@ void PS4Shader::GenerateVertexShader(const string& name, bool makeFetch) {
 		return;
 	}
 
-	Gnm::registerResource(nullptr, *ownerHandle, vertexShader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, name.c_str(), Gnm::kResourceTypeShaderBaseAddress, 0);
+	Gnm::registerResource(nullptr, ownerHandle, vertexShader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, name.c_str(), Gnm::kResourceTypeShaderBaseAddress, 0);
 	Gnmx::generateInputOffsetsCache(&vertexCache, Gnm::kShaderStageVs, vertexShader);
 
 	if (makeFetch) {
@@ -79,7 +82,7 @@ void PS4Shader::GeneratePixelShader(const string& name) {
 			Gnmx::parseShader(&shaderInfo, binData);
 
 			void* shaderBinary = GarlicAllocator.allocate(shaderInfo.m_gpuShaderCodeSize, Gnm::kAlignmentOfShaderInBytes);
-			void* shaderHeader = OnionAllocator->allocate(shaderInfo.m_psShader->computeSize(), Gnm::kAlignmentOfBufferInBytes);
+			void* shaderHeader = OnionAllocator.allocate(shaderInfo.m_psShader->computeSize(), Gnm::kAlignmentOfBufferInBytes);
 			
 			memcpy(shaderBinary, shaderInfo.m_gpuShaderCode, shaderInfo.m_gpuShaderCodeSize);
 			memcpy(shaderHeader, shaderInfo.m_psShader, shaderInfo.m_psShader->computeSize());
@@ -92,7 +95,7 @@ void PS4Shader::GeneratePixelShader(const string& name) {
 		return;
 	}
 
-	Gnm::registerResource(nullptr, *ownerHandle, vertexShader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, name.c_str(), Gnm::kResourceTypeShaderBaseAddress, 0);
+	Gnm::registerResource(nullptr, ownerHandle, vertexShader->getBaseAddress(), shaderInfo.m_gpuShaderCodeSize, name.c_str(), Gnm::kResourceTypeShaderBaseAddress, 0);
 	Gnmx::generateInputOffsetsCache(&pixelCache, Gnm::kShaderStagePs, pixelShader);
 
 	delete binData;
@@ -127,7 +130,7 @@ void PS4Shader::SubmitShaderSwitch(Gnmx::GnmxGfxContext& cmdList) {
 	cmdList.setActiveShaderStages(Gnm::kActiveShaderStagesVsPs);
 
 	cmdList.setVsShader(vertexShader, 0, fetchShader, &vertexCache);
-	cmdList.setPsShader(pixelShader &pixelCache);
+	cmdList.setPsShader(pixelShader, &pixelCache);
 }
 
 int PS4Shader::GetConstantBuffer(const string& name) {

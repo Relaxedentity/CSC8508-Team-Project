@@ -20,14 +20,14 @@ PS4Frame::PS4Frame() {
 	const uint32_t cueHeapSize = Gnmx::ConstantUpdateEngine::computeHeapSize(kNumRingEntries);
 
 	void* constantUpdateEngine = GarlicAllocator.allocate(cueHeapSize, Gnm::kAlignmentOfBufferInBytes);
-	void* drawCommandBuffer = OnionAllocator->allocate(bufferBytes, Gnm::kAlignmentOfBufferInBytes);
-	void* constantCommandBuffer = OnionAllocator->allocate(bufferBytes, Gnm::kAlignmentOfBufferInBytes);
+	void* drawCommandBuffer = OnionAllocator.allocate(bufferBytes, Gnm::kAlignmentOfBufferInBytes);
+	void* constantCommandBuffer = OnionAllocator.allocate(bufferBytes, Gnm::kAlignmentOfBufferInBytes);
 
 	commandBuffer.init(constantUpdateEngine, kNumRingEntries, drawCommandBuffer, bufferBytes, constantCommandBuffer, bufferBytes);
 
-	Gnm::registerResource(nullptr, *ownerHandle, drawCommandBuffer, bufferBytes, "FrameDrawCommandBuffer", Gnm::kResourceTypeDrawCommandBufferBaseAddress);
-	Gnm::registerResource(nullptr, *ownerHandle, constantUpdateEngine, bufferBytes, "FrameConstantUpdateEngine", Gnm::kResourceTypeDrawCommandBufferBaseAddress);
-	Gnm::registerResource(nullptr, *ownerHandle, constantCommandBuffer, bufferBytes, "FrameConstantCommandBuffer", Gnm::kResourceTypeDrawCommandBufferBaseAddress);
+	Gnm::registerResource(nullptr, ownerHandle, drawCommandBuffer, bufferBytes, "FrameDrawCommandBuffer", Gnm::kResourceTypeDrawCommandBufferBaseAddress);
+	Gnm::registerResource(nullptr, ownerHandle, constantUpdateEngine, bufferBytes, "FrameConstantUpdateEngine", Gnm::kResourceTypeDrawCommandBufferBaseAddress);
+	Gnm::registerResource(nullptr, ownerHandle, constantCommandBuffer, bufferBytes, "FrameConstantCommandBuffer", Gnm::kResourceTypeDrawCommandBufferBaseAddress);
 }
 
 void PS4Frame::StartFrame() {

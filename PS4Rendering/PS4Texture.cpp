@@ -1,8 +1,8 @@
 #pragma once
-#include <iostream>
 #include "PS4Texture.h"
 #include <texture_tool.h>
 #include <gnm.h>
+#include <fstream>
 
 using namespace PS4;
 
@@ -28,7 +28,7 @@ PS4Texture* PS4Texture::LoadTextureFromFile(const std::string& filename) {
 	sce::Gnm::SizeAlign dataParams = getTexturePixelsSize(contentsDesc, 0);
 
 	void* pixelsAddr = GarlicAllocator.allocate(dataParams);
-	sce::Gnm::registerResource(nullptr, *ownerHandle, pixelsAddr, dataParams.m_size, filename.c_str(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
+	sce::Gnm::registerResource(nullptr, ownerHandle, pixelsAddr, dataParams.m_size, filename.c_str(), sce::Gnm::kResourceTypeTextureBaseAddress, 0);
 
 	file.seekg(getTexturePixelsByteOffset(contentsDesc, 0), ios::cur);
 	file.read((char*)pixelsAddr, dataParams.m_size);

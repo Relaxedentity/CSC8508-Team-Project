@@ -39,6 +39,7 @@ namespace PS4 {
 		int framesSubmitted;
 
 		int currentGPUBuffer;
+		int prevGPUBuffer;
 		int currentScreenBuffer;
 		int prevScreenBuffer;
 		PS4ScreenBuffer** screenBuffers;

@@ -6,7 +6,8 @@
 #include "PS4Frame.h"
 #include "Matrix4.h"
 #include "Vector4.h"
-#include <C:\Program Files (x86)\SCE\ORBIS SDKs\10.000\target\samples\sample_code\graphics\api_gnm\toolkit.h>
+#include <video_out.h>
+#include <C:\Program Files (x86)\SCE\ORBIS SDKs\10.000\target\samples\sample_code\graphics\api_gnm\toolkit\toolkit.h>
 
 using namespace PS4;
 using namespace sce;
@@ -48,16 +49,16 @@ void PS4Renderer::IniialiseVideoSystem() {
 	videoHandle = sceVideoOutOpen(0, SCE_VIDEO_OUT_BUS_TYPE_MAIN, 0, NULL);
 
 	SceVideoOutBufferAttribute attribute;
-	sceVideoOutSetBufferattribute(&attribute, SCE_VIDEO_OUT_PIXEL_FORMAT_B8_G8_R8_A8_SRGB, SCE_VIDEO_OUT_TILING_MODE_TILE, SCE_VIDEO_OUT_ASPECT_RATIO_16_9,
+	sceVideoOutSetBufferAttribute(&attribute, SCE_VIDEO_OUT_PIXEL_FORMAT_B8_G8_R8_A8_SRGB, SCE_VIDEO_OUT_TILING_MODE_TILE, SCE_VIDEO_OUT_ASPECT_RATIO_16_9,
 		screenBuffers[0]->colourTarget.getWidth(), screenBuffers[0]->colourTarget.getHeight(), screenBuffers[0]->colourTarget.getPitch());
 
-	void* bufferAddresses[_bufferCount];
+	void** bufferAddresses = new void*[_bufferCount];
 
 	for (int i = 0; i < _bufferCount; ++i) {
 		bufferAddresses[i] = screenBuffers[i]->colourTarget.getBaseAddress();
 	}
 
-	screVideoOutRegisterBuffers(videoHandle, 0, bufferAddresses, _bufferCount, &attribute);
+	sceVideoOutRegisterBuffers(videoHandle, 0, bufferAddresses, _bufferCount, &attribute);
 }
 
 void PS4Renderer::InitialiseMemoryAllocators() {
@@ -67,17 +68,17 @@ void PS4Renderer::InitialiseMemoryAllocators() {
 	this->GarlicAllocator = Gnmx::Toolkit::GetInterface(&stackAllocators[GARLIC]);
 	this->OnionAllocator = Gnmx::Toolkit::GetInterface(&stackAllocators[ONION]);
 
-	Gnm::registerOwner(&resourceOwner, "PS4Renderer");
+	Gnm::registerOwner(&ownerHandle, "PS4Renderer");
 }
 
 void PS4Renderer::InitialiseGCMRendering() {
 	frames = (PS4Frame*)OnionAllocator.allocate(sizeof(PS4Frame) * _MaxCMDBufferCount, alignof(PS4Frame));
 
 	for (int i = 0; i < _MaxCMDBufferCount; ++i) {
-		new (&frames[i])PS4Frame());
+		new (&frames[i])PS4Frame();
 	}
 
-	Gnmx::Toolkit::Allocators allocators = sce::Gnmx::Toolkit::Allocators(*OnionAllocator, *GarlicAllocator, resourceOwner);
+	Gnmx::Toolkit::Allocators allocators = sce::Gnmx::Toolkit::Allocators(OnionAllocator, GarlicAllocator, ownerHandle);
 
 	Gnmx::Toolkit::initializeWithAllocators(&allocators);
 }
@@ -94,7 +95,7 @@ PS4ScreenBuffer* PS4Renderer::GenerateScreenBuffer(uint width, uint height, bool
 
 		void* colourMemory = stackAllocators[GARLIC].allocate(colourAlign);
 
-		Gnm::registerResource(nullptr, resourceOwner, colourMemory, colourAlign.m_sizem, "Colour", Gnm::kResourceTypeDepthRenderTargetBaseAddress, 0);
+		Gnm::registerResource(nullptr, ownerHandle, colourMemory, colourAlign.m_size, "Colour", Gnm::kResourceTypeDepthRenderTargetBaseAddress, 0);
 
 		buffer->colourTarget.setAddresses(colourMemory, NULL, NULL);
 	}
@@ -114,11 +115,11 @@ PS4ScreenBuffer* PS4Renderer::GenerateScreenBuffer(uint width, uint height, bool
 
 		void* depthMemory = stackAllocators[GARLIC].allocate(depthAlign);
 
-		Gnm::registerResource(nullptr, resourceOwner, depthMemory, depthAlign.m_size, "Depth", Gnm::kResourceTypeDepthRenderTargetBaseAddress, 0);
+		Gnm::registerResource(nullptr, ownerHandle, depthMemory, depthAlign.m_size, "Depth", Gnm::kResourceTypeDepthRenderTargetBaseAddress, 0);
 
 		if (stencil) {
 			stencilMemory = stackAllocators[GARLIC].allocate(stencilAlign);
-			Gnm::registerResource(nullptr, resourceOwner, stencilMemory, stencilAlign.m_size, "Stencil", Gnm::kResourceTypeDepthRenderTargetBaseAddress, 0);
+			Gnm::registerResource(nullptr, ownerHandle, stencilMemory, stencilAlign.m_size, "Stencil", Gnm::kResourceTypeDepthRenderTargetBaseAddress, 0);
 		}
 		buffer->depthTarget.setAddresses(depthMemory, stencilMemory);
 	}
@@ -239,11 +240,11 @@ void PS4Renderer::SetRenderBuffer(PS4ScreenBuffer* buffer,
 void PS4Renderer::ClearBuffer(bool colour,
 	bool depth, bool stencil) {
 	if (colour) {
-		Gnmx::Toolkit::SurfaceUtil::clearRenderTarget(*currentGFXContext, &currentPS4Buffer->colourTarget, NCL::Maths::Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+		Gnmx::Toolkit::SurfaceUtil::clearRenderTarget(*currentGFXContext, &currentPS4Buffer->colourTarget, Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 	}
 	
 	if (depth) {
-		Gnmx::Toolkit::SurfaceUtil::clearDepthTarget(*currentGFXContext, & currentPS4Buffer->depthTarget, 1.0f);
+		Gnmx::Toolkit::SurfaceUtil::clearDepthTarget(*currentGFXContext, &currentPS4Buffer->depthTarget, 1.0f);
 	}
 	if (stencil &&
 		currentPS4Buffer->depthTarget.getStencilReadAddress()) {

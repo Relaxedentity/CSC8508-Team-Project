@@ -15,5 +15,8 @@ namespace PS4 {
 	protected:
 		PS4Texture() {}
 		sce::Gnm::Texture apiTexture;
+		uint width;
+		uint height;
+		uint bpp;
 	};
 }

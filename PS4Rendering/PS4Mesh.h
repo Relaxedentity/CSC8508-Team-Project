@@ -25,7 +25,7 @@ namespace PS4 {
 		void InitAttributeBuffer(sce::Gnm::Buffer& buffer, Gnm::DataFormat format, void* offset);
 		PS4Mesh();
 
-		void UploadToGPU(NCL::Rendering::RendererBase* renderer = nullptr) = 0;
+		void UploadToGPU(NCL::Rendering::RendererBase* renderer = nullptr) override;
 
 		struct MeshVertex {
 			float position[3];

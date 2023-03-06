@@ -7,7 +7,6 @@ RendererBase::RendererBase(Window& window) : hostWindow(window)	{
 
 }
 
-
 RendererBase::~RendererBase()
 {
 }

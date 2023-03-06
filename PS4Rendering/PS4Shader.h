@@ -25,6 +25,8 @@ namespace PS4 {
 		void SubmitShaderSwitch(Gnmx::GnmxGfxContext& cmdList);
 		int GetConstantBuffer(const string& name);
 
+		void ReloadShader() override;
+
 		void* fetchShader;
 
 		sce::Shader::Binary::Program vertexBinary;
