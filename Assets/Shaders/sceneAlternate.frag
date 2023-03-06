@@ -47,10 +47,10 @@ void main(void)
 	}
 
 	bool isHit = false;
-	int hitNum = 0;
+	int hitNum;
 	for(int i = 0; i< 1000;i++) {
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
-		if(circledist < 2.0f) {
+		if(circledist < 1.5f) {
 			isHit = true;
 			hitNum = i;
 		}

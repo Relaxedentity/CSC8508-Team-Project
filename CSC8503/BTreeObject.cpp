@@ -16,10 +16,6 @@
 using namespace NCL;
 using namespace CSC8503;
 
-BTreeObject::~BTreeObject() {
-	delete sequence;
-}
-
 BTreeObject::BTreeObject(GameWorld* world, vector <Vector3 > testNodes):GameObject(world) {
 	nodes = testNodes;
 	currentNode = 1;

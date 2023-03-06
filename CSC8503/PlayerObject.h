@@ -14,5 +14,7 @@ namespace NCL::CSC8503 {
 	public:
 		PlayerObject(GameWorld* world, std::string name = "");
 		~PlayerObject();
+		Vector3 currentPos = Vector3(0, 0, 0);
 	};
+
 }

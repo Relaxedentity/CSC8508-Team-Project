@@ -16,11 +16,6 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
-#include "MapNode.h"
-#include "windows.h"
-#include "psapi.h"
-
-#include <Xinput.h>
 
 using namespace NCL;
 using namespace CSC8503;
@@ -45,9 +40,7 @@ TutorialGame::TutorialGame()	{
 	useGravity		= true;
 	inSelectionMode = false;
 	freeCamera		= false;
-	mouseLock       = true;
-	debug           = false;
-
+	mouseLock		= true;
 	world->SetPlayerHealth(1.0f);
 	world->SetPlayerCoopHealth(1.0f);
 
@@ -129,12 +122,6 @@ TutorialGame::~TutorialGame()	{
 void TutorialGame::UpdateGame(float dt) {
 	//Debug::DrawAxisLines(Matrix4());
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::TAB)) {
-		debug = !debug;
-	}
-	if (debug) {
-		RenderDebug(dt);
-	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
 		inSelectionMode = !inSelectionMode;
@@ -175,9 +162,9 @@ void TutorialGame::UpdateGame(float dt) {
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
 	float scoreOne = world->getColourOneScore();
-	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 15), Debug::WHITE);
+	Debug::Print(std::to_string((float)scoreOne), Vector2(5, 15), Debug::WHITE);
 	float scoreTwo = world->getColourTwoScore();
-	Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 17), Debug::WHITE);
+	Debug::Print(std::to_string((float)scoreTwo), Vector2(5, 17), Debug::WHITE);
 
 	UpdateKeys();
 
@@ -223,6 +210,10 @@ void TutorialGame::UpdateGame(float dt) {
 
 	SelectObject();
 	MoveSelectedObject();
+	PlayerPaintTracks(player,'r');
+	PlayerPaintTracks(playerCoop, 'b');
+
+
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
 	physicsWorld->update(dt);
@@ -231,6 +222,7 @@ void TutorialGame::UpdateGame(float dt) {
 	if (initSplitScreen && coopMode && !freeCamera) {
 		renderer->RenderSplitScreens();
 		MovePlayerCoop(playerCoop, dt);
+	
 	}else
 		renderer->Render();
 		
@@ -238,35 +230,6 @@ void TutorialGame::UpdateGame(float dt) {
 	Debug::UpdateRenderables(dt);
 }
 
-void TutorialGame::RenderDebug(float dt) {
-	std::string fps = "FPS: " + std::to_string((int)(1 / dt));
-	Debug::Print(fps, Vector2(5, 8), Debug::WHITE);
-	std::string ft = "Frame Time: " + std::to_string(1000.0f * dt) + "ms";
-	Debug::Print(ft, Vector2(5, 13), Debug::WHITE);
-
-	MEMORYSTATUSEX memInfo;
-	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-	GlobalMemoryStatusEx(&memInfo);
-	DWORDLONG totalVirtualMem = memInfo.ullTotalPageFile;
-	DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
-	PROCESS_MEMORY_COUNTERS_EX pmc;
-	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-	SIZE_T virtualMemUsedByMe = pmc.PrivateUsage;
-	SIZE_T physMemUsedByMe = pmc.WorkingSetSize;
-
-	std::string vramA = "Virtual Mem available: " + std::to_string(totalVirtualMem / (1024 * 1024)) + "MB";
-	std::string vramT = "Virtual Mem in use: " + std::to_string(virtualMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(vramA, Vector2(5, 18), Debug::WHITE);
-	Debug::Print(vramT, Vector2(5, 23), Debug::WHITE);
-
-	std::string pramA = "Physical RAM available: " + std::to_string(totalPhysMem / (1024 * 1024)) + "MB";
-	std::string pramT = "Physical RAM in use: " + std::to_string(physMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(pramA, Vector2(5, 28), Debug::WHITE);
-	Debug::Print(pramT, Vector2(5, 33), Debug::WHITE);
-
-	std::string paintAmount = "Paint Balls in World: " + std::to_string(world->GetPaintBalls());
-	Debug::Print(paintAmount, Vector2(5, 38), Debug::WHITE);
-}
 
 void TutorialGame::UpdateKeys()
 {
@@ -371,41 +334,41 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 	bool directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 		directionInput = true;
 	}
 	if (!directionInput && player->IsGrounded()) {
-		float scalar = (0.95 - dt);
+		float scalar = (1 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
 	//if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
 	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
 		endVelocity.Normalise();
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && player->IsGrounded()) {
@@ -436,10 +399,12 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	//
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
 		char colourInput = player->getPaintColour();
 		
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + 
+			player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), 
+			reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
 		
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
@@ -492,40 +457,40 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	bool directionInput = false;
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
+		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 		directionInput = true;
 	}
 	if (!directionInput && player->IsGrounded()) {
-		float scalar = (0.95 - dt);
+		float scalar = (1 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
 	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
 		endVelocity.Normalise();
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
+		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 10);
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::J) && player->IsGrounded()) {
@@ -556,9 +521,9 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	//
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::N)) {
 		char colourInput = player->getPaintColour();
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
 
 		Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
@@ -784,7 +749,6 @@ void TutorialGame::buildGameworld() {
 			GameObject* object;
 			switch (n.type) {
 			case 'N':
-
 				break;
 			case '.':
 				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x-3.5, Nposition.y + 1, Nposition.z-3.5));
@@ -933,7 +897,6 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	//sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
 	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
-	world->AddPaintBall();
 
 	return sphere;
 }
@@ -1180,7 +1143,7 @@ void TutorialGame::TestHedgefinding(Vector3 position) {
 }
 
 void TutorialGame::InitDefaultFloor() {
-	AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
+	floor=AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
 }
 
 void TutorialGame::InitGameExamples() {
@@ -1196,7 +1159,6 @@ void TutorialGame::InitGameExamples() {
 	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	//AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);
-	world->SetPlayerCoop(playerCoop);
 }
 
 void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents) {
@@ -1566,12 +1528,21 @@ void TutorialGame::MoveSelectedObject() {
 	}
 }
 
+void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
+	if (player->IsGrounded()) {
+		//std::cout << player->collisionPoint << std::endl;
+		float distance = sqrt(pow(player->collisionPoint.x - player->currentPos.x, 2) + pow(player->collisionPoint.z - player->currentPos.z, 2));
+		if (distance > 1) {
+			floor->GetRenderObject()->PaintSpray(player->collisionPoint,paintColour);
+			player->currentPos = player->collisionPoint;
+
+			world->testPaintNodes(player->collisionPoint, paintColour);
+		}
+	}
+}
+
+// Paint Node Functions
 void TutorialGame::addPaintNodeToWorld(Vector3 location) {
 	PaintNode* node = new PaintNode(location);
 	world->AddPaintNode(node);
-}
-
-void TutorialGame::addMapNodeToWorld(Vector3 location) {
-	MapNode* node = new MapNode(location);
-	world->AddMapNode(node);
 }

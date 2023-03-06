@@ -51,7 +51,41 @@ namespace NCL {
 				return colour;
 			}
 
+			std::vector<Vector4> GetPaintedPos() const {
+				return paints;
+			}
+
+			void AddPaintPos(Vector3 pos,int colour) {
+				paints.push_back(Vector4(pos,colour));
+			}
+
+			void SetPaintPos(int index, Vector3 pos, int colour) {
+				paints[index] = Vector4(pos,colour);
+			}
+
+			void PaintSpray(Vector3 explosionPos,char paintColour) {
+				int colourInt = (paintColour == 'r') ? 1 : 2;
+				if (GetPaintedPos().size() <= paintMax - 1) {
+					AddPaintPos(explosionPos,colourInt);
+				}
+				else {
+					if (paintCount < GetPaintedPos().size() - 1) {
+						SetPaintPos(paintCount, explosionPos,colourInt);
+						paintCount++;
+					}
+					else
+					{
+						SetPaintPos(paintCount, explosionPos,colourInt);
+						paintCount = 0;
+					}
+				}
+			}
+
 		protected:
+			int paintCount = 0;
+			int paintMax = 50;
+			std::vector<Vector4> paints;
+			
 			MeshGeometry*	mesh;
 			TextureBase*	texture;
 			ShaderBase*		shader;

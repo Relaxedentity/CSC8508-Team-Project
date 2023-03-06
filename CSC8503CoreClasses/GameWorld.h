@@ -15,7 +15,6 @@ namespace NCL {
 	namespace CSC8503 {
 		class GameObject;
 		class PaintNode;
-		class MapNode;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
@@ -101,14 +100,6 @@ namespace NCL {
 				return playerCoopHealth;
 			}
 
-			void SetPlayerCoop(GameObject* p) {
-				playerCoop = p;
-			}
-
-			GameObject* GetPlayerCoop() {
-				return playerCoop;
-			}
-
 			void SetPlayerCoopHealth(float health) {
 				playerCoopHealth = health;
 			}
@@ -116,6 +107,7 @@ namespace NCL {
 			void SetPlayerHealth(float health) {
 				playerHealth = health;
 			}
+
 
 			void SetCollisionListener(GameObjectListener* listener) {
 				collisionManager = listener;
@@ -153,14 +145,8 @@ namespace NCL {
 			void AddPaintNode(PaintNode* o);
 			void RemovePaintNode(PaintNode* o, bool andDelete);
 
-			void AddMapNode(MapNode* o);
-			void RemoveMapNode(MapNode* o, bool andDelete);
-
 			float getColourOneScore() { return colourOneScore; }
 			float getColourTwoScore() { return colourTwoScore; }
-
-			void AddPaintBall();
-			int GetPaintBalls();
 
 		protected:
 			std::vector<GameObject*> gameObjects;
@@ -180,16 +166,12 @@ namespace NCL {
 			GameObject* player;
 			float playerHealth;
 
-			GameObject* playerCoop;
+			GameObject* playerCooop;
 			float playerCoopHealth;
 
 			std::vector<PaintNode*> paintNodes;
 			float colourOneScore = 0;
 			float colourTwoScore = 0;
-
-			int paintBallAmount;
-
-			std::vector<MapNode*> mapNodes;
 		};
 
 		class PaintNode {
