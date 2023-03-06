@@ -59,12 +59,10 @@ namespace NCL {
 			void Particles();
 			void LoadSkybox();
 
-			void RenderCircle(float cx, float cy, float r, const Vector4&);
-			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color, unsigned int triangleType);
-
-			void RenderMap(float x, float y, GameObject& player, Camera& camera, float playerOffset, unsigned int screenNum);
-
-			void RenderRectangle(float px, float py, float width, float height , Vector4& color, unsigned int triangleType);
+			void RenderCircle(float cx, float cy, float r, const Vector4& color);
+			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color);
+			void RenderMap();
+			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
 
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -109,8 +107,6 @@ namespace NCL {
 			Vector4		lightColour;
 			float		lightRadius;
 			Vector3		lightPosition;
-
-
 
 			//Debug data storage things
 			vector<Vector3> debugLineData;

@@ -124,8 +124,6 @@ namespace NCL {
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
 
-			void RenderDebug(float dt);
-
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
@@ -138,6 +136,7 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
+			GameObject* floor;
 
 			bool initSplitScreen;
 			bool coopMode;
@@ -149,8 +148,6 @@ namespace NCL {
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
-
-			bool debug;
 
 			float		health =0.8f;
 			float		secHealth = 0.2f;
@@ -222,8 +219,8 @@ namespace NCL {
 
 			// Paint Node Functions
 			void addPaintNodeToWorld(Vector3 location);
-
-			void addMapNodeToWorld(Vector3 location);
+			// Rendering the character's paint track
+			void PlayerPaintTracks(PlayerObject* player, char paintColour);
 		};
 	}
 }

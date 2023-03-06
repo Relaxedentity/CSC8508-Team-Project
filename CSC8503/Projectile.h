@@ -15,6 +15,7 @@ namespace NCL::CSC8503 {
 		Projectile(GameWorld* world, std::string name = "");
 		~Projectile();
 		void OnCollisionBegin(GameObject* otherObject) override;
+		std::vector<reactphysics3d::Vector3> CalculateSphereVertices(Vector3 hitPos);
 		void Update(float dt) override;
 		float time;
 	};
