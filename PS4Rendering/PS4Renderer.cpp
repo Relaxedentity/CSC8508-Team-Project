@@ -6,6 +6,7 @@
 #include "PS4Frame.h"
 #include "Matrix4.h"
 #include "Vector4.h"
+#include <C:\Program Files (x86)\SCE\ORBIS SDKs\10.000\target\samples\sample_code\graphics\api_gnm\toolkit.h>
 
 using namespace PS4;
 using namespace sce;

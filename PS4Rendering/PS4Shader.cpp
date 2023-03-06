@@ -2,7 +2,6 @@
 #include <iostream>
 #include "PS4Shader.h"
 #include <gnmx.h>
-#include <shader/binary.h>
 
 using namespace PS4;
 using namespace sce;

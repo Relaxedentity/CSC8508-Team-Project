@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderBase.h"
 #include "PS4MemoryAware.h"
+#include <shader/binary.h>
 
 using namespace sce;
 
