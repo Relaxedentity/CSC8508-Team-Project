@@ -70,6 +70,11 @@ if(WIN32)
 endif() 
 
 find_package(ReactPhysics3D REQUIRED)
+
+find_path(IRRKLANG_INCLUDE_DIR NAMES irrKlang.h PATHS "${CMAKE_CURRENT_SOURCE_DIR}/IrrKlangSound/includes")
+    set (IRRKLANG_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/IrrKlangSound/libs/Winx64-visualStudio")
+    set (IRRKLANG_BIN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/IrrKlangSound/bin")
+find_library(IRRKLANG_LIBRARY NAMES irrKlang PATHS ${IRRKLANG_LIB_DIR})
 ################################################################################
 # Sub-projects
 ################################################################################

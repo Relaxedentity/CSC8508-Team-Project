@@ -16,7 +16,6 @@
 #include "TutorialGame.h"
 #include "NetworkedGame.h"
 
-#include "PushdownMachine.h"
 
 #include "PushdownState.h"
 #include "GameObject.h"
@@ -25,13 +24,24 @@
 #include "BehaviourSequence.h"
 #include "BehaviourAction.h"
 
+#include "PushdownMachine.h"
+#include "IntroScreen.h"
+#include "GameScreen.h"
+#include "GameIntroduction.h"
+#include "GameEnd.h"
+#include "PauseScreen.h"
+#include "PushdownState.h"
+
+#include "Gamelock.h"
+#include "Sound.h"
+
 using namespace NCL;
 using namespace CSC8503;
 
 #include <chrono>
 #include <thread>
 #include <sstream>
-vector <Vector3> testNodes;
+/*vector <Vector3> testNodes;
 void TestPathfinding() {
 	NavigationGrid grid("TestGrid2.txt");
 	NavigationPath outPath;
@@ -54,7 +64,7 @@ void DisplayPathfinding() {
 
 		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 	}
-}
+}*/
 
 void TestStateMachine() {
 	StateMachine* testMachine = new StateMachine();
@@ -109,7 +119,7 @@ void TestBehaviourTree() {
 					return Success;
 				}
 			}
-			return state; //will be ’ongoing ’ until success
+			return state; //will be ’ongoing ?until success
 		}
 	);
 	BehaviourAction* goToRoom = new BehaviourAction("Go To Room",
@@ -125,7 +135,7 @@ void TestBehaviourTree() {
 					return Success;
 				}
 			}
-			return state; //will be ’ongoing ’ until success
+			return state; //will be ’ongoing ?until success
 		}
 	);
 	BehaviourAction* openDoor = new BehaviourAction("Open Door",
@@ -212,133 +222,11 @@ void TestBehaviourTree() {
 
 }
 
-class PauseScreen : public PushdownState {
-	PushdownResult OnUpdate(float dt,
-		PushdownState** newState) override {
-		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::U)) {
-			return PushdownResult::Pop;
-		}
-		return PushdownResult::NoChange;
-	}
-	void OnAwake() override {
-		std::cout << "Press U to unpause game!\n";
-	}
-};
 TutorialGame* g;
 Window* w;
 GameObject* player;
 GameObject* player2;
 
-class GameScreen : public PushdownState {
-	void OnAwake() override {
-		w->GetTimer()->GetTimeDeltaSeconds();
-	}
-	PushdownResult OnUpdate(float dt,
-		PushdownState** newState) override {
-		
-		w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
-		//TestPathfinding();
-		//TestBehaviourTree();
-		while (w->UpdateWindow()) {
-			DisplayPathfinding();
-			float dt = w->GetTimer()->GetTimeDeltaSeconds();
-			pauseReminder -= dt;
-			if (dt > 0.1f) {
-				std::cout << "Skipping large time delta" << std::endl;
-				continue; //must have hit a breakpoint or something to have a 1 second frame time!
-			}
-			if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::PRIOR)) {
-				w->ShowConsole(true);
-			}
-			if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::NEXT)) {
-				w->ShowConsole(false);
-			}
-
-			if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::T)) {
-				w->SetWindowPosition(0, 0);
-			}
-
-			if (Window::GetKeyboard()->KeyDown(KeyboardKeys::P)) {
-				*newState = new PauseScreen();
-				return PushdownResult::Push;
-			}
-			if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1)) {
-				std::cout << "Returning to main menu!\n";
-				//std::cout << "player scored " << player->getScore() << "\n";
-				return PushdownResult::Pop;
-			}
-			if (pauseReminder < 0) {
-				std::cout << "Time has elapsed. You have lost. Returning to main menu!\n";
-				pauseReminder += 60.0f;
-				return PushdownResult::Pop;
-			}
-			//if ( g->GetGameWorld()->GetObjectCount()==0 && g->getPlayer2() == NULL) {
-			//	std::cout << "You have won. Returning to main menu!\n";
-			//	std::cout << "player scored " << player->getScore() << "\n";
-			//	return PushdownResult::Pop;
-			//}
-			//if (g->GetGameWorld()->GetObjectCount() == 0 && g->getPlayer2() != NULL) {
-			//	if (g->getPlayer()->getScore() > g->getPlayer2()->getScore()) {
-			//		std::cout << "Player 1 has won. Returning to main menu!\n";
-			//		return PushdownResult::Pop;
-			//	}
-			//	else {
-			//		std::cout << "Player 2 has won. Returning to main menu!\n";
-			//		return PushdownResult::Pop;
-			//	}
-			//}
-			if (rand() % 7 == 0) {
-				coinsMined++;
-			}
-
-			w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
-
-			g->UpdateGame(dt);
-		}
-		//if (pauseReminder < 0) {
-		//	std::cout << "Press P to pause game ,or F1 to return to main menu!\n";
-		//	pauseReminder += 1.0f;
-		//}
-		Window::DestroyGameWindow();
-
-		return PushdownResult::NoChange;
-	};
-
-protected:
-	int coinsMined = 0;
-	float pauseReminder = 240;
-};
-
-class IntroScreen : public PushdownState {
-	PushdownResult OnUpdate(float dt,
-		PushdownState** newState) override {
-		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RETURN)) {
-			*newState = new GameScreen();
-			//g->InitWorld();
-			return PushdownResult::Push;
-		}
-		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::ESCAPE)) {
-			return PushdownResult::Pop;
-		}
-		return PushdownResult::NoChange;
-	};
-	void OnAwake() override {
-		//player->setScore(0);
-		std::cout << "Welcome to a really awesome game!\n";
-		std::cout << "Press Enter To Begin or escape to quit!\n";
-		
-	}
-};
-void TestPushdownAutomata(Window* w) {
-	PushdownMachine machine(new IntroScreen());
-
-	while (w->UpdateWindow()) {
-		float dt = w->GetTimer()->GetTimeDeltaSeconds();
-		if (!machine.Update(dt)) {
-			return;
-		}
-	}
-}
 class TestPacketReceiver : public PacketReceiver {
 public:
 	TestPacketReceiver(string name) {
@@ -402,6 +290,14 @@ hide or show the
 */
 
 int main() {
+	GameLock::Player1lock = true;//menu value init
+	GameLock::gamemod = 0;///////////////////////////
+	GameLock::gamestart = false;////////////////
+	GameLock::gametime = 15;////////////////////////////
+	bool NotConfirmExit = true;///////////////////////////
+	PushdownMachine* machine = new PushdownMachine(new IntroScreen());//menuinit
+
+
 	w = Window::CreateGameWindow("CSC8503 Game technology!", 1280, 720);
 	g = new NetworkedGame();
 	//g = new TutorialGame();
@@ -409,7 +305,6 @@ int main() {
 	if (g->getPlayer2() != NULL) {
 		player2 = g->getPlayer2();
 	}
-	TestPushdownAutomata(w);
 	if (!w->HasInitialised()) {
 		return -1;
 	}	
@@ -419,11 +314,16 @@ int main() {
 
 	
 	w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
-	TestPathfinding();
+	//TestPathfinding();
 	//TestBehaviourTree();
-	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
-		DisplayPathfinding();
+	while (w->UpdateWindow()) {
+		//DisplayPathfinding();
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
+		if (!NotConfirmExit) {//exit game
+			Window::DestroyGameWindow();
+			break;
+		}
+		NotConfirmExit = machine->Update(dt);
 		if (dt > 0.1f) {
 			std::cout << "Skipping large time delta" << std::endl;
 			continue; //must have hit a breakpoint or something to have a 1 second frame time!

@@ -16,6 +16,8 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
+#include "Gamelock.h"
+#include "Sound.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -83,6 +85,9 @@ void TutorialGame::InitialiseAssets() {
 
 	timeLimit = 300;
 
+
+
+	InitSound();
 	InitCamera();
 	InitCameraSec();
 	InitWorld();
@@ -149,14 +154,20 @@ void TutorialGame::UpdateGame(float dt) {
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
 		Window::GetWindow()->LockMouseToWindow(mouseLock);
-		if (lockedObject == player) {
+		if (lockedObject == player && !GameLock::Player1lock) {//player movelock!
 			MovePlayer(player, dt);
 		}
 	}
 
 	world->SetPlayerHealth(health);
 	world->SetPlayerCoopHealth(secHealth);
-	timeLimit -= dt;
+	if (GameLock::gamestart) {//gametime//////////////////////////////////////
+		timeLimit -= dt;
+		GameLock::gametime = timeLimit;
+	}
+	else {
+		timeLimit = GameLock::gametime;
+	}
 
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
@@ -219,11 +230,12 @@ void TutorialGame::UpdateGame(float dt) {
 	physicsWorld->update(dt);
 	renderer->Update(dt);
 
-	if (initSplitScreen && coopMode && !freeCamera) {
+	if (coopMode && !freeCamera && GameLock::gamemod == 2) {//player2 movelock!
 		renderer->RenderSplitScreens();
-		MovePlayerCoop(playerCoop, dt);
-	
-	}else
+		if (GameLock::gamestart && !GameLock::Player2lock)
+			MovePlayerCoop(playerCoop, dt);
+	}
+	else
 		renderer->Render();
 		
 	
@@ -334,6 +346,10 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 	bool directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
@@ -341,6 +357,10 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
@@ -348,6 +368,10 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
@@ -355,6 +379,10 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
@@ -372,6 +400,9 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE) && player->IsGrounded()) {
+		Vector3 playerjumpos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		MainScreenJumpMapping(playerjumpos);////////////////////////////////////////////////////
+
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
 
@@ -389,7 +420,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	}
 
 	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
-	
+
 	player->GetPhysicsObject()->setTransform(newTransform);
 
 	//reactphysics3d::Quaternion tempQuart = reactphysics3d::Quaternion(goatStartRotation.x, goatStartRotation.y, goatStartRotation.z, goatStartRotation.w);
@@ -399,22 +430,28 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	//
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
+
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
 		char colourInput = player->getPaintColour();
-		
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + 
-			player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), 
+
+		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() +
+			player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3),
 			reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
-		
+
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-		
+
 		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+		/*sound mod is here! If you don't want to use it , just comment them out*/
+		Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
 		world->drawPaintNodes();
 	}
+
+	timedetection += dt;/////////////////////////////////////////
 
 	// splines, curves, improve interpolation, TCB curves
 }
@@ -457,6 +494,10 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	bool directionInput = false;
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
@@ -464,6 +505,10 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
@@ -471,6 +516,10 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
@@ -478,6 +527,10 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+
+		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
 		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
@@ -494,6 +547,10 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::J) && player->IsGrounded()) {
+
+		Vector3 playerjumpos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		SecScreenJumpMapping(playerjumpos);////////////////////////////////////////////////////
+
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
 
@@ -529,8 +586,13 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
 		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -750));
+
+		/*sound mod is here! If you don't want to use it , just comment them out*/
+		Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+		SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
 	}
 
+	timedetection2 += dt;/////////////////////////////////////////
 
 }
 
@@ -708,6 +770,15 @@ void TutorialGame::InitCamera() {
 	world->GetMainCamera()->SetYaw(315.0f);
 	world->GetMainCamera()->SetPosition(Vector3(-60, 40, 60));
 	//lockFirstObject = nullptr;
+}
+
+void TutorialGame::InitSound() {
+	ISoundEngine* InitV = createIrrKlangDevice();
+	Vector3 init = Vector3(20000, 0, 0);//voiceinit
+	Init->ShootVoice(InitV, init);
+	Init->HitVoice(InitV, init);
+	Init->JumpVoice(InitV, init);
+	Init->MoveVoice(InitV, init);
 }
 
 void NCL::CSC8503::TutorialGame::InitCameraSec()
@@ -1545,4 +1616,95 @@ void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
 void TutorialGame::addPaintNodeToWorld(Vector3 location) {
 	PaintNode* node = new PaintNode(location);
 	world->AddPaintNode(node);
+}
+
+//SOUND MOD Functions
+void TutorialGame::MainScreenFireMapping(Vector3 sphereintipos) {
+	if (initSplitScreen) {
+		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
+		Vector3 fireposition2 = sphereintipos - world->GetSecCamera()->GetPosition();
+		firevoice->fireSoundMapping(fireposition, fireposition2);
+	}
+	else {
+		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
+		ISoundEngine* fire = createIrrKlangDevice();
+		firevoice->ShootVoice(fire, fireposition);
+	}
+
+}
+
+void TutorialGame::MainScreenMoveMapping(Vector3 playermoveposition, bool directionInput) {
+	if ((timedetection == 0 || timedetection >= 1.0f) && player->IsGrounded() && directionInput == false) {
+		timedetection = 0;
+		Vector3 playerrunposition = player->GetPhysicsObject()->getTransform().getPosition();
+		if (initSplitScreen) {
+			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
+			Vector3 runposition2 = playerrunposition - world->GetSecCamera()->GetPosition();
+			ISoundEngine* run = createIrrKlangDevice();
+			movevoice->moveSoundMapping(runposition, runposition2);
+		}
+		else {
+			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
+			ISoundEngine* run = createIrrKlangDevice();
+			movevoice->MoveVoice(run, runposition);
+		}
+	}
+}
+
+void TutorialGame::MainScreenJumpMapping(Vector3 playerjumpos) {
+	if (initSplitScreen) {
+		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
+		Vector3 jumpposition2 = playerjumpos - world->GetSecCamera()->GetPosition();
+		jumpvoice->jumpSoundMapping(jumpposition, jumpposition2);
+	}
+	else {
+		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
+		ISoundEngine* run = createIrrKlangDevice();
+		jumpvoice->JumpVoice(run, jumpposition);
+	}
+}
+
+void TutorialGame::SecScreenFireMapping(Vector3 sphereintipos) {
+	if (initSplitScreen) {
+		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
+		Vector3 fireposition2 = sphereintipos - world->GetSecCamera()->GetPosition();
+		firevoice->fireSoundMapping(fireposition2, fireposition);
+	}
+	else {
+		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
+		ISoundEngine* fire = createIrrKlangDevice();
+		firevoice->ShootVoice(fire, fireposition);
+	}
+
+}
+
+void TutorialGame::SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput) {
+	if ((timedetection2 == 0 || timedetection2 >= 2.0f) && player->IsGrounded() && directionInput == false) {
+		timedetection2 = 0;
+		Vector3 playerrunposition = player->GetPhysicsObject()->getTransform().getPosition();
+		if (initSplitScreen) {
+			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
+			Vector3 runposition2 = playerrunposition - world->GetSecCamera()->GetPosition();
+			ISoundEngine* run = createIrrKlangDevice();
+			movevoice->moveSoundMapping(runposition2, runposition);
+		}
+		else {
+			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
+			ISoundEngine* run = createIrrKlangDevice();
+			movevoice->MoveVoice(run, runposition);
+		}
+	}
+}
+
+void TutorialGame::SecScreenJumpMapping(Vector3 playerjumpos) {
+	if (initSplitScreen) {
+		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
+		Vector3 jumpposition2 = playerjumpos - world->GetSecCamera()->GetPosition();
+		jumpvoice->jumpSoundMapping(jumpposition2, jumpposition);
+	}
+	else {
+		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
+		ISoundEngine* run = createIrrKlangDevice();
+		jumpvoice->JumpVoice(run, jumpposition);
+	}
 }

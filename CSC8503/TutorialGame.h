@@ -9,6 +9,8 @@
 
 #include "PlayerObject.h"
 
+#include "Sound.h"
+
 namespace reactphysics3d {
 	class PhysicsCommon;
 	class PhysicsWorld;
@@ -39,6 +41,13 @@ namespace NCL {
 			PlayerObject* player3;
 			PlayerObject* player4;
 
+			SoundObject* firevoice;//
+			SoundObject* movevoice;//
+			SoundObject* jumpvoice;//
+			SoundObject* Init;//
+			float timedetection = 0.0;//
+			float timedetection2 = 0.0;//
+
 			GameWorld* GetGameWorld() {
 				return world;
 			}
@@ -49,7 +58,7 @@ namespace NCL {
 		    
 		protected:
 			void InitialiseAssets();
-			
+			void InitSound();
 			void InitCamera();
 			void InitCameraSec();
 			void UpdateKeys();
@@ -123,6 +132,15 @@ namespace NCL {
 			void AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
+
+			/*sound functions*/
+			void MainScreenFireMapping(Vector3 sphereintipos);
+			void MainScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
+			void MainScreenJumpMapping(Vector3 sphereintipos);
+
+			void SecScreenFireMapping(Vector3 sphereintipos);
+			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
+			void SecScreenJumpMapping(Vector3 sphereintipos);
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
