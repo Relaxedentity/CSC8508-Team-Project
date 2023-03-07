@@ -14,7 +14,7 @@ namespace NCL::Assets {
 	const std::string SHADERDIR(ASSETROOT + "Shaders/");
 	const std::string MESHDIR(ASSETROOT + "Meshes/");
 	const std::string TEXTUREDIR(ASSETROOT + "Textures/");
-	const std::string SOUNDSDIR(ASSETROOT + "Sounds/");
+	const std::string SOUNDSDIR(ASSETROOT + "SoundFile/");
 	const std::string FONTSSDIR(ASSETROOT + "Fonts/");
 	const std::string DATADIR(ASSETROOT + "Data/");
 

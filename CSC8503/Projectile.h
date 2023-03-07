@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "PaintClass.h"
 #include <string>
+#include "Sound.h"
 
 namespace reactphysics3d {
 	class RigidBody;
@@ -18,5 +19,6 @@ namespace NCL::CSC8503 {
 		std::vector<reactphysics3d::Vector3> CalculateSphereVertices(Vector3 hitPos);
 		void Update(float dt) override;
 		float time;
+		SoundObject* collisionV;
 	};
 }

@@ -14,8 +14,21 @@ set(Header_Files
     "Projectile.h"
     "PaintClass.h"
     "PlayerObject.h"
+    "Sound.h"
 )
 source_group("Header Files" FILES ${Header_Files})
+
+set(Menu_Files
+    "IntroScreen.h"
+    "GameScreen.h"
+    "GameIntroduction.h"
+    "GameEnd.h"
+    "PauseScreen.h"
+    "Gamelock.h"
+    "Gamelock.cpp"
+)
+
+source_group("Menu_Files" FILES ${Menu_Files})
 
 set(Source_Files
     "GameTechRenderer.cpp"
@@ -28,6 +41,7 @@ set(Source_Files
     "Projectile.cpp"
     "PaintClass.cpp"
     "PlayerObject.cpp"
+    "Sound.cpp"
 )
 
 if(USE_VULKAN)
@@ -45,6 +59,7 @@ source_group("Source Files" FILES ${Source_Files})
 set(ALL_FILES
     ${Header_Files}
     ${Source_Files}
+    ${Menu_Files}
 )
 
 if(USE_VULKAN)
@@ -52,6 +67,7 @@ if(USE_VULKAN)
         ${Header_Files}
         ${Source_Files}
         ${SHADER_FILES}
+        ${Menu_Files}
     )
 
 foreach (file ${SHADER_FILES})
@@ -204,6 +220,7 @@ endif()
 include_directories("../OpenGLRendering/")
 include_directories("../NCLCoreClasses/")
 include_directories("../CSC8503CoreClasses/")
+include_directories (${IRRKLANG_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC NCLCoreClasses)
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC CSC8503CoreClasses)
@@ -226,3 +243,4 @@ endif()
 set(LIB_DEPENDENCIES "ReactPhysics3D::ReactPhysics3D")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_DEPENDENCIES}")
+target_link_libraries (${PROJECT_NAME} PUBLIC ${IRRKLANG_LIBRARY})

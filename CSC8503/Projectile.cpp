@@ -11,6 +11,7 @@
 #include <iostream>
 #include "TutorialGame.h"
 #include <iterator>
+#include "Sound.h"
 
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
@@ -27,6 +28,13 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	if (dynamic_cast<Projectile*>(otherObject)) {
 		return;
 	}
+
+	/*Sound mod*/
+	Vector3 hitposition = collisionPoint - world->GetMainCamera()->GetPosition();//
+	Vector3 hitposition2 = collisionPoint - world->GetSecCamera()->GetPosition();//
+	ISoundEngine* hit = createIrrKlangDevice();///
+	collisionV->HitVoice(hit, hitposition);//
+	collisionV->HitVoice(hit, hitposition2);//
 
 	//std::cout << collisionPoint << std::endl;
 	//int colourInt = (paintColour == 'r') ? 1 : 2;
