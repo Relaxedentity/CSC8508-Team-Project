@@ -161,6 +161,7 @@ namespace NCL {
 			float getColourTwoScore() { return colourTwoScore; }
 
 			void AddPaintBall();
+			void RemovePaintBall();
 			int GetPaintBalls();
 
 		protected:

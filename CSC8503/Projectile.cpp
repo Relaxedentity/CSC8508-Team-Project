@@ -66,7 +66,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	for (int i = 0; i < collisionObjects.size(); i++)
 	{
 		//Debug::DrawLine(collisionPoint, collisionObjects[i]->GetPhysicsObject()->getTransform().getPosition(), Vector4(0, 1, 1, 1), 60);
-		collisionObjects[i]->GetRenderObject()->PaintSpray(collisionPoint, paintColour);
+		if (collisionObjects[i]) { collisionObjects[i]->GetRenderObject()->PaintSpray(collisionPoint, paintColour); }
 	}
 
 	//Release memory
@@ -83,12 +83,12 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-50000,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setTransform(temp);
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
-
 }
 void Projectile::Update(float dt) {
 	time -= dt;
 	if (time <= 0) {
-		//world->RemoveGameObject(this);
+		world->RemovePaintBall();
+		world->RemoveGameObject(this);
 	}
 }
 /// <summary>

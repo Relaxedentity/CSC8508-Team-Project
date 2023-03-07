@@ -281,6 +281,9 @@ void TutorialGame::RenderDebug(float dt) {
 
 	std::string paintAmount = "Paint Balls in World: " + std::to_string(world->GetPaintBalls());
 	Debug::Print(paintAmount, Vector2(5, 38), Debug::WHITE);
+
+	std::string nbRigidBodies = "Number of Rigid Bodies: " + std::to_string(physicsWorld->getNbRigidBodies());
+	Debug::Print(nbRigidBodies, Vector2(5, 43), Debug::WHITE);
 }
 
 void TutorialGame::UpdateKeys()
@@ -1005,7 +1008,6 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	sphere->setPaintColour(colour);
 
 	sphere->GetRenderObject()->SetColour(colourVector);
-	//sphere->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
 	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
 	world->AddPaintBall();

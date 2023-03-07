@@ -50,7 +50,8 @@ void GameWorld::Clear() {
 
 void GameWorld::ClearAndErase() {
 	for (auto& i : gameObjects) {
-		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
+		i->GetPhysicsObject()->removeCollider(0);
+		physicsWorld->destroyRigidBody(i->GetPhysicsObject());
 		delete i;
 	}
 	Clear();
@@ -65,7 +66,8 @@ void GameWorld::AddGameObject(GameObject* o) {
 void GameWorld::RemoveGameObject(GameObject* o, bool andDelete) {
 	gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), o), gameObjects.end());
 	if (andDelete) {
-		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
+		o->GetPhysicsObject()->removeCollider(0);
+		physicsWorld->destroyRigidBody(o->GetPhysicsObject());
 		delete o;
 	}
 	worldStateCounter++;
@@ -188,6 +190,10 @@ void GameWorld::drawPaintNodes() {
 
 void GameWorld::AddPaintBall() {
 	paintBallAmount += 1;
+}
+
+void GameWorld::RemovePaintBall() {
+	paintBallAmount -= 1;
 }
 
 int GameWorld::GetPaintBalls() {
