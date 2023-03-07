@@ -16,8 +16,9 @@
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
 
-Projectile::Projectile(GameWorld* world, std::string name) : PaintClass(world,name) {
-
+Projectile::Projectile(GameWorld* world, float max_time, std::string name) : PaintClass(world,name) {
+	this->max_time = max_time;
+	time = 0;
 }
 
 Projectile::~Projectile() {
@@ -66,7 +67,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	for (int i = 0; i < collisionObjects.size(); i++)
 	{
 		//Debug::DrawLine(collisionPoint, collisionObjects[i]->GetPhysicsObject()->getTransform().getPosition(), Vector4(0, 1, 1, 1), 60);
-		collisionObjects[i]->GetRenderObject()->PaintSpray(collisionPoint, paintColour);
+		if (collisionObjects[i]) { collisionObjects[i]->GetRenderObject()->PaintSpray(collisionPoint, paintColour); }
 	}
 
 	//Release memory
@@ -80,15 +81,18 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 
 	world->testPaintNodes(collisionPoint, paintColour);
 
-	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-50000,0),reactphysics3d::Quaternion::identity());
-	GetPhysicsObject()->setTransform(temp);
+	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-100,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
-
+	GetPhysicsObject()->setTransform(temp);
 }
 void Projectile::Update(float dt) {
 	time -= dt;
 	if (time <= 0) {
+		//world->RemovePaintBall();
 		//world->RemoveGameObject(this);
+		reactphysics3d::Transform temp(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity());
+		GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+		GetPhysicsObject()->setTransform(temp);
 	}
 }
 /// <summary>
@@ -123,4 +127,8 @@ std::vector<reactphysics3d::Vector3> Projectile::CalculateSphereVertices(NCL::Ve
 		}
 	}
 	return vertices;
+}
+
+void Projectile::Reset() {
+	time = max_time;
 }

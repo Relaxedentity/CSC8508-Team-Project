@@ -34,8 +34,8 @@ void GameObjectListener::onContact(const CollisionCallback::CallbackData& callba
 			
 			//std::cout << worldPoint.to_string();
 			Vector3 ncl = Vector3(worldPoint);
-			body1->collisionPoint = worldPoint;
-			body2->collisionPoint = worldPoint;
+			if (body1) { body1->collisionPoint = worldPoint; }
+			if (body2) { body2->collisionPoint = worldPoint; }
 			//Debug::DrawLine(Vector3(ncl.x, ncl.y - 3, ncl.z), Vector3(ncl.x, ncl.y + 3, ncl.z), Vector4(1, 0, 0, 1), 2);
 			//Debug::DrawLine(Vector3(ncl.x - 3, ncl.y, ncl.z), Vector3(ncl.x + 3, ncl.y, ncl.z), Vector4(1, 0.5f, 0, 1), 2);
 			//Debug::DrawLine(Vector3(ncl.x, ncl.y, ncl.z - 3), Vector3(ncl.x, ncl.y, ncl.z + 3), Vector4(1, 0, 0.5f, 1), 2);
@@ -43,12 +43,12 @@ void GameObjectListener::onContact(const CollisionCallback::CallbackData& callba
 		
 		switch (contactPair.getEventType()) {
 		case CollisionCallback::ContactPair::EventType::ContactStart:
-			body1->OnCollisionBegin(body2);
-			body2->OnCollisionBegin(body1);
+			if (body1) { body1->OnCollisionBegin(body2); }
+			if (body2) { body2->OnCollisionBegin(body1); }
 			break;
 		case CollisionCallback::ContactPair::EventType::ContactExit:
-			body1->OnCollisionEnd(body2);
-			body2->OnCollisionEnd(body1);
+			if (body1) { body1->OnCollisionEnd(body2); }
+			if (body2) { body2->OnCollisionEnd(body1); }
 			break;
 		}
 	}

@@ -117,7 +117,6 @@ namespace NCL {
 				playerHealth = health;
 			}
 
-
 			void SetCollisionListener(GameObjectListener* listener) {
 				collisionManager = listener;
 				physicsWorld->setEventListener(listener);
@@ -161,6 +160,7 @@ namespace NCL {
 			float getColourTwoScore() { return colourTwoScore; }
 
 			void AddPaintBall();
+			void RemovePaintBall();
 			int GetPaintBalls();
 
 		protected:

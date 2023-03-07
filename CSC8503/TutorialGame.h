@@ -72,6 +72,7 @@ namespace NCL {
 			void InitGameExamples();
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
+			void InitProjectiles();
 			
 			bool SelectObject();
 
@@ -227,7 +228,8 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 
-
+			Projectile* projectiles[100];
+			int currentProjectile = 0;
 
 			bool thirdPerson = true;
 
