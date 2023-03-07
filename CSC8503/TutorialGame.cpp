@@ -90,12 +90,11 @@ void TutorialGame::InitialiseAssets() {
 
 	timeLimit = 300;
 
-
-
 	InitSound();
 	InitCamera();
 	InitCameraSec();
 	InitWorld();
+	InitProjectiles();
 
 	GameObjectListener* listener = new GameObjectListener(world);
 	world->SetCollisionListener(listener);
@@ -123,6 +122,8 @@ TutorialGame::~TutorialGame()	{
 	delete corridorCornerLeftSideMesh;
 
 	delete testMesh;
+
+	delete[] projectiles;
 
 	delete renderer;
 	delete world;
@@ -288,15 +289,6 @@ void TutorialGame::RenderDebug(float dt) {
 
 void TutorialGame::UpdateKeys()
 {
-	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1)) {
-	//	InitWorld(); //We can reset the simulation at any time with F1
-	//	selectionObject = nullptr;
-	//}
-
-	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F2)) {
-	//	InitCamera(); //F2 will reset the camera to a specific default place
-	//}
-
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::G)) {
 		useGravity = !useGravity; //Toggle gravity!
 		physicsWorld->setIsGravityEnabled(useGravity);
@@ -307,26 +299,6 @@ void TutorialGame::UpdateKeys()
 		initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
 	}
 
-
-	//Running certain physics updates in a consistent order might cause some
-	//bias in the calculations - the same objects might keep 'winning' the constraint
-	//allowing the other one to stretch too much etc. Shuffling the order so that it
-	//is random every frame can help reduce such bias.
-	/*
-	 if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9)) {
-		world->ShuffleConstraints(true);
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10)) {
-		world->ShuffleConstraints(false);
-	}
-
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F7)) {
-		world->ShuffleObjects(true);
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F8)) {
-		world->ShuffleObjects(false);
-	}
-	*/
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
 		std::fstream my_file;
 		my_file.open(Assets::DATADIR + "Highscore.txt", std::ios::in);
@@ -342,15 +314,6 @@ void TutorialGame::UpdateKeys()
 		}
 		std::cout << "Highest Score is "<< x <<std::endl;
 	}
-
-	//if (lockedObject) {
-	//	//LockedObjectMovement();
-	//}
-	//else {
-	//	DebugObjectMovement();
-	//}
-
-
 }
 
 void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
@@ -475,15 +438,26 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
-		char colourInput = player->getPaintColour();
-
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() +
-			player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3),
-			reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
+		Projectile* projectile = projectiles[currentProjectile];
+		currentProjectile = (currentProjectile + 1) % 100;
 
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
+		Vector4 colourVector;
+		switch (player->getPaintColour()) {
+		case 'r':
+			colourVector = Vector4(1, 0, 0, 1);
+			break;
+		case 'b':
+			colourVector = Vector4(0, 0, 1, 1);
+			break;
+		}
+		projectile->GetRenderObject()->SetColour(colourVector);
+		projectile->setPaintColour(player->getPaintColour());
+		projectile->Reset();
+		projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+		projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 		/*sound mod is here! If you don't want to use it , just comment them out*/
 		Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
@@ -622,13 +596,36 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
-		char colourInput = player->getPaintColour();
-		Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
+		Projectile* projectile = projectiles[currentProjectile];
+		currentProjectile = (currentProjectile + 1) % 100;
 
-		Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
+		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
-		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -750));
+		Vector4 colourVector;
+		switch (player->getPaintColour()) {
+		case 'r':
+			colourVector = Vector4(1, 0, 0, 1);
+			break;
+		case 'b':
+			colourVector = Vector4(0, 0, 1, 1);
+			break;
+		}
+		projectile->GetRenderObject()->SetColour(colourVector);
+		projectile->setPaintColour(player->getPaintColour());
+		projectile->Reset();
+		projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+		projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+
+
+		//char colourInput = player->getPaintColour();
+		//Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
+
+		//Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
+		//reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+
+		//projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -750));
 
 		/*sound mod is here! If you don't want to use it , just comment them out*/
 		Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
@@ -849,6 +846,12 @@ void TutorialGame::InitWorld() {
 	InitDefaultFloor();
 }
 
+void TutorialGame::InitProjectiles() {
+	for (int i = 0; i < 100; ++i) {
+		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.3, 1);
+	}
+}
+
 void TutorialGame::buildGameworld() {
 	srand(time(0));
 	int i = 0;
@@ -983,10 +986,11 @@ physics worlds. You'll probably need another function for the creation of OBB cu
 
 */
 Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass) {
-	Projectile* sphere = new Projectile(world);
+	Projectile* sphere = new Projectile(world, 3.0f);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setMass(mass);
+	body->setType(reactphysics3d::BodyType::STATIC);
 	reactphysics3d::SphereShape* shape = physics.createSphereShape(radius);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	reactphysics3d::Material material = collider->getMaterial();
@@ -1008,7 +1012,6 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	sphere->setPaintColour(colour);
 
 	sphere->GetRenderObject()->SetColour(colourVector);
-	sphere->time = 1.5f;
 	world->AddGameObject(sphere);
 	world->AddPaintBall();
 

@@ -117,7 +117,6 @@ namespace NCL {
 				playerHealth = health;
 			}
 
-
 			void SetCollisionListener(GameObjectListener* listener) {
 				collisionManager = listener;
 				physicsWorld->setEventListener(listener);
