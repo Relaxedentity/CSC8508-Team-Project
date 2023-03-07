@@ -25,10 +25,10 @@ namespace NCL {
 			void InitWorld();
 			TutorialGame();
 			~TutorialGame();
-			GameObject* getPlayer() {
+			PlayerObject* getPlayer() {
 				return player;
 			}
-			GameObject* getPlayer2() {
+			PlayerObject* getPlayer2() {
 				return player2;
 			}
 			virtual void UpdateGame(float dt);
@@ -133,6 +133,8 @@ namespace NCL {
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
 
+			void RenderDebug(float dt);
+
 			/*sound functions*/
 			void MainScreenFireMapping(Vector3 sphereintipos);
 			void MainScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
@@ -163,6 +165,7 @@ namespace NCL {
 			bool inSelectionMode;
 			bool freeCamera;
 			bool mouseLock;
+			bool debug;
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
@@ -237,6 +240,8 @@ namespace NCL {
 
 			// Paint Node Functions
 			void addPaintNodeToWorld(Vector3 location);
+
+			void addMapNodeToWorld(Vector3 location);
 			// Rendering the character's paint track
 			void PlayerPaintTracks(PlayerObject* player, char paintColour);
 		};
