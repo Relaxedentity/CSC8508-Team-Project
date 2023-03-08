@@ -168,6 +168,10 @@ namespace NCL {
 			bool freeCamera;
 			bool mouseLock;
 			bool debug;
+
+			float accumulator = 0;
+			const float timeStep = 1.0f / 60.0f;
+
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;

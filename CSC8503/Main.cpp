@@ -51,7 +51,7 @@ int main() {
 	GameLock::Player1lock = true;//menu value init
 	GameLock::gamemod = 0;///////////////////////////
 	GameLock::gamestart = false;////////////////
-	GameLock::gametime = 15;////////////////////////////
+	GameLock::gametime = 300;////////////////////////////
 	bool NotConfirmExit = true;///////////////////////////
 	PushdownMachine* machine = new PushdownMachine(new IntroScreen());//menuinit
 

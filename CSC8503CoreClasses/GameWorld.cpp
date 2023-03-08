@@ -219,7 +219,7 @@ void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char 
 	
 	for (auto& i : gameObjects) {
 		if (inputObject == i) continue;
-		if (physicsWorld->testOverlap(inputObject->GetPhysicsObject(), i->GetPhysicsObject())) {
+		if (physicsWorld->testOverlap(paintOrb->GetPhysicsObject(), i->GetPhysicsObject())) {
 			i->GetRenderObject()->PaintSpray(position, paintColour);
 		}
 	}
