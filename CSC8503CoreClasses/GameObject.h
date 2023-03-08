@@ -82,6 +82,7 @@ namespace NCL::CSC8503 {
 
 		void SetWorldID(int newID) {
 			worldID = newID;
+			entityID = physicsObject ? physicsObject->getEntity().id : -1;
 		}
 		void SetAssociated(GameObject* asso) {
 			associated = asso;
@@ -91,6 +92,10 @@ namespace NCL::CSC8503 {
 		}
 		int		GetWorldID() const {
 			return worldID;
+		}
+
+		int GetEntityID() const {
+			return entityID;
 		}
 
 		void SetYaw(reactphysics3d::Quaternion yaw) {
@@ -115,6 +120,7 @@ namespace NCL::CSC8503 {
 		GameObject*			associated;
 		bool		isActive;
 		int			worldID;
+		int         entityID;
 		int			objectTag;
 		std::string	name;
 		reactphysics3d::Quaternion yaw;

@@ -12,18 +12,18 @@ using namespace NCL::CSC8503;
 void GameObjectListener::onContact(const CollisionCallback::CallbackData& callbackData) {
 	for (uint p = 0; p < callbackData.getNbContactPairs(); p++) {
 		CollisionCallback::ContactPair contactPair = callbackData.getContactPair(p);
-		GameObject* body1 = nullptr;
-		GameObject* body2 = nullptr;
-		world->OperateOnContents(
-			[&](GameObject* o) {
-				if (o->GetPhysicsObject() == contactPair.getBody1()) {
-					body1 = o;
-				}
-				else if (o->GetPhysicsObject() == contactPair.getBody2()) {
-					body2 = o;
-				}
-			}
-		);
+		GameObject* body1 = world->gameObjectsMap.find(contactPair.getBody1()->getEntity().id)->second;
+		GameObject* body2 = world->gameObjectsMap.find(contactPair.getBody2()->getEntity().id)->second;
+		//world->OperateOnContents(
+		//	[&](GameObject* o) {
+		//		if (o->GetEntityID() == contactPair.getBody1()->getEntity().id) {
+		//			body1 = o;
+		//		}
+		//		else if (o->GetEntityID() == contactPair.getBody2()->getEntity().id) {
+		//			body2 = o;
+		//		}
+		//	}
+		//);
 		
 		std::vector<CollisionCallback::ContactPoint> contactPoints;
 		for (uint c = 0; c < contactPair.getNbContactPoints(); c++) {

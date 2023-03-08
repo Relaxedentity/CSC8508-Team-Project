@@ -101,6 +101,10 @@ namespace NCL {
 				return playerCoopHealth;
 			}
 
+			int GetNextID() {
+				return worldIDCounter;
+			}
+
 			void SetPlayerCoop(GameObject* p) {
 				playerCoop = p;
 			}
@@ -163,6 +167,7 @@ namespace NCL {
 			void RemovePaintBall();
 			int GetPaintBalls();
 
+			std::map<int, GameObject*> gameObjectsMap;
 		protected:
 			std::vector<GameObject*> gameObjects;
 

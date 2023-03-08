@@ -59,6 +59,7 @@ void GameWorld::ClearAndErase() {
 
 void GameWorld::AddGameObject(GameObject* o) {
 	gameObjects.emplace_back(o);
+	gameObjectsMap.insert({ o->GetPhysicsObject()->getEntity().id, o });
 	o->SetWorldID(worldIDCounter++);
 	worldStateCounter++;
 }
