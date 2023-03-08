@@ -40,11 +40,11 @@ GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 }
 
 GameWorld::~GameWorld()	{
-	
+	gameObjects.erase(gameObjects.begin(), gameObjects.end());
 }
 
 void GameWorld::Clear() {
-	gameObjects.clear();
+	gameObjects.erase(gameObjects.begin(), gameObjects.end());
 	worldIDCounter		= 0;
 	worldStateCounter	= 0;
 }
