@@ -439,30 +439,35 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
-		Projectile* projectile = projectiles[currentProjectile];
-		currentProjectile = (currentProjectile + 1) % 100;
+		invokeTime -= dt;
+		if (invokeTime <= 0) {
+			Projectile* projectile = projectiles[currentProjectile];
+			currentProjectile = (currentProjectile + 1) % 100;
 
-		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
-		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+			Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
+			reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
-		Vector4 colourVector;
-		switch (player->getPaintColour()) {
-		case 'r':
-			colourVector = Vector4(1, 0, 0, 1);
-			break;
-		case 'b':
-			colourVector = Vector4(0, 0, 1, 1);
-			break;
+			Vector4 colourVector;
+			switch (player->getPaintColour()) {
+			case 'r':
+				colourVector = Vector4(1, 0, 0, 1);
+				break;
+			case 'b':
+				colourVector = Vector4(0, 0, 1, 1);
+				break;
+			}
+			projectile->GetRenderObject()->SetColour(colourVector);
+			projectile->setPaintColour(player->getPaintColour());
+			projectile->Reset();
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+			/*sound mod is here! If you don't want to use it , just comment them out*/
+			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
+			invokeTime = 0.1f;
 		}
-		projectile->GetRenderObject()->SetColour(colourVector);
-		projectile->setPaintColour(player->getPaintColour());
-		projectile->Reset();
-		projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
-		projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
-		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
-		/*sound mod is here! If you don't want to use it , just comment them out*/
-		Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
+		
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {

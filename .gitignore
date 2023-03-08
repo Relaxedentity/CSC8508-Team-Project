@@ -9,3 +9,16 @@
 /.vs
 /Build
 /out/build/x64-Debug
+/x64/Debug/CSC8503.exe
+/x64/Debug/CSC8503.pdb
+/x64/Debug/CSC8503CoreClasses.lib
+/x64/Debug/CSC8503CoreClasses.pdb
+/x64/Release/CSC8503.exe
+/x64/Debug/NCLCoreClasses.lib
+/x64/Debug/OpenGLRendering.pdb
+/x64/Debug/OpenGLRendering.lib
+/x64/Debug/NCLCoreClasses.pdb
+/x64/Release/CSC8503CoreClasses.lib
+/x64/Release/NCLCoreClasses.lib
+/x64/Release/NCLCoreClasses.pdb
+/x64/Release/OpenGLRendering.lib
