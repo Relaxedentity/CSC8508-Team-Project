@@ -7,3 +7,4 @@ bool GameLock::Player2lock;
 bool GameLock::gamestart;
 int  GameLock::gamemod;
 float GameLock::gametime;
+ISoundEngine* GameLock::hitsound;

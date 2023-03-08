@@ -13,7 +13,7 @@ using namespace Assets;
 
 
 
-void SoundObject::ShootVoice(ISoundEngine* shootvoice,Vector3 ShootPosition)
+void SoundObject::ShootVoice(ISoundEngine* shootvoice, Vector3 ShootPosition)
 {
 	const std::string a = "bell.WAV";
 	const std::string s = SOUNDSDIR + a;
@@ -61,23 +61,21 @@ void SoundObject::MoveVoice(ISoundEngine* runvoice, Vector3 runPosition)
 	HitV->drop();
 }
 
-void SoundObject::fireSoundMapping(Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
+void SoundObject::fireSoundMapping(ISoundEngine* fire, Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
 {
-	ISoundEngine* fire = createIrrKlangDevice();
+
 	ShootVoice(fire, MainCameraPostiton);
 	ShootVoice(fire, SecCameraPosition);
 }
 
-void SoundObject::moveSoundMapping(Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
+void SoundObject::moveSoundMapping(ISoundEngine* move, Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
 {
-	ISoundEngine* move = createIrrKlangDevice();
 	MoveVoice(move, MainCameraPostiton);
 	MoveVoice(move, SecCameraPosition);
 }
 
-void SoundObject::jumpSoundMapping(Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
+void SoundObject::jumpSoundMapping(ISoundEngine* jump, Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
 {
-	ISoundEngine* jump = createIrrKlangDevice();
 	JumpVoice(jump, MainCameraPostiton);
 	JumpVoice(jump, SecCameraPosition);
 }

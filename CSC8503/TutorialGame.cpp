@@ -828,12 +828,13 @@ void TutorialGame::InitCamera() {
 }
 
 void TutorialGame::InitSound() {
-	ISoundEngine* InitV = createIrrKlangDevice();
+	initV = createIrrKlangDevice();
+	GameLock::hitsound = createIrrKlangDevice();
 	Vector3 init = Vector3(20000, 0, 0);//voiceinit
-	Init->ShootVoice(InitV, init);
-	Init->HitVoice(InitV, init);
-	Init->JumpVoice(InitV, init);
-	Init->MoveVoice(InitV, init);
+	Init->ShootVoice(initV, init);
+	Init->HitVoice(initV, init);
+	Init->JumpVoice(initV, init);
+	Init->MoveVoice(initV, init);
 }
 
 void NCL::CSC8503::TutorialGame::InitCameraSec()
@@ -1210,7 +1211,7 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
 
 	emitter->SetPhysicsObject(body);
-	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader));
+	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::SRGBTextureFromFilename("particle.tga"), newShader));
 	world->AddGameObject(emitter);
 	return emitter;
 }
@@ -1714,12 +1715,11 @@ void TutorialGame::MainScreenFireMapping(Vector3 sphereintipos) {
 	if (initSplitScreen) {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
 		Vector3 fireposition2 = sphereintipos - world->GetSecCamera()->GetPosition();
-		firevoice->fireSoundMapping(fireposition, fireposition2);
+		voice->fireSoundMapping(initV, fireposition, fireposition2);
 	}
 	else {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
-		ISoundEngine* fire = createIrrKlangDevice();
-		firevoice->ShootVoice(fire, fireposition);
+		voice->ShootVoice(initV, fireposition);
 	}
 
 }
@@ -1731,13 +1731,11 @@ void TutorialGame::MainScreenMoveMapping(Vector3 playermoveposition, bool direct
 		if (initSplitScreen) {
 			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
 			Vector3 runposition2 = playerrunposition - world->GetSecCamera()->GetPosition();
-			ISoundEngine* run = createIrrKlangDevice();
-			movevoice->moveSoundMapping(runposition, runposition2);
+			voice->moveSoundMapping(initV, runposition, runposition2);
 		}
 		else {
-			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
-			ISoundEngine* run = createIrrKlangDevice();
-			movevoice->MoveVoice(run, runposition);
+			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();;
+			voice->MoveVoice(initV, runposition);
 		}
 	}
 }
@@ -1746,12 +1744,11 @@ void TutorialGame::MainScreenJumpMapping(Vector3 playerjumpos) {
 	if (initSplitScreen) {
 		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
 		Vector3 jumpposition2 = playerjumpos - world->GetSecCamera()->GetPosition();
-		jumpvoice->jumpSoundMapping(jumpposition, jumpposition2);
+		voice->jumpSoundMapping(initV, jumpposition, jumpposition2);
 	}
 	else {
 		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
-		ISoundEngine* run = createIrrKlangDevice();
-		jumpvoice->JumpVoice(run, jumpposition);
+		voice->JumpVoice(initV, jumpposition);
 	}
 }
 
@@ -1759,12 +1756,11 @@ void TutorialGame::SecScreenFireMapping(Vector3 sphereintipos) {
 	if (initSplitScreen) {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
 		Vector3 fireposition2 = sphereintipos - world->GetSecCamera()->GetPosition();
-		firevoice->fireSoundMapping(fireposition2, fireposition);
+		voice->fireSoundMapping(initV, fireposition2, fireposition);
 	}
 	else {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
-		ISoundEngine* fire = createIrrKlangDevice();
-		firevoice->ShootVoice(fire, fireposition);
+		voice->ShootVoice(initV, fireposition);
 	}
 
 }
@@ -1776,13 +1772,11 @@ void TutorialGame::SecScreenMoveMapping(Vector3 playermoveposition, bool directi
 		if (initSplitScreen) {
 			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
 			Vector3 runposition2 = playerrunposition - world->GetSecCamera()->GetPosition();
-			ISoundEngine* run = createIrrKlangDevice();
-			movevoice->moveSoundMapping(runposition2, runposition);
+			voice->moveSoundMapping(initV, runposition2, runposition);
 		}
 		else {
 			Vector3 runposition = playerrunposition - world->GetMainCamera()->GetPosition();
-			ISoundEngine* run = createIrrKlangDevice();
-			movevoice->MoveVoice(run, runposition);
+			voice->MoveVoice(initV, runposition);
 		}
 	}
 }
@@ -1791,11 +1785,10 @@ void TutorialGame::SecScreenJumpMapping(Vector3 playerjumpos) {
 	if (initSplitScreen) {
 		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
 		Vector3 jumpposition2 = playerjumpos - world->GetSecCamera()->GetPosition();
-		jumpvoice->jumpSoundMapping(jumpposition2, jumpposition);
+		voice->jumpSoundMapping(initV, jumpposition2, jumpposition);
 	}
 	else {
 		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
-		ISoundEngine* run = createIrrKlangDevice();
-		jumpvoice->JumpVoice(run, jumpposition);
+		voice->JumpVoice(initV, jumpposition);
 	}
 }

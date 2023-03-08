@@ -24,8 +24,8 @@ namespace NCL {
 			PushdownResult OnUpdate(float dt,PushdownState** newState) override {
 				
 				//lock.SetLock(false);
-				Debug::Print("Use Up and Down to select game mode", Vector2(10, 25), Vector4(1, 1, 1, 1));
-				Debug::Print("Game Menu", Vector2(10, 45), Vector4(1, 1, 1, 1));
+				Debug::Print("Use Up and Down to select game mode", Vector2(20, 22), Debug::BLACK);
+				Debug::Print("Game Menu", Vector2(60, 40), Debug::BLACK);
 
 				GameLock::Player1lock = true;
 				 
@@ -44,34 +44,34 @@ namespace NCL {
 				switch (state)
 				{
 				case 1:
-					Debug::Print("Start Single Game", Vector2(10, 50),Vector4(1,0,0,1));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50),Vector4(1,0,0,1));
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				case 2:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55), Vector4(1, 0, 0, 1));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Vector4(1, 0, 0, 1));
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65),Debug::BLACK);
 					break;
 				case 3:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60),Vector4(1, 0, 0, 1));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60),Vector4(1, 0, 0, 1));
+					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				case 4:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65), Vector4(1, 0, 0, 1));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65), Vector4(1, 0, 0, 1));
 					break;
 				case 0:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				}
 

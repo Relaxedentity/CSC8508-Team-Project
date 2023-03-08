@@ -12,6 +12,7 @@
 #include "TutorialGame.h"
 #include <iterator>
 #include "Sound.h"
+#include "Gamelock.h"
 
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
@@ -33,9 +34,8 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	/*Sound mod*/
 	Vector3 hitposition = collisionPoint - world->GetMainCamera()->GetPosition();//
 	Vector3 hitposition2 = collisionPoint - world->GetSecCamera()->GetPosition();//
-	ISoundEngine* hit = createIrrKlangDevice();///
-	collisionV->HitVoice(hit, hitposition);//
-	collisionV->HitVoice(hit, hitposition2);//
+	collisionV->HitVoice(GameLock::hitsound, hitposition);//
+	collisionV->HitVoice(GameLock::hitsound, hitposition2);//
 
 	//std::cout << collisionPoint << std::endl;
 	//int colourInt = (paintColour == 'r') ? 1 : 2;

@@ -26,6 +26,8 @@ namespace NCL {
 
 			static TextureBase* RGBATextureFromFilename(const std::string&name);
 
+			static TextureBase* SRGBTextureFromFilename(const std::string& name);////////NEW Function
+
 			GLuint GetObjectID() const	{
 				return texID;
 			}

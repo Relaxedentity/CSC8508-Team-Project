@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "TextureLoader.h"
 #include "Debug.h"
+#include "Gamelock.h"
 using namespace NCL;
 using namespace Rendering;
 using namespace CSC8503;
@@ -98,11 +99,20 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	aimQuad->UploadToGPU();
 
 	// mini map
-
 	miniMapWall = new OGLShader("circle.vert", "circle.frag");
 	//miniMapEnemy = new OGLShader()
 	miniMapPlayer = new OGLShader("triangle.vert", "triangle.frag");
 
+
+	uiShader = new OGLShader("ui.vert", "ui.frag");
+	uiTex = new OGLTexture();
+	uiTex = (OGLTexture*)uiTex->SRGBTextureFromFilename("Game Selection.png");
+	menuMesh = new OGLMesh();
+	menuMesh->SetVertexPositions({ Vector3(1, 1.1,0), Vector3(1, -1.1,0) , Vector3(-1, -1.1,0) , Vector3(-1, 1.1,0) });
+	menuMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	menuMesh->SetVertexTextureCoords({  Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	menuMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	menuMesh->UploadToGPU();
 
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
@@ -376,16 +386,19 @@ void NCL::CSC8503::GameTechRenderer::RenderMap()
 
 void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
 {
-	Vector2 p_triangle1, p_triangle2, p_triangle3;
-	p_triangle1 = Vector2(px, py);
-	p_triangle2 = Vector2(px, py - height);
-	p_triangle3 = Vector2(px + width, py);
-	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+	
+}
 
-	p_triangle1 = Vector2(px, py - height);
-	p_triangle2 = Vector2(px + width, py - height);
-	p_triangle3 = Vector2(px + width, py);
-	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+void NCL::CSC8503::GameTechRenderer::RenderGameSelection() {
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	BindShader(uiShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, uiTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(menuMesh);
+	DrawBoundMesh();
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
@@ -435,7 +448,6 @@ void NCL::CSC8503::GameTechRenderer::RenderCrossHair()
 void GameTechRenderer::RenderFrame( ) 
 {
 	glEnable(GL_CULL_FACE);
-	glClearColor(1, 1, 1, 1);
 	BuildObjectList();
 	SortObjectList();
 	RenderShadowMap(0, 0, windowWidth, windowHeight);
@@ -449,7 +461,10 @@ void GameTechRenderer::RenderFrame( )
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	RenderHUD();
+	if(!GameLock::gamestart)
+	RenderGameSelection();
+	//RenderHUD();
+
 }
 void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 {
@@ -467,9 +482,13 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_BLEND);
-	RenderCrossHair();
-	RenderMap();
-	RenderHealthBar(gameWorld.GetPlayerHealth());
+
+	if (GameLock::gamestart) {
+		RenderCrossHair();
+		RenderMap();
+		RenderHealthBar(gameWorld.GetPlayerHealth());
+	}
+	
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -492,9 +511,14 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_BLEND);
-	RenderCrossHair();
-	RenderMap();
-	RenderHealthBar(gameWorld.GetPlayerCoopHealth());
+
+	if (GameLock::gamestart) {
+		RenderCrossHair();
+		RenderMap();
+		RenderHealthBar(gameWorld.GetPlayerCoopHealth());
+	}
+	
+	
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -503,14 +527,17 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 void NCL::CSC8503::GameTechRenderer::RenderHUD()
 {
-	NewRenderLines();
-	RenderTimerQuad();
-	RenderCrossHair();
 	NewRenderText();
-	RenderMap();
+	if (GameLock::gamestart) {
+		RenderTimerQuad();
+		RenderCrossHair();
+		RenderMap();
+		RenderHealthBar(gameWorld.GetPlayerHealth());
+		RenderProgressBar(gameWorld.getColourOneScore());
+		NewRenderLines();
+	}
+	
 
-	RenderHealthBar(gameWorld.GetPlayerHealth());
-	RenderProgressBar(gameWorld.getColourOneScore() );
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -525,10 +552,12 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	RenderTimerQuad();
-	NewRenderText();
+	if (GameLock::gamestart) {
+		RenderTimerQuad();
+		NewRenderText();
+		RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
+	}
 
-	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

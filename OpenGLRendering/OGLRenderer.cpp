@@ -49,7 +49,7 @@ OGLRenderer::OGLRenderer(Window& w) : RendererBase(w)	{
 	windowHeight	= (int)w.GetScreenSize().y;
 
 	if (initState) {
-		TextureLoader::RegisterAPILoadFunction(OGLTexture::RGBATextureFromFilename);
+		TextureLoader::RegisterAPILoadFunction(OGLTexture::SRGBTextureFromFilename);
 	}
 
 	forceValidDebugState = false;
