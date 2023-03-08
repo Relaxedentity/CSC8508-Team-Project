@@ -180,6 +180,7 @@ namespace NCL {
 			float		secHealth = 0.2f;
 			float		timeLimit;
 			float       invokeTime=0.1f;
+			float       invokeTime2 = 0.1f;
 
 			GameObject* selectionObject = nullptr;
 			GameObject* selectionObjectSec = nullptr;
