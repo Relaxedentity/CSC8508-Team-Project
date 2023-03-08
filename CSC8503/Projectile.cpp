@@ -22,7 +22,7 @@ Projectile::Projectile(GameWorld* world, float max_time, std::string name) : Pai
 }
 
 Projectile::~Projectile() {
-
+	delete collisionV;
 }
 
 void Projectile::OnCollisionBegin(GameObject* otherObject) {

@@ -133,6 +133,7 @@ TutorialGame::~TutorialGame()	{
 
 void TutorialGame::UpdateGame(float dt) {
 	//Debug::DrawAxisLines(Matrix4());
+	accumulator += dt;
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::TAB)) {
 		debug = !debug;
@@ -240,7 +241,12 @@ void TutorialGame::UpdateGame(float dt) {
 
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
-	physicsWorld->update(dt);
+	while (accumulator >= timeStep) {
+		physicsWorld->update(timeStep);
+		std::cout << accumulator << "s in the accumulator \n";
+		accumulator -= timeStep;
+	}
+	std::cout << "<<<<<<<<<<frame \n";
 	renderer->Update(dt);
 
 	if (coopMode && !freeCamera && GameLock::gamemod == 2) {//player2 movelock!
@@ -1614,7 +1620,7 @@ bool TutorialGame::SelectObject() {
 
 				world->painted.push_back(paintCollision);
 				for (Vector4 x : world->painted) {
-					std::cout << x<<"\n";
+					//std::cout << x<<"\n";
 				}
 				//std::cout << world->painted[0];
 				return true;
