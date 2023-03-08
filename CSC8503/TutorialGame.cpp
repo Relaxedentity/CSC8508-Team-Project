@@ -113,7 +113,6 @@ TutorialGame::~TutorialGame()	{
 	delete basicTex;
 	delete basicShader;
 
-
 	delete chairTex;
 	delete chairMesh;
 
@@ -243,10 +242,10 @@ void TutorialGame::UpdateGame(float dt) {
 	world->UpdateWorld(dt);
 	while (accumulator >= timeStep) {
 		physicsWorld->update(timeStep);
-		std::cout << accumulator << "s in the accumulator \n";
+		//std::cout << accumulator << "s in the accumulator \n";
 		accumulator -= timeStep;
 	}
-	std::cout << "<<<<<<<<<<frame \n";
+	//std::cout << "<<<<<<<<<<frame \n";
 	renderer->Update(dt);
 
 	if (coopMode && !freeCamera && GameLock::gamemod == 2) {//player2 movelock!
