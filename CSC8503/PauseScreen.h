@@ -22,6 +22,7 @@ namespace NCL {
 		public:
 			PushdownResult OnUpdate(float dt, PushdownState** pushFunc) override
 			{
+				
 
 				Debug::Print("Use W and S to select game mode", Vector2(5, 25), Vector4(1, 1, 1, 1));
 				Debug::Print("Pause Menu", Vector2(5, 45), Vector4(1, 1, 1, 1));
@@ -68,6 +69,8 @@ namespace NCL {
 						return PushdownResult::ExitoMainMenu;
 					}
 				}
+
+
 				if (GameLock::gametime <= 0) {
 
 					return PushdownResult::Pop;

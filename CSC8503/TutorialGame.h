@@ -160,7 +160,6 @@ namespace NCL {
 
 			bool initSplitScreen;
 			bool coopMode;
-
 			bool gpConnected;
 
 			bool useGravity;

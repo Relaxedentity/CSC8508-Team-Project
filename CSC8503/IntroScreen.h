@@ -75,7 +75,7 @@ namespace NCL {
 					break;
 				}
 
- 				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT))
+ 				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RETURN))
 				{
 					if (state == 1)
 					{

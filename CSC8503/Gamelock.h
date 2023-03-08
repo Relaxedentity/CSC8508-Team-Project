@@ -7,7 +7,9 @@ namespace NCL {
 			static bool Player2lock;
 			static float gametime;
 			static bool gamestart;
+			static bool gamePause;
 			static int gamemod;
+
 		};
 	}
 }

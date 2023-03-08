@@ -30,12 +30,12 @@ namespace NCL {
 			{
 				if (GameLock::gamemod == 1) {
 					Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
-					Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
 					Debug::Print("Player1 Press (F1) to call menu!\n", Vector2(20, 17), Vector4(1, 1, 1, 1));
 
 					if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1) || player1menuAwake) {
 
 						GameLock::Player1lock = true;
+						GameLock::gamePause = true;
 						player1menuAwake = false;
 						*newState = new PauseScreen();
 						return PushdownResult::Push;
@@ -62,7 +62,6 @@ namespace NCL {
 						if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::S)){
 								state1 = state1 + 1 <= 2 ? state1 + 1 : 1;
 						}
-
 						switch (state1)
 						{
 						case 1:
@@ -161,6 +160,8 @@ namespace NCL {
 				state2 = 0;
 				bool player1menuAwake = false;
 				bool player2menuAwake = false;
+
+				GameLock::gamePause = false;
 			}
 		protected:
 			int coinsMined = 0;

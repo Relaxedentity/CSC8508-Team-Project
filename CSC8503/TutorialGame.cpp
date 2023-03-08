@@ -180,7 +180,7 @@ void TutorialGame::UpdateGame(float dt) {
 
 	world->SetPlayerHealth(health);
 	world->SetPlayerCoopHealth(secHealth);
-	if (GameLock::gamestart) {//gametime//////////////////////////////////////
+	if (GameLock::gamestart && !GameLock::gamePause) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
 		GameLock::gametime = timeLimit;
 	}

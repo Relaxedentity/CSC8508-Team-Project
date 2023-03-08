@@ -1,7 +1,6 @@
 #pragma once
+#include <windows.h>
 #include <Xinput.h>
-#include <minwinbase.h>
-#include <winerror.h>
 #include <iostream>
 
 class GamePad
