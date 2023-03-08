@@ -16,6 +16,89 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
+#include <Xinput.h>
+
+class Gamepad
+{
+	public:
+		Gamepad() : deadzoneX(0.05f), deadzoneY(0.05f) {}
+		Gamepad(float dzX, float dzY) : deadzoneX(dzX), deadzoneY(dzY) {}
+
+		float leftStickX;
+		float leftStickY;
+		float rightStickX;
+		float rightStickY;
+		float leftTrigger;
+		float rightTrigger;
+
+		int  GetPort();
+		XINPUT_GAMEPAD* GetState();
+		bool CheckConnection();
+		bool Refresh();
+		bool IsPressed(WORD);
+
+	private:
+		int controllerID;
+		XINPUT_STATE state;
+
+		float deadzoneX;
+		float deadzoneY;
+};
+
+int Gamepad::GetPort()
+{
+	return controllerID + 1;
+}
+
+XINPUT_GAMEPAD* Gamepad::GetState()
+{
+	return &state.Gamepad;
+}
+
+bool Gamepad::CheckConnection()
+{
+	int controllerId = -1;
+	DWORD dwResult;
+
+	for (DWORD i = 0; i < XUSER_MAX_COUNT && controllerId == -1; i++)
+	{
+		XINPUT_STATE state;
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+
+		dwResult = XInputGetState(i, &state);
+
+		if (dwResult ==  ERROR_SUCCESS) {
+			controllerId = i;
+		}
+	}
+
+	controllerID = controllerId;
+
+	return controllerId != -1;
+}
+
+// true if controller is connected
+bool Gamepad::Refresh()
+{
+	if (controllerID == -1)
+		CheckConnection();
+
+	if (controllerID != -1)
+	{
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+		if (XInputGetState(controllerID, &state) != ERROR_SUCCESS)
+		{
+			controllerID = -1;
+			return false;
+		}
+
+		// get percentage of x and y's movement 
+		float normLStickX = fmaxf(-1, (float)state.Gamepad.sThumbLX / 32767);
+		float normLStickY = fmaxf(-1, (float)state.Gamepad.sThumbLY / 32767);
+
+		// normalising t
+		leftStickX = (abs(normLStickX) < deadzoneX ? 0 : (abs(normLStickX) - deadzoneX) * (normLStickX / abs(normLStickX)));
+		leftStickY = (abs(normLStickY) < deadzoneY ? 0 : (abs(normLStickY) - deadzoneY) * (normLStickY / abs(normLStickY)));
 #include "MapNode.h"
 #include "windows.h"
 #include "psapi.h"
@@ -23,10 +106,38 @@
 #include "Gamelock.h"
 #include "Sound.h"
 
+		if (deadzoneX > 0) leftStickX *= 1 / (1 - deadzoneX);
+		if (deadzoneY > 0) leftStickY *= 1 / (1 - deadzoneY);
+
+		float normRStickX = fmaxf(-1, (float)state.Gamepad.sThumbRX / 32767);
+		float normRStickY = fmaxf(-1, (float)state.Gamepad.sThumbRY / 32767);
+
+		rightStickX = (abs(normRStickX) < deadzoneX ? 0 : (abs(normRStickX) - deadzoneX) * (normRStickX / abs(normRStickX)));
+		rightStickY = (abs(normRStickY) < deadzoneY ? 0 : (abs(normRStickY) - deadzoneY) * (normRStickY / abs(normRStickY)));
+
+		if (deadzoneX > 0) rightStickX *= 1 / (1 - deadzoneX);
+		if (deadzoneY > 0) rightStickY *= 1 / (1 - deadzoneY);
+
+		leftTrigger = (float)state.Gamepad.bLeftTrigger / 255;
+		rightTrigger = (float)state.Gamepad.bRightTrigger / 255;
+
+		return true;
+	}
+	return false;
+}
+
+bool Gamepad::IsPressed(WORD button)
+{
+	return (state.Gamepad.wButtons & button) != 0;
+}
+	
+
 using namespace NCL;
 using namespace CSC8503;
 vector <NCL::Maths::Vector3> nodes;
 vector <NCL::Maths::Vector3> nodes2;
+
+Gamepad gamepad;
 TutorialGame::TutorialGame()	{
 	reactphysics3d::PhysicsWorld::WorldSettings settings;
 	settings.defaultVelocitySolverNbIterations = 15; // Default is 10, we can discuss reducing to default
@@ -51,6 +162,8 @@ TutorialGame::TutorialGame()	{
 	world->SetPlayerHealth(1.0f);
 	world->SetPlayerCoopHealth(1.0f);
 
+	gpConnected = true;
+
 	coopMode = true;
 	InitialiseAssets();
 }
@@ -63,6 +176,7 @@ for this module, even in the coursework, but you can add it if you like!
 
 */
 void TutorialGame::InitialiseAssets() {
+
 	cubeMesh	= renderer->LoadMesh("cube.msh");
 	sphereMesh	= renderer->LoadMesh("sphere.msh");
 	charMesh	= renderer->LoadMesh("goat.msh");
@@ -72,7 +186,7 @@ void TutorialGame::InitialiseAssets() {
 	gooseMesh = renderer->LoadMesh("goose.msh");	
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
-	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
+	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
 
 	//Rebellion assets
@@ -139,6 +253,7 @@ void TutorialGame::UpdateGame(float dt) {
 	if (debug) {
 		RenderDebug(dt);
 	}
+
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
 		inSelectionMode = !inSelectionMode;
@@ -323,6 +438,8 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 	world->GetMainCamera()->ThirdPersonUpdateRot();
 
+	//std:: cout << Window::GetMouse()->GetRelativePosition().x << std::endl;
+
 	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
 	Vector3 objPos = Vector3(playerTransform.getPosition());
 
@@ -475,40 +592,64 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 {
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
-		thirdPerson = !thirdPerson;
+	if (!gamepad.Refresh())
+	{
+		if (gpConnected)
+		{
+			gpConnected = false;
+			std::cout << "Please connect an controller." << std::endl;
+			return;
+		}
 	}
+	else
+	{
+		if (!gpConnected)
+		{
+			gpConnected = true;
 
-	world->GetSecCamera()->ThirdPersonUpdateRot();
+			std::cout << "Controller connected on port " << gamepad.GetPort() << std::endl;
+		}
 
-	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
-	Vector3 objPos = Vector3(playerTransform.getPosition());
 
-	Quaternion goatStartRotation;
-	Quaternion goatRealRotation;
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
+			thirdPerson = !thirdPerson;
+		}
 
-	Vector3 camPos;
-	if (!thirdPerson) {
-		camPos = orbitCameraProcess(objPos, *world->GetSecCamera(), lockedSecObject);
-		cameraInterpolation(camPos, dt, *world->GetSecCamera());
-	}
-	else {
-		camPos = thirdPersonCameraProcess(objPos, *world->GetSecCamera(), lockedSecObject);
-		cameraInterpolation(camPos, dt, *world->GetSecCamera());
-		camPos = world->GetSecCamera()->GetPosition();
-	}
+		std::cout << gamepad.rightStickX << std::endl;
 
-	Quaternion Yaw = Quaternion(world->GetSecCamera()->GetRotationYaw());
-	player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
+		world->GetSecCamera()->ControlThirdPersonUpdateRot(gamepad.rightStickX, gamepad.rightStickY);
 
-	Vector3 startVelocity = lockedSecObject->GetPhysicsObject()->getLinearVelocity();
-	Vector3 endVelocity = Vector3(0, 0, 0);
+		reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
+		Vector3 objPos = Vector3(playerTransform.getPosition());
 
-	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
-	SceneContactPoint* ground = world->Raycast(ray, player);
-	player->setGrounded(ground->isHit);
+		Quaternion goatStartRotation;
+		Quaternion goatRealRotation;
 
-	bool directionInput = false;
+		Vector3 camPos;
+
+
+		if (!thirdPerson) {
+			camPos = orbitCameraProcess(objPos, *world->GetSecCamera(), lockedSecObject);
+			cameraInterpolation(camPos, dt, *world->GetSecCamera());
+		}
+		else {
+			camPos = thirdPersonCameraProcess(objPos, *world->GetSecCamera(), lockedSecObject);
+			cameraInterpolation(camPos, dt, *world->GetSecCamera());
+			camPos = world->GetSecCamera()->GetPosition();
+		}
+
+		world->GetSecCamera()->SetYaw(gamepad.rightStickX);
+		Quaternion Yaw = Quaternion(world->GetSecCamera()->GetRotationYaw());
+		player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
+
+		Vector3 startVelocity = lockedSecObject->GetPhysicsObject()->getLinearVelocity();
+		Vector3 endVelocity = Vector3(0, 0, 0);
+
+		reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
+		SceneContactPoint* ground = world->Raycast(ray, player);
+		player->setGrounded(ground->isHit);
+
+		bool directionInput = false;
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 
@@ -521,6 +662,13 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		directionInput = true;
 	}
 
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_UP)) {
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+			endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
+			directionInput = true;
+		}
+
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
 
 		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
@@ -531,6 +679,12 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
 		directionInput = true;
 	}
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+			endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
+			directionInput = true;
+		}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
 
@@ -542,6 +696,12 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
 		directionInput = true;
 	}
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+			endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
+			directionInput = true;
+		}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
 
@@ -557,6 +717,16 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		float scalar = (0.95 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+			endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
+			directionInput = true;
+		}
+		if (!directionInput && player->IsGrounded()) {
+			float scalar = (1 - dt);
+			player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
+		}
 
 	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
 		endVelocity.Normalise();
@@ -570,37 +740,46 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_LEFT_SHOULDER) && player->IsGrounded()) {
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
+		}
 
-	if (!thirdPerson) {
-		Vector3 currentVelocity = Vector3(lockedSecObject->GetPhysicsObject()->getLinearVelocity());
-		float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
-		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
-		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
-		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
-	}
-	else {
-		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetSecCamera(), camPos);
-		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
-		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
-	}
+		if (!thirdPerson) {
+			Vector3 currentVelocity = Vector3(lockedSecObject->GetPhysicsObject()->getLinearVelocity());
+			float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
+			Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
+			goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+			goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
+		}
+		else {
+			Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetSecCamera(), camPos);
+			goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
+			goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
+		}
 
-	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
+		reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
 
-	player->GetPhysicsObject()->setTransform(newTransform);
+		player->GetPhysicsObject()->setTransform(newTransform);
 
-	//reactphysics3d::Quaternion tempQuart = reactphysics3d::Quaternion(goatStartRotation.x, goatStartRotation.y, goatStartRotation.z, goatStartRotation.w);
-	//tempQuart.inverse();
-	//goatRealRotation = Quaternion(tempQuart) * goatRealRotation;
-	//Vector3 torqueVector = goatRealRotation.ToEuler();
-	//
-	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
+		//reactphysics3d::Quaternion tempQuart = reactphysics3d::Quaternion(goatStartRotation.x, goatStartRotation.y, goatStartRotation.z, goatStartRotation.w);
+		//tempQuart.inverse();
+		//goatRealRotation = Quaternion(tempQuart) * goatRealRotation;
+		//Vector3 torqueVector = goatRealRotation.ToEuler();
+		//
+		//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
 		Projectile* projectile = projectiles[currentProjectile];
 		currentProjectile = (currentProjectile + 1) % 100;
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+			char colourInput = player->getPaintColour();
+			Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
 
 		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+			world->GetSecCamera()->SetPitch(gamepad.rightStickY);
+			Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
+			reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
 		Vector4 colourVector;
 		switch (player->getPaintColour()) {
@@ -676,6 +855,7 @@ void TutorialGame::cameraInterpolation(Vector3 target, float dt, Camera& camera)
 
 	camera.SetPosition(currentCamPos + movement * cameraInterpBaseSpeed);
 }
+
 
 Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos, Camera& camera, GameObject* ignorePlayer) {
 	Quaternion rotationAmount = Quaternion(camera.GetRotationYaw()) * Quaternion(camera.GetRotationPitch());
