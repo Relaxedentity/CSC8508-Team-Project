@@ -1614,7 +1614,7 @@ bool TutorialGame::SelectObject() {
 
 				world->painted.push_back(paintCollision);
 				for (Vector4 x : world->painted) {
-					std::cout << x<<"\n";
+					//std::cout << x<<"\n";
 				}
 				//std::cout << world->painted[0];
 				return true;
