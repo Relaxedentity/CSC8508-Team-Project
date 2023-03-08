@@ -95,6 +95,7 @@ void TutorialGame::InitialiseAssets() {
 	InitCameraSec();
 	InitWorld();
 	InitProjectiles();
+	InitPaintOrb();
 
 	GameObjectListener* listener = new GameObjectListener(world);
 	world->SetCollisionListener(listener);
@@ -848,8 +849,31 @@ void TutorialGame::InitWorld() {
 
 void TutorialGame::InitProjectiles() {
 	for (int i = 0; i < 100; ++i) {
-		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.3, 1);
+		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.75, 1);
 	}
+}
+
+void TutorialGame::InitPaintOrb() {
+	GameObject* sphere = new GameObject(world);
+	reactphysics3d::Transform transform(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity());
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setMass(2);
+	float radius = 1.5f;
+	reactphysics3d::SphereShape* shape = physics.createSphereShape(radius);
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	reactphysics3d::Material material = collider->getMaterial();
+	material.setBounciness(0.22f);
+
+	collider->setMaterial(material);
+	//collider->setIsTrigger(true);
+	sphere->SetPhysicsObject(body);
+	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, nullptr, charShader));
+
+	world->AddGameObject(sphere);
+
+	world->setPaintOrb(sphere);
+
+	sphere->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
 }
 
 void TutorialGame::buildGameworld() {
@@ -1012,6 +1036,7 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	sphere->setPaintColour(colour);
 
 	sphere->GetRenderObject()->SetColour(colourVector);
+
 	world->AddGameObject(sphere);
 	world->AddPaintBall();
 

@@ -73,6 +73,7 @@ namespace NCL {
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
 			void InitProjectiles();
+			void InitPaintOrb();
 			
 			bool SelectObject();
 

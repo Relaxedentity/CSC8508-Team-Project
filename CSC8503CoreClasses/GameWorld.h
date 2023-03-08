@@ -163,6 +163,12 @@ namespace NCL {
 			void RemovePaintBall();
 			int GetPaintBalls();
 
+			void paintSphereTest(GameObject* inputObject, Vector3 position, char paintColour);
+
+			void setPaintOrb(GameObject* i) {
+				paintOrb = i;
+			}
+
 		protected:
 			std::vector<GameObject*> gameObjects;
 
@@ -191,6 +197,8 @@ namespace NCL {
 			int paintBallAmount;
 
 			std::vector<MapNode*> mapNodes;
+
+			GameObject* paintOrb;
 		};
 
 		class PaintNode {
