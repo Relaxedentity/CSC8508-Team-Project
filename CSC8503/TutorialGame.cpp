@@ -16,128 +16,20 @@
 #include <OGLRenderer.cpp>
 #include "Maths.h"
 #include "Projectile.h"
-#include <Xinput.h>
-
-class Gamepad
-{
-	public:
-		Gamepad() : deadzoneX(0.05f), deadzoneY(0.05f) {}
-		Gamepad(float dzX, float dzY) : deadzoneX(dzX), deadzoneY(dzY) {}
-
-		float leftStickX;
-		float leftStickY;
-		float rightStickX;
-		float rightStickY;
-		float leftTrigger;
-		float rightTrigger;
-
-		int  GetPort();
-		XINPUT_GAMEPAD* GetState();
-		bool CheckConnection();
-		bool Refresh();
-		bool IsPressed(WORD);
-
-	private:
-		int controllerID;
-		XINPUT_STATE state;
-
-		float deadzoneX;
-		float deadzoneY;
-};
-
-int Gamepad::GetPort()
-{
-	return controllerID + 1;
-}
-
-XINPUT_GAMEPAD* Gamepad::GetState()
-{
-	return &state.Gamepad;
-}
-
-bool Gamepad::CheckConnection()
-{
-	int controllerId = -1;
-	DWORD dwResult;
-
-	for (DWORD i = 0; i < XUSER_MAX_COUNT && controllerId == -1; i++)
-	{
-		XINPUT_STATE state;
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-
-		dwResult = XInputGetState(i, &state);
-
-		if (dwResult ==  ERROR_SUCCESS) {
-			controllerId = i;
-		}
-	}
-
-	controllerID = controllerId;
-
-	return controllerId != -1;
-}
-
-// true if controller is connected
-bool Gamepad::Refresh()
-{
-	if (controllerID == -1)
-		CheckConnection();
-
-	if (controllerID != -1)
-	{
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-		if (XInputGetState(controllerID, &state) != ERROR_SUCCESS)
-		{
-			controllerID = -1;
-			return false;
-		}
-
-		// get percentage of x and y's movement 
-		float normLStickX = fmaxf(-1, (float)state.Gamepad.sThumbLX / 32767);
-		float normLStickY = fmaxf(-1, (float)state.Gamepad.sThumbLY / 32767);
-
-		// normalising t
-		leftStickX = (abs(normLStickX) < deadzoneX ? 0 : (abs(normLStickX) - deadzoneX) * (normLStickX / abs(normLStickX)));
-		leftStickY = (abs(normLStickY) < deadzoneY ? 0 : (abs(normLStickY) - deadzoneY) * (normLStickY / abs(normLStickY)));
 #include "MapNode.h"
 #include "windows.h"
 #include "psapi.h"
 #include <Xinput.h>
 #include "Gamelock.h"
 #include "Sound.h"
-
-		if (deadzoneX > 0) leftStickX *= 1 / (1 - deadzoneX);
-		if (deadzoneY > 0) leftStickY *= 1 / (1 - deadzoneY);
-
-		float normRStickX = fmaxf(-1, (float)state.Gamepad.sThumbRX / 32767);
-		float normRStickY = fmaxf(-1, (float)state.Gamepad.sThumbRY / 32767);
-
-		rightStickX = (abs(normRStickX) < deadzoneX ? 0 : (abs(normRStickX) - deadzoneX) * (normRStickX / abs(normRStickX)));
-		rightStickY = (abs(normRStickY) < deadzoneY ? 0 : (abs(normRStickY) - deadzoneY) * (normRStickY / abs(normRStickY)));
-
-		if (deadzoneX > 0) rightStickX *= 1 / (1 - deadzoneX);
-		if (deadzoneY > 0) rightStickY *= 1 / (1 - deadzoneY);
-
-		leftTrigger = (float)state.Gamepad.bLeftTrigger / 255;
-		rightTrigger = (float)state.Gamepad.bRightTrigger / 255;
-
-		return true;
-	}
-	return false;
-}
-
-bool Gamepad::IsPressed(WORD button)
-{
-	return (state.Gamepad.wButtons & button) != 0;
-}
-	
+#include "Gamepad.h"
 
 using namespace NCL;
 using namespace CSC8503;
 vector <NCL::Maths::Vector3> nodes;
 vector <NCL::Maths::Vector3> nodes2;
+GamePad gamepad;
 
-Gamepad gamepad;
 TutorialGame::TutorialGame()	{
 	reactphysics3d::PhysicsWorld::WorldSettings settings;
 	settings.defaultVelocitySolverNbIterations = 15; // Default is 10, we can discuss reducing to default
@@ -186,7 +78,7 @@ void TutorialGame::InitialiseAssets() {
 	gooseMesh = renderer->LoadMesh("goose.msh");	
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
-	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
+	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
 
 	//Rebellion assets
@@ -592,7 +484,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 {
-	if (!gamepad.Refresh())
+	if (!gamepad.UpdateController())
 	{
 		if (gpConnected)
 		{
@@ -651,99 +543,68 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 
 		bool directionInput = false;
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
-		directionInput = true;
-	}
-
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_UP)) {
-			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -15) : Yaw * Vector3(0, 0, -7);
+
+			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
 			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 			endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
 			directionInput = true;
 		}
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
-		directionInput = true;
-	}
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
-			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 15) : Yaw * Vector3(0, 0, 7);
+
+			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
 			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 			endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
 			directionInput = true;
 		}
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
 
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
 
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
-		directionInput = true;
-	}
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
-			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-15, 0, 0) : Yaw * Vector3(-7, 0, 0);
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
 			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 			endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
 			directionInput = true;
 		}
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
 
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
+			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
 
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
-		directionInput = true;
-	}
-	if (!directionInput && player->IsGrounded()) {
-		float scalar = (0.95 - dt);
-		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
-	}
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
-			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(15, 0, 0) : Yaw * Vector3(7, 0, 0);
+			Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
 			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 			endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
 			directionInput = true;
 		}
+
 		if (!directionInput && player->IsGrounded()) {
-			float scalar = (1 - dt);
+			float scalar = (0.95 - dt);
 			player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 		}
 
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
-		endVelocity.Normalise();
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
-	}
-
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::J) && player->IsGrounded()) {
-
-		Vector3 playerjumpos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		SecScreenJumpMapping(playerjumpos);////////////////////////////////////////////////////
-
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
-	}
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_LEFT_SHOULDER) && player->IsGrounded()) {
-			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
+		if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
+			endVelocity.Normalise();
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
 		}
 
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_LEFT_SHOULDER) && player->IsGrounded()) {
+
+			Vector3 playerjumpos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			SecScreenJumpMapping(playerjumpos);////////////////////////////////////////////////////
+
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
+		}
+		
 		if (!thirdPerson) {
 			Vector3 currentVelocity = Vector3(lockedSecObject->GetPhysicsObject()->getLinearVelocity());
 			float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
@@ -768,51 +629,39 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		//
 		//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
-		Projectile* projectile = projectiles[currentProjectile];
-		currentProjectile = (currentProjectile + 1) % 100;
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-			char colourInput = player->getPaintColour();
-			Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.5, colourInput);
+			Projectile* projectile = projectiles[currentProjectile];
+			currentProjectile = (currentProjectile + 1) % 100;
 
-		Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
-		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-			world->GetSecCamera()->SetPitch(gamepad.rightStickY);
-			Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
+			Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
 			reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
-		Vector4 colourVector;
-		switch (player->getPaintColour()) {
-		case 'r':
-			colourVector = Vector4(1, 0, 0, 1);
-			break;
-		case 'b':
-			colourVector = Vector4(0, 0, 1, 1);
-			break;
+			Vector4 colourVector;
+			switch (player->getPaintColour()) {
+			case 'r':
+				colourVector = Vector4(1, 0, 0, 1);
+				break;
+			case 'b':
+				colourVector = Vector4(0, 0, 1, 1);
+				break;
+			}
+			projectile->GetRenderObject()->SetColour(colourVector);
+			projectile->setPaintColour(player->getPaintColour());
+			projectile->Reset();
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+			/*sound mod is here! If you don't want to use it , just comment them out*/
+			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
 		}
-		projectile->GetRenderObject()->SetColour(colourVector);
-		projectile->setPaintColour(player->getPaintColour());
-		projectile->Reset();
-		projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
-		projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
-		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
+			world->drawPaintNodes();
+		}
 
-		//char colourInput = player->getPaintColour();
-		//Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
-
-		//Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
-		//reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-
-		//projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -750));
-
-		/*sound mod is here! If you don't want to use it , just comment them out*/
-		Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
+			timedetection2 += dt;////////////////////////////////////////
 	}
-
-	timedetection2 += dt;/////////////////////////////////////////
-
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
