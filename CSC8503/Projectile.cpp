@@ -31,8 +31,8 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	}
 
 	/*Sound mod*/
-	Vector3 hitposition = collisionPoint - world->GetMainCamera()->GetPosition();//
-	Vector3 hitposition2 = collisionPoint - world->GetSecCamera()->GetPosition();//
+	Vector3 hitposition = collisionPoints.find(otherObject)->second - world->GetMainCamera()->GetPosition();//
+	Vector3 hitposition2 = collisionPoints.find(otherObject)->second - world->GetSecCamera()->GetPosition();//
 	ISoundEngine* hit = createIrrKlangDevice();///
 	collisionV->HitVoice(hit, hitposition);//
 	collisionV->HitVoice(hit, hitposition2);//
@@ -42,44 +42,44 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	//Vector4 paintCollision = Vector4(collisionPoint, colourInt);
 
 	///Render the first collision object
-	if (otherObject)otherObject->GetRenderObject()->PaintSpray(collisionPoint, paintColour);
+	if (otherObject)otherObject->GetRenderObject()->PaintSpray(hitposition, paintColour);
 
 	//Spherical ray cast with the collisionPoint as the centre of the sphere
-	std::vector<GameObject*> collisionObjects;
-	std::vector<reactphysics3d::Vector3> vertices= Projectile::CalculateSphereVertices(collisionPoint);
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		reactphysics3d::Vector3 rayOrigin(collisionPoint.x, collisionPoint.y, collisionPoint.z);
-		reactphysics3d::Vector3 rayDirection(vertices[i]);
-		reactphysics3d::Ray ray = reactphysics3d::Ray(rayOrigin, rayDirection);
-		SceneContactPoint* closestCollision = world->Raycast(ray);
-		if (closestCollision->isHit) {
-			//Debug::DrawLine(collisionPoint, closestCollision->hitPos, Vector4(0, 1, 1, 1), 60);
-			
-			//Render the objects collided with by spherical rays
-			collisionObjects.push_back(closestCollision->object);
-		}
-	}
-
-	//Removal of duplicate objects
-	std::vector<GameObject*>::iterator ite1 = unique(collisionObjects.begin(), collisionObjects.end());
-	collisionObjects.erase(ite1, collisionObjects.end());
-	for (int i = 0; i < collisionObjects.size(); i++)
-	{
-		//Debug::DrawLine(collisionPoint, collisionObjects[i]->GetPhysicsObject()->getTransform().getPosition(), Vector4(0, 1, 1, 1), 60);
-		if (collisionObjects[i]) { collisionObjects[i]->GetRenderObject()->PaintSpray(collisionPoint, paintColour); }
-	}
-
-	//Release memory
-	collisionObjects.clear();
-	collisionObjects.shrink_to_fit();
+	//std::vector<GameObject*> collisionObjects;
+	//std::vector<reactphysics3d::Vector3> vertices= Projectile::CalculateSphereVertices(hitposition);
+	//for (int i = 0; i < vertices.size(); i++)
+	//{
+	//	reactphysics3d::Vector3 rayOrigin(hitposition.x, hitposition.y, hitposition.z);
+	//	reactphysics3d::Vector3 rayDirection(vertices[i]);
+	//	reactphysics3d::Ray ray = reactphysics3d::Ray(rayOrigin, rayDirection);
+	//	SceneContactPoint* closestCollision = world->Raycast(ray);
+	//	if (closestCollision->isHit) {
+	//		//Debug::DrawLine(collisionPoint, closestCollision->hitPos, Vector4(0, 1, 1, 1), 60);
+	//		
+	//		//Render the objects collided with by spherical rays
+	//		collisionObjects.push_back(closestCollision->object);
+	//	}
+	//}
+	//
+	////Removal of duplicate objects
+	//std::vector<GameObject*>::iterator ite1 = unique(collisionObjects.begin(), collisionObjects.end());
+	//collisionObjects.erase(ite1, collisionObjects.end());
+	//for (int i = 0; i < collisionObjects.size(); i++)
+	//{
+	//	//Debug::DrawLine(collisionPoint, collisionObjects[i]->GetPhysicsObject()->getTransform().getPosition(), Vector4(0, 1, 1, 1), 60);
+	//	if (collisionObjects[i]) { collisionObjects[i]->GetRenderObject()->PaintSpray(hitposition, paintColour); }
+	//}
+	//
+	////Release memory
+	//collisionObjects.clear();
+	//collisionObjects.shrink_to_fit();
 
 
 	//world->painted.push_back(paintCollision);
 
 	//std::cout << "projectile paint colour: " << paintColour << "\n";
 
-	world->testPaintNodes(collisionPoint, paintColour);
+	world->testPaintNodes(hitposition, paintColour);
 
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-100,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);

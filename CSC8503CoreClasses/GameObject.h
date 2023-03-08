@@ -1,5 +1,6 @@
 #pragma once
 using std::vector;
+using std::map;
 
 namespace reactphysics3d {
 	class RigidBody;
@@ -105,7 +106,7 @@ namespace NCL::CSC8503 {
 			return isGrounded;
 		}
 
-		NCL::Maths::Vector3 collisionPoint;
+		std::map<GameObject*, NCL::Maths::Vector3> collisionPoints;
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;

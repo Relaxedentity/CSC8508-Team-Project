@@ -1648,13 +1648,14 @@ void TutorialGame::MoveSelectedObject() {
 
 void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
 	if (player->IsGrounded()) {
+		Vector3 collisionPoint = player->collisionPoints.find(floor)->second;
 		//std::cout << player->collisionPoint << std::endl;
-		float distance = sqrt(pow(player->collisionPoint.x - player->currentPos.x, 2) + pow(player->collisionPoint.z - player->currentPos.z, 2));
+		float distance = sqrt(pow(collisionPoint.x - player->currentPos.x, 2) + pow(collisionPoint.z - player->currentPos.z, 2));
 		if (distance > 1) {
-			floor->GetRenderObject()->PaintSpray(player->collisionPoint,paintColour);
-			player->currentPos = player->collisionPoint;
+			floor->GetRenderObject()->PaintSpray(collisionPoint,paintColour);
+			player->currentPos = collisionPoint;
 
-			world->testPaintNodes(player->collisionPoint, paintColour);
+			world->testPaintNodes(collisionPoint, paintColour);
 		}
 	}
 }

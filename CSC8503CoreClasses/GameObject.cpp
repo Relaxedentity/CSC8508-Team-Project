@@ -34,8 +34,18 @@ void GameObjectListener::onContact(const CollisionCallback::CallbackData& callba
 			
 			//std::cout << worldPoint.to_string();
 			Vector3 ncl = Vector3(worldPoint);
-			if (body1) { body1->collisionPoint = worldPoint; }
-			if (body2) { body2->collisionPoint = worldPoint; }
+			if (body1) { 
+				if (body1->collisionPoints.contains(body2)) {
+					body1->collisionPoints.erase(body2);
+				}
+				body1->collisionPoints.insert({ body2, worldPoint }); 
+			}
+			if (body2) { 
+				if (body2->collisionPoints.contains(body1)) {
+					body2->collisionPoints.erase(body1);
+				}
+				body2->collisionPoints.insert({ body1, worldPoint }); 
+			}
 			//Debug::DrawLine(Vector3(ncl.x, ncl.y - 3, ncl.z), Vector3(ncl.x, ncl.y + 3, ncl.z), Vector4(1, 0, 0, 1), 2);
 			//Debug::DrawLine(Vector3(ncl.x - 3, ncl.y, ncl.z), Vector3(ncl.x + 3, ncl.y, ncl.z), Vector4(1, 0.5f, 0, 1), 2);
 			//Debug::DrawLine(Vector3(ncl.x, ncl.y, ncl.z - 3), Vector3(ncl.x, ncl.y, ncl.z + 3), Vector4(1, 0, 0.5f, 1), 2);
