@@ -41,10 +41,9 @@ namespace NCL {
 			PlayerObject* player3;
 			PlayerObject* player4;
 
-			SoundObject* firevoice;//
-			SoundObject* movevoice;//
-			SoundObject* jumpvoice;//
-			SoundObject* Init;//
+			SoundObject* voice;//
+			SoundObject* Init; //
+			ISoundEngine* initV;
 			float timedetection = 0.0;//
 			float timedetection2 = 0.0;//
 
