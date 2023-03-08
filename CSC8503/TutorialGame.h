@@ -73,8 +73,7 @@ namespace NCL {
 
 			//test
 			void MovePlayerCoop(PlayerObject* player, float dt);
-			void FirstController(GameObject& player);
-			void SecondController(GameObject& player);
+
 
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
@@ -139,6 +138,8 @@ namespace NCL {
 
 			bool initSplitScreen;
 			bool coopMode;
+
+			bool gpConnected;
 
 			bool useGravity;
 			bool inSelectionMode;
@@ -210,6 +211,7 @@ namespace NCL {
 			bool thirdPerson = true;
 
 			Vector3 orbitCameraProcess(Vector3 objPos, Camera& camera, GameObject* ignorePlayer);
+		
 			Vector3 thirdPersonCameraProcess(Vector3 objPos, Camera& camera, GameObject* currPlayer);
 			void cameraInterpolation(Vector3 target, float dt, Camera& camera);
 			float cameraInterpBaseSpeed = 0.5f;

@@ -13,6 +13,7 @@ set(Header_Files
     "HierarchicalState.h"
     "Projectile.h"
     "PlayerObject.h"
+    "GamepadState.h"
 )
 source_group("Header Files" FILES ${Header_Files})
 
@@ -26,6 +27,7 @@ set(Source_Files
 	"BTreeObject.cpp"
     "Projectile.cpp"
     "PlayerObject.cpp"
+    "GamepadState.cpp"
 )
 
 if(USE_VULKAN)

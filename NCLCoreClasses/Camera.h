@@ -52,6 +52,7 @@ namespace NCL {
 		void UpdateCamera(float dt);
 
 		void ThirdPersonUpdateRot();
+		void ControlThirdPersonUpdateRot(float x, float y);
 		Matrix4 GetRotationYaw();
 		Matrix4 GetRotationPitch();
 
