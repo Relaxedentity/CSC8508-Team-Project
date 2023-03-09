@@ -29,6 +29,9 @@ namespace NCL {
 
 				GameLock::Player1lock = true;
 				 
+
+				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
+				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
 				//lock.iflock = true;
 
 				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
@@ -74,6 +77,19 @@ namespace NCL {
 					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				}
+				if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT) 
+					&& screenMouse.x >= screenSize.x * 0.5
+					&& screenMouse.x <= screenSize.x * 0.6
+					&& screenMouse.y >= screenSize.y * 0.45
+					&& screenMouse.y <= screenSize.y * 0.5) {
+					GameLock::gamemod = 1;
+					GameLock::gamestart = true;
+					GameLock::Player1lock = false;
+					*newState = new GameScreen();
+					return PushdownResult::Push;
+
+				}
+
 
  				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT))
 				{
