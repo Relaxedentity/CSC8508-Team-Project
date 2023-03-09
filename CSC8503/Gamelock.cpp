@@ -8,4 +8,5 @@ bool GameLock::gamestart;
 int  GameLock::gamemod;
 float GameLock::gametime;
 ISoundEngine* GameLock::hitsound;
-static vector<vector<Vector2>> buttonPos;
+vector<vector<Vector2>> buttonPos;
+bool btnChange=false;

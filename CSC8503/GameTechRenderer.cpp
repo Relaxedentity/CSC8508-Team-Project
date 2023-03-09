@@ -416,6 +416,9 @@ void NCL::CSC8503::GameTechRenderer::RenderMainMenu() {
 void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
 	BindShader(uiShader);
 
+	if (GameLock::btnChange) onormalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1_selected.png");
+	else normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1.png");
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, normalBtnTex->GetObjectID());
 	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);

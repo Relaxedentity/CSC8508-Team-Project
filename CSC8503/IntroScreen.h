@@ -24,9 +24,13 @@ namespace NCL {
 			PushdownResult OnUpdate(float dt,PushdownState** newState) override {
 				
 				//lock.SetLock(false);
+				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
+				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
+
 				Debug::Print("Use Up and Down to select game mode", Vector2(20, 22), Debug::BLACK);
 				Debug::Print("Game Menu", Vector2(60, 40), Debug::BLACK);
 
+				GameLock::btnChange = false;
 				GameLock::Player1lock = true;
 				 
 				//lock.iflock = true;
@@ -74,7 +78,18 @@ namespace NCL {
 					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				}
+				if (screenMouse.x >= screenSize.x * 0.5
+					&& screenMouse.x <= screenSize.x * 0.6
+					&& screenMouse.y >= screenSize.y * 0.45
+					&& screenMouse.y <= screenSize.y * 0.5) {
+			/*		GameLock::gamemod = 1;
+					GameLock::gamestart = true;
+					GameLock::Player1lock = false;
+					*newState = new GameScreen();
+					return PushdownResult::Push;*/
+					GameLock::btnChange = true;
 
+				}
  				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT))
 				{
 					if (state == 1)
