@@ -165,8 +165,14 @@ void TutorialGame::UpdateGame(float dt) {
 		world->GetSecCamera()->UpdateCamera(dt);
 	}
 	else {
-		Window::GetWindow()->ShowOSPointer(false);
-		Window::GetWindow()->LockMouseToWindow(mouseLock);
+		if (GameLock::gamestart) {
+			Window::GetWindow()->ShowOSPointer(false);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
+		}
+		if (!GameLock::gamestart) {
+			Window::GetWindow()->ShowOSPointer(true);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
 		if (lockedObject == player && !GameLock::Player1lock) {//player movelock!
 			MovePlayer(player, dt);
 		}
