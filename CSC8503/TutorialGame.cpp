@@ -392,7 +392,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	Vector3 endVelocity = Vector3(0, 0, 0);
 
 	reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition() + reactphysics3d::Vector3(0, 0.1, 0), playerTransform.getPosition() + reactphysics3d::Vector3(0, -2.9, 0));
-	Debug::DrawLine(Vector3(playerTransform.getPosition()) + Vector3(0, 0.1, 0), Vector3(playerTransform.getPosition()) - Vector3(0, 2.9, 0), Vector4(1, 0.5f, 0.5f, 1), 100);
+	//Debug::DrawLine(Vector3(playerTransform.getPosition()) + Vector3(0, 0.1, 0), Vector3(playerTransform.getPosition()) - Vector3(0, 2.9, 0), Vector4(1, 0.5f, 0.5f, 1), 100);
 	SceneContactPoint* ground = world->Raycast(ray, player);
 	player->setGrounded(ground->isHit);
 
@@ -1177,8 +1177,6 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	body->setMass(2.0f);
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.2f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0),reactphysics3d::Quaternion::identity()));
-	Debug::DrawLine(Vector3(position) + Vector3(0, 0.1, 0), Vector3(position) + Vector3(0, 0.1, 0) + (Quaternion(orientation) * Vector3(0, 0, -1)), Vector4(0.25f, 1, 0, 1), 100);
-	Debug::DrawLine(Vector3(position) + Vector3(0, 2.1, 0), Vector3(position) + Vector3(0, 2.1, 0) + (Quaternion(orientation) * Vector3(0, 0, -1)), Vector4(0.25f, 1, 0, 1), 100);
 	character->SetPhysicsObject(body);
 	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, animatedShader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
@@ -1215,11 +1213,11 @@ PlayerObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d:
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
 	body->setMass(2.0f);
-	reactphysics3d::SphereShape* shape = physics.createSphereShape(1.0f);
-	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.2f);
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0), reactphysics3d::Quaternion::identity()));
 	character->SetPhysicsObject(body);
 
-	character->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), playerMesh, basicTex, animatedShaderA));
+	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, animatedShaderA));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 	world->AddGameObject(character);
 	return character;
