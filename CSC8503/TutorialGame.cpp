@@ -464,7 +464,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 			projectile->GetRenderObject()->SetColour(colourVector);
 			projectile->setPaintColour(player->getPaintColour());
 			projectile->Reset();
-			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
 			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 			/*sound mod is here! If you don't want to use it , just comment them out*/
@@ -612,7 +612,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			Projectile* projectile = projectiles[currentProjectile];
 			currentProjectile = (currentProjectile + 1) % 100;
 
-			Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
+			Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
 			reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
 			Vector4 colourVector;
@@ -627,7 +627,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			projectile->GetRenderObject()->SetColour(colourVector);
 			projectile->setPaintColour(player->getPaintColour());
 			projectile->Reset();
-			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
 			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 
