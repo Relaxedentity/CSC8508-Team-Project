@@ -859,7 +859,7 @@ void TutorialGame::InitWorld() {
 	//button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
 	buildGameworld();
 	
-	InitDefaultFloor();
+	//InitDefaultFloor();
 }
 
 void TutorialGame::InitProjectiles() {
@@ -907,6 +907,7 @@ void TutorialGame::buildGameworld() {
 			case 'N':
 				break;
 			case '.':
+				AddFloorToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y, Nposition.z), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 2, 5));
 				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x-3.5, Nposition.y + 1, Nposition.z-3.5));
 				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y + 1, Nposition.z - 3.5));
 				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x+3.5, Nposition.y + 1, Nposition.z - 3.5));
@@ -1300,7 +1301,7 @@ void TutorialGame::TestHedgefinding(Vector3 position) {
 }
 
 void TutorialGame::InitDefaultFloor() {
-	floor=AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
+	AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
 }
 
 void TutorialGame::InitGameExamples() {
@@ -1691,7 +1692,9 @@ void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
 		//std::cout << player->collisionPoint << std::endl;
 		float distance = sqrt(pow(player->collisionPoint.x - player->currentPos.x, 2) + pow(player->collisionPoint.z - player->currentPos.z, 2));
 		if (distance > 1) {
-			floor->GetRenderObject()->PaintSpray(player->collisionPoint,paintColour);
+
+			world->paintSphereTest(player, player->collisionPoint, paintColour);
+
 			player->currentPos = player->collisionPoint;
 
 			world->testPaintNodes(player->collisionPoint, paintColour);

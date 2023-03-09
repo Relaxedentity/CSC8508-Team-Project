@@ -157,7 +157,6 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
-			GameObject* floor;
 
 			bool initSplitScreen;
 			bool coopMode;
