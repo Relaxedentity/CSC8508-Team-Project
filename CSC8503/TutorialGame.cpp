@@ -273,6 +273,7 @@ void TutorialGame::UpdateGame(float dt) {
 	else {
 		UpdateAnim(player,playerIdleAnim, frameTime, currentFrame);
 	}
+
 	if (directionInputCoop) {
 		UpdateAnim(playerCoop, playerWalkAnim, frameTimeA, currentFrameA);
 		//UpdateAnimCoop(playerCoop, playerWalkAnim, frameTime, currentFrameA, dt);

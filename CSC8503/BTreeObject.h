@@ -1,6 +1,10 @@
 #pragma once
 #include "GameObject.h"
+
 #include "BehaviourSequence.h"
+#include "BehaviourNode.h"
+#include "BehaviourSelector.h"
+#include "BehaviourAction.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -35,7 +39,34 @@ namespace NCL {
 			NCL::Maths::Vector3 targetPosition;
 			std::vector<NCL::Maths::Vector3> nodes;
 			int currentNode;
-			BehaviourSequence* sequence;
+
+			// root
+			BehaviourSequence* rootSequence;
+
+			// first layer
+			BehaviourSequence* patrolSequence;
+			BehaviourSequence* attackSequence;
+			
+			//second layer
+			BehaviourSequence* seenPlayerSequence;
+			BehaviourSelector* rangeForAttackSelector;
+			BehaviourSequence* InRangeToTargetSequence;
+			
+			//thd layer
+			BehaviourSelector* moveSelector;
+			BehaviourSequence* midRangeSequence;
+			BehaviourSequence* farRangeSequence;
+			BehaviourSequence* closeRangeSequence;
+
+			//fourth layer
+			BehaviourSequence* moveTimerSequence;
+			BehaviourSelector* closeMoveSelector;
+			BehaviourSequence* randomAttackSetSequence;
+
+			// fifth layer
+			//move timer is reused
+
+
 			BehaviourState currentstate;
 		};
 	}

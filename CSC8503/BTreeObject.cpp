@@ -17,7 +17,7 @@ using namespace NCL;
 using namespace CSC8503;
 
 BTreeObject::~BTreeObject() {
-	delete sequence;
+	delete rootSequence;
 }
 
 BTreeObject::BTreeObject(GameWorld* world, vector <Vector3 > testNodes):GameObject(world) {
@@ -148,18 +148,26 @@ BTreeObject::BTreeObject(GameWorld* world, vector <Vector3 > testNodes):GameObje
 			return state;
 		}
 	);
-	sequence =
-		new BehaviourSequence("Patrol Sequence");
-	sequence->AddChild(Patrol);
-	sequence->AddChild(Attack);
-	sequence->AddChild(Rest);
+
+
+
+	rootSequence =new BehaviourSequence("Patrol Sequence");
+	rootSequence->AddChild(Patrol);
+	rootSequence->AddChild(Attack);
+	rootSequence->AddChild(Rest);
 
 	
+
+
+
+
+
 	BehaviourState state = Ongoing;
+
 }
 void BTreeObject::Update(float dt) {
-	if (sequence->Execute(dt) == Success) {
-		sequence->Reset();
+	if (rootSequence->Execute(dt) == Success) {
+		rootSequence->Reset();
 	}
 
 }
