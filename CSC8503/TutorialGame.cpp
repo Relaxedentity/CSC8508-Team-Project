@@ -415,46 +415,22 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 	directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
-
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
+		endVelocity = MoveForward(player, Yaw, endVelocity);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
-
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
+		endVelocity = MoveBackward(player, Yaw, endVelocity);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
-
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
+		endVelocity = MoveLeft(player, Yaw, endVelocity);
 		directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
-
-		Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-		MainScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
+		endVelocity = MoveRight(player, Yaw, endVelocity);
 		directionInput = true;
 	}
 	if (!directionInput && player->IsGrounded()) {
@@ -503,27 +479,8 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
 		invokeTime -= dt;
 		if (invokeTime <= 0) {
-			Projectile* projectile = projectiles[currentProjectile];
-			currentProjectile = (currentProjectile + 1) % 100;
-
-			Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
-			reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-
-			Vector4 colourVector;
-			switch (player->getPaintColour()) {
-			case 'r':
-				colourVector = Vector4(1, 0, 0, 1);
-				break;
-			case 'b':
-				colourVector = Vector4(0, 0, 1, 1);
-				break;
-			}
-			projectile->GetRenderObject()->SetColour(colourVector);
-			projectile->setPaintColour(player->getPaintColour());
-			projectile->Reset();
-			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
-			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
-			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+			ShootProjectile(player, world->GetMainCamera());
+			
 			/*sound mod is here! If you don't want to use it , just comment them out*/
 			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
@@ -600,60 +557,36 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		SceneContactPoint* ground = world->Raycast(ray, player);
 		player->setGrounded(ground->isHit);
 
-	directionInputCoop = false;
+		directionInputCoop = false;
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_UP)) {
-
-			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(0, 0, -1);
-		directionInputCoop = true;
-	}
+			endVelocity = MoveForward(player, Yaw, endVelocity);
+			directionInputCoop = true;
+		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
-
-			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(0, 0, 1);
-		directionInputCoop = true;
-	}
+			endVelocity = MoveBackward(player, Yaw, endVelocity);
+			directionInputCoop = true;
+		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
-
-			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(-1, 0, 0);
-		directionInputCoop = true;
-	}
+			endVelocity = MoveLeft(player, Yaw, endVelocity);
+			directionInputCoop = true;
+		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
+			endVelocity = MoveRight(player, Yaw, endVelocity);
+			directionInput = true;
+		}
+		if (!directionInput && player->IsGrounded()) {
+			float scalar = (0.95 - dt);
+			player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
+		}
 
-			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
-
-		Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-		endVelocity = endVelocity + Yaw * Vector3(1, 0, 0);
-		directionInput = true;
-	}
-	if (!directionInput && player->IsGrounded()) {
-		float scalar = (0.95 - dt);
-		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
-	}
-
-	if (directionInputCoop && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
-		endVelocity.Normalise();
-		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
-	}
+		if (directionInputCoop && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
+			endVelocity.Normalise();
+			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
+		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_LEFT_SHOULDER) && player->IsGrounded()) {
 
@@ -691,43 +624,13 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
 			invokeTime2 -= dt;
 			if (invokeTime2 <= 0) {
-				Projectile* projectile = projectiles[currentProjectile];
-				currentProjectile = (currentProjectile + 1) % 100;
-
-				Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
-				reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-
-			Vector4 colourVector;
-			switch (player->getPaintColour()) {
-			case 'r':
-				colourVector = Vector4(1, 0, 0, 1);
-				break;
-			case 'b':
-				colourVector = Vector4(0, 0, 1, 1);
-				break;
+				ShootProjectile(player, world->GetSecCamera());
+				/*sound mod is here! If you don't want to use it , just comment them out*/
+				Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+				SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
+				invokeTime2 = 0.1f;
 			}
-			projectile->GetRenderObject()->SetColour(colourVector);
-			projectile->setPaintColour(player->getPaintColour());
-			projectile->Reset();
-			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
-			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
-			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
-
-
-			//char colourInput = player->getPaintColour();
-			//Projectile* projectile = AddProjectileToWorld(player->GetPhysicsObject()->getTransform().getPosition() + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1), 0.3, colourInput);
-
-			//Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
-			//reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-
-			//projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -750));
-
-			/*sound mod is here! If you don't want to use it , just comment them out*/
-			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-			SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
-			invokeTime2 = 0.1f;
 		}
-	}
 
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
 			world->drawPaintNodes();
@@ -735,6 +638,66 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 
 			timedetection2 += dt;////////////////////////////////////////
 	}
+}
+
+Vector3 TutorialGame::MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
+	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, directionInput);
+
+	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
+	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	return endVelocity + Yaw * Vector3(0, 0, -1);
+}
+
+Vector3 TutorialGame::MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
+	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, directionInput);
+
+	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
+	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	return endVelocity + Yaw * Vector3(0, 0, 1);
+}
+
+Vector3 TutorialGame::MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
+	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, directionInput);
+
+	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
+	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	return endVelocity + Yaw * Vector3(-1, 0, 0);
+}
+
+Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
+	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, directionInput);
+
+	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
+	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	return endVelocity + Yaw * Vector3(1, 0, 0);
+}
+
+void TutorialGame::ShootProjectile(PlayerObject* p, Camera* c) {
+	Projectile* projectile = projectiles[currentProjectile];
+	currentProjectile = (currentProjectile + 1) % 100;
+
+	Quaternion Pitch = Quaternion(c->GetRotationPitch());
+	reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+
+	Vector4 colourVector;
+	switch (player->getPaintColour()) {
+	case 'r':
+		colourVector = Vector4(1, 0, 0, 1);
+		break;
+	case 'b':
+		colourVector = Vector4(0, 0, 1, 1);
+		break;
+	}
+	projectile->GetRenderObject()->SetColour(colourVector);
+	projectile->setPaintColour(p->getPaintColour());
+	projectile->Reset();
+	projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(p->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + p->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+	projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+	projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(p->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
@@ -1215,7 +1178,7 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 	return floor;
 }
 
-PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID) {
+PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, int netID, int worldID) {
 	PlayerObject* character = new PlayerObject(world);
 	character->SetTag(1);
 	reactphysics3d::Transform transform(position, orientation);
@@ -1225,7 +1188,7 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.2f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0),reactphysics3d::Quaternion::identity()));
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, animatedShader));
+	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, shader));
 	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
 	world->AddGameObject(character);
 	character->SetWorldID(worldID);
@@ -1250,25 +1213,6 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 	world->AddGameObject(character);
 
 	return character;
-}
-
-PlayerObject* NCL::CSC8503::TutorialGame::AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation)
-{
-	PlayerObject* character = new PlayerObject(world);
-	character->SetTag(1);
-	reactphysics3d::Transform transform(position, orientation);
-	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
-	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
-	body->setMass(2.0f);
-	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.2f);
-	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0), reactphysics3d::Quaternion::identity()));
-	character->SetPhysicsObject(body);
-
-	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, animatedShaderA));
-	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
-	world->AddGameObject(character);
-	return character;
-
 }
 
 void TutorialGame::DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe) {
@@ -1404,9 +1348,9 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 1, 1);
 	player->setPaintColour('r');
-	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity());
+	playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 1, 2);
 	playerCoop->setPaintColour('b');
 	
 

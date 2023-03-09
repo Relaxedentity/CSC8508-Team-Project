@@ -104,9 +104,8 @@ namespace NCL {
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			GameObject* AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass = 0.1f);
 			void buildGameworld();
-			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID);
+			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
-			PlayerObject* AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
@@ -147,6 +146,12 @@ namespace NCL {
 			void SecScreenFireMapping(Vector3 sphereintipos);
 			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
 			void SecScreenJumpMapping(Vector3 sphereintipos);
+
+			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			void ShootProjectile(PlayerObject* p, Camera* c);
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
