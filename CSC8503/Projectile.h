@@ -23,6 +23,7 @@ namespace NCL::CSC8503 {
 		SoundObject* collisionV;
 	private:
 		float time;
+		float particleTime;
 		float max_time;
 		GameObject* tempParticles;
 		TutorialGame* tgame;

@@ -1193,7 +1193,7 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 
 	std::vector <Vector3 > verts;
 
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < 50; ++i) {
 		float x = (float)(rand() % 100 - 50);
 		float y = (float)(rand() % 100 - 50);
 		float z = (float)(rand() % 100 - 50);
