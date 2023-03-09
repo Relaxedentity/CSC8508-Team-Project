@@ -9,7 +9,7 @@ uniform float	lightRadius;
 uniform vec4	lightColour;
 
 uniform vec3	cameraPos;
-uniform vec4 paintedPos[1000];
+uniform vec4 paintedPos[50];
 uniform bool hasTexture;
 //uniform int paintCount;
 in Vertex
@@ -48,7 +48,8 @@ void main(void)
 
 	bool isHit = false;
 	int hitNum = 0;
-	for(int i = 0; i< 1000;i++) {
+
+	for(int i = 0; i< paintedPos.length();i++) {
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
 		if(circledist < 1.5f) {
 			isHit = true;

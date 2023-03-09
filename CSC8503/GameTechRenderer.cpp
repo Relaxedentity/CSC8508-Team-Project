@@ -105,14 +105,23 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 
 
 	uiShader = new OGLShader("ui.vert", "ui.frag");
-	uiTex = new OGLTexture();
-	uiTex = (OGLTexture*)uiTex->SRGBTextureFromFilename("Game Selection.png");
+	menuTex = new OGLTexture();
+	menuTex = (OGLTexture*)menuTex->SRGBTextureFromFilename("Game Selection.png");
 	menuMesh = new OGLMesh();
 	menuMesh->SetVertexPositions({ Vector3(1, 1.1,0), Vector3(1, -1.1,0) , Vector3(-1, -1.1,0) , Vector3(-1, 1.1,0) });
 	menuMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	menuMesh->SetVertexTextureCoords({  Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	menuMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	menuMesh->UploadToGPU();
+
+	normalBtnTex = new OGLTexture();
+	normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1.png");
+	normalBtnMesh = new OGLMesh();
+	normalBtnMesh->SetVertexPositions({ Vector3(0.2, 0.1,0), Vector3(0.2, 0,0) , Vector3(0, 0, 0) , Vector3(0, 0.1, 0) });
+	normalBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	normalBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	normalBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	normalBtnMesh->UploadToGPU();
 
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
@@ -389,15 +398,26 @@ void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float w
 	
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderGameSelection() {
-	glEnable(GL_FRAMEBUFFER_SRGB);
+void NCL::CSC8503::GameTechRenderer::RenderMainMenu() {
+	/*glEnable(GL_FRAMEBUFFER_SRGB);*/
 	BindShader(uiShader);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, uiTex->GetObjectID());
+	glBindTexture(GL_TEXTURE_2D, menuTex->GetObjectID());
 	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 
 	BindMesh(menuMesh);
+	DrawBoundMesh();
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
+	BindShader(uiShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, normalBtnTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(normalBtnMesh);
 	DrawBoundMesh();
 }
 
@@ -461,8 +481,10 @@ void GameTechRenderer::RenderFrame( )
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	if(!GameLock::gamestart)
-	RenderGameSelection();
+	if (!GameLock::gamestart) {
+		RenderMainMenu();
+		RenderNormalButton();
+	}
 	//RenderHUD();
 
 }

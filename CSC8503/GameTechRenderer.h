@@ -63,7 +63,8 @@ namespace NCL {
 			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color);
 			void RenderMap();
 			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
-			void RenderGameSelection();
+			void RenderMainMenu();
+			void RenderNormalButton();
 
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -98,9 +99,15 @@ namespace NCL {
 			OGLMesh* aimQuad;
 			OGLTexture* aimTex;
 
+			/// <summary>
+			/// MenuBG
+			/// </summary>
 			OGLShader* uiShader;//////////修改
-			OGLTexture* uiTex;////////////修改
+			OGLTexture* menuTex;////////////修改
 			OGLMesh* menuMesh;////////////修改
+
+			OGLTexture* normalBtnTex;///////修改
+			OGLMesh* normalBtnMesh;///////修改
 
 			//shadow mapping things
 			OGLShader*	shadowShader;

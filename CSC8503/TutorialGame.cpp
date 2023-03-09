@@ -177,13 +177,14 @@ void TutorialGame::UpdateGame(float dt) {
 	if (GameLock::gamestart) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
 		GameLock::gametime = timeLimit;
+		Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	}
 	else {
 		timeLimit = GameLock::gametime;
 	}
 
 
-	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
+	
 	
 	float scoreOne = world->getColourOneScore();
 	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 15), Debug::WHITE);
