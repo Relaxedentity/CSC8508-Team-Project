@@ -145,7 +145,8 @@ namespace NCL {
 				return worldStateCounter;
 			}
 			vector<Vector4> painted;
-
+			vector <Matrix4 > frameMatrices;
+			vector <Matrix4 > frameMatricesA;
 			void paintTally();
 			void testPaintNodes(Vector3 inPos, char iChar);
 			void drawPaintNodes();
@@ -162,6 +163,12 @@ namespace NCL {
 			void AddPaintBall();
 			void RemovePaintBall();
 			int GetPaintBalls();
+
+			void paintSphereTest(GameObject* inputObject, Vector3 position, char paintColour);
+
+			void setPaintOrb(GameObject* i) {
+				paintOrb = i;
+			}
 
 		protected:
 			std::vector<GameObject*> gameObjects;
@@ -191,6 +198,8 @@ namespace NCL {
 			int paintBallAmount;
 
 			std::vector<MapNode*> mapNodes;
+
+			GameObject* paintOrb;
 		};
 
 		class PaintNode {

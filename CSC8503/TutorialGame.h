@@ -6,8 +6,9 @@
 #include "NavigationGrid.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
-
+#include "MeshMaterial.h"
 #include "PlayerObject.h"
+#include "MeshAnimation.h"
 
 #include "Sound.h"
 
@@ -41,10 +42,9 @@ namespace NCL {
 			PlayerObject* player3;
 			PlayerObject* player4;
 
-			SoundObject* firevoice;//
-			SoundObject* movevoice;//
-			SoundObject* jumpvoice;//
-			SoundObject* Init;//
+			SoundObject* voice;//
+			SoundObject* Init; //
+			ISoundEngine* initV;
 			float timedetection = 0.0;//
 			float timedetection2 = 0.0;//
 
@@ -73,6 +73,7 @@ namespace NCL {
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
 			void InitProjectiles();
+			void InitPaintOrb();
 			
 			bool SelectObject();
 
@@ -92,6 +93,10 @@ namespace NCL {
 			StateGameObject* testStateObject;
 			BTreeObject* goose;
 
+			// animation 
+			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe);
+			void UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime, int &cframe);
+
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
@@ -106,8 +111,7 @@ namespace NCL {
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
-
-
+			
 			// Making Rebellion mesh-based objects
 			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
 			GameObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
@@ -156,7 +160,6 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
-			GameObject* floor;
 
 			bool initSplitScreen;
 			bool coopMode;
@@ -167,6 +170,10 @@ namespace NCL {
 			bool freeCamera;
 			bool mouseLock;
 			bool debug;
+
+			float accumulator = 0;
+			const float timeStep = 1.0f / 60.0f;
+
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
@@ -174,6 +181,8 @@ namespace NCL {
 			float		health =0.8f;
 			float		secHealth = 0.2f;
 			float		timeLimit;
+			float       invokeTime=0.1f;
+			float       invokeTime2 = 0.1f;
 
 			GameObject* selectionObject = nullptr;
 			GameObject* selectionObjectSec = nullptr;
@@ -181,25 +190,29 @@ namespace NCL {
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
 			MeshGeometry*   gooseMesh   = nullptr;
-
+			MeshGeometry* playerMesh = nullptr;
+			MeshAnimation* playerWalkAnim = nullptr;
+			MeshAnimation* playerIdleAnim = nullptr;
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
+			OGLShader* animatedShader = nullptr;
+			OGLShader* animatedShaderA = nullptr;
 			ShaderBase*		charShader	= nullptr;
-
+			MeshMaterial* playerMat = nullptr;
+			vector <GLuint > playerTextures;
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
 			MeshGeometry*	enemyMesh	= nullptr;
 			MeshGeometry*	bonusMesh	= nullptr;
-
 			// Rebellion Assets
 			TextureBase*	chairTex	= nullptr;
 			MeshGeometry*	chairMesh	= nullptr;
-
+			TextureBase* playerTex = nullptr;
 			TextureBase*	corridorTexture			= nullptr;
 			MeshGeometry*	corridorStraightMesh	= nullptr;
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
-
+			
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
 
@@ -227,9 +240,15 @@ namespace NCL {
 			float thirdPersonYScalar = 1;
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
-
 			Projectile* projectiles[100];
 			int currentProjectile = 0;
+			bool directionInput;
+
+			bool directionInputCoop;
+			int currentFrame;
+			float frameTime;
+			int currentFrameA;
+			float frameTimeA;
 
 			bool thirdPerson = true;
 

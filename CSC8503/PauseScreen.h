@@ -62,7 +62,7 @@ namespace NCL {
 					}
 					if (state == 2)
 					{
-						GameLock::gametime = 15;
+						GameLock::gametime = 300;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;

@@ -3,6 +3,7 @@
 #include "PaintClass.h"
 #include <string>
 #include "Sound.h"
+#include "TutorialGame.h"
 
 namespace reactphysics3d {
 	class RigidBody;

@@ -12,9 +12,9 @@ namespace NCL {
 			void JumpVoice(ISoundEngine* hitvoice, Vector3 PlayerPosition);
 			void MoveVoice(ISoundEngine* hitvoice, Vector3 PlayerPosition);
 
-			void fireSoundMapping(Vector3 MainCameraPostiton, Vector3 SecCameraPosition);
-			void moveSoundMapping(Vector3 MainCameraPostiton, Vector3 SecCameraPosition);
-			void jumpSoundMapping(Vector3 MainCameraPostiton, Vector3 SecCameraPosition);
+			void fireSoundMapping(ISoundEngine* fire, Vector3 MainCameraPostiton, Vector3 SecCameraPosition);
+			void moveSoundMapping(ISoundEngine* move, Vector3 MainCameraPostiton, Vector3 SecCameraPosition);
+			void jumpSoundMapping(ISoundEngine* jump, Vector3 MainCameraPostiton, Vector3 SecCameraPosition);
 		};
 	}
 }

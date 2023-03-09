@@ -68,7 +68,7 @@ namespace NCL {
 				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RIGHT))
 				{
 					if (state == 1) {
-						GameLock::gametime = 15;
+						GameLock::gametime = 300;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;

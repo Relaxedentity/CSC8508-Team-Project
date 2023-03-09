@@ -1,4 +1,5 @@
 #pragma once
+#include "Sound.h"
 namespace NCL {
 	namespace CSC8503 {
 		class GameLock {
@@ -9,7 +10,7 @@ namespace NCL {
 			static bool gamestart;
 			static bool gamePause;
 			static int gamemod;
-
+			static ISoundEngine* hitsound;
 		};
 	}
 }
