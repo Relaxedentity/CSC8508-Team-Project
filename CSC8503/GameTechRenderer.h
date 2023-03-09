@@ -65,6 +65,9 @@ namespace NCL {
 			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
 			void RenderMainMenu();
 			void RenderNormalButton();
+			void RenderCoopButton();
+			void RenderIntroButton();
+			void RenderExitButton();
 
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -106,8 +109,26 @@ namespace NCL {
 			OGLTexture* menuTex;////////////修改
 			OGLMesh* menuMesh;////////////修改
 
+			/// <summary>
+			/// normalButton
+			/// </summary>
 			OGLTexture* normalBtnTex;///////修改
 			OGLMesh* normalBtnMesh;///////修改
+			/// <summary>
+			/// coopButton
+			/// </summary>
+			OGLTexture* coopBtnTex;
+			OGLMesh* coopBtnMesh;
+			/// <summary>
+			/// IntroductionButton
+			/// </summary>
+			OGLTexture* introBtnTex;
+			OGLMesh* introBtnMesh;
+			/// <summary>
+			/// exitButton
+			/// </summary>
+			OGLTexture* exitBtnTex;
+			OGLMesh* exitBtnMesh;
 
 			//shadow mapping things
 			OGLShader*	shadowShader;

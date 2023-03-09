@@ -9,3 +9,7 @@ int  GameLock::gamemod;
 float GameLock::gametime;
 ISoundEngine* GameLock::hitsound;
 vector<vector<Vector2>> GameLock::buttonPos;
+bool GameLock::normalBtnChange = false;
+bool GameLock::coopBtnChange = false;
+bool GameLock::introBtnChange = false;
+bool GameLock::exitBtnChange = false;

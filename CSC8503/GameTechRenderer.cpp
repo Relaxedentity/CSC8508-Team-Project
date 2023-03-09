@@ -117,14 +117,47 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	normalBtnTex = new OGLTexture();
 	normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1.png");
 	normalBtnMesh = new OGLMesh();
-	normalBtnMesh->SetVertexPositions({ Vector3(0.2, 0.1,0), Vector3(0.2, 0,0) , Vector3(0, 0, 0) , Vector3(0, 0.1, 0) });
+	normalBtnMesh->SetVertexPositions({ Vector3(0.6, 0.5,0), Vector3(0.6, 0.3,0) , Vector3(0.2, 0.3, 0) , Vector3(0.2, 0.5, 0) });
 	normalBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	normalBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	normalBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	normalBtnMesh->UploadToGPU();
 
-	vector<Vector2> normalBtn = { {  Vector2(0, 0.1), Vector2(0, 0) , Vector2(0.2, 0), Vector2(0.2, 0.1) } };
+	coopBtnTex = new OGLTexture();
+	coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("Game Selection-2.png");
+	coopBtnMesh = new OGLMesh();
+	coopBtnMesh->SetVertexPositions({ Vector3(0.6, 0.2,0), Vector3(0.6, 0,0) , Vector3(0.2, 0, 0) , Vector3(0.2, 0.2, 0) });
+	coopBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	coopBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	coopBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	coopBtnMesh->UploadToGPU();
+
+	introBtnTex = new OGLTexture();
+	introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("Splat Impact-3.png");
+	introBtnMesh = new OGLMesh();
+	introBtnMesh->SetVertexPositions({ Vector3(0.6, -0.1,0), Vector3(0.6, -0.3,0) , Vector3(0.2, -0.3, 0) , Vector3(0.2, -0.1, 0) });
+	introBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	introBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	introBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	introBtnMesh->UploadToGPU();
+
+	exitBtnTex = new OGLTexture();
+	exitBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("exit.png");
+	exitBtnMesh = new OGLMesh();
+	exitBtnMesh->SetVertexPositions({ Vector3(0.5, -0.4,0), Vector3(0.5, -0.6,0) , Vector3(0.3, -0.6, 0) , Vector3(0.3, -0.4, 0) });
+	exitBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	exitBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	exitBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	exitBtnMesh->UploadToGPU();
+
+	vector<Vector2> normalBtn = { {  Vector2(0.2, 0.5) , Vector2(0.6, 0.3) } };
+	vector<Vector2> coopBtn =   { {  Vector2(0.2,0.2),   Vector2(0.6,0)  } };
+	vector<Vector2> introBtn =  { {  Vector2(0.2,-0.1),  Vector2(0.6,-0.3)} };
+	vector<Vector2> exitBtn =   { {  Vector2(0.3,-0.4),  Vector2(0.5,-0.6)} };
 	GameLock::buttonPos.push_back(normalBtn);
+	GameLock::buttonPos.push_back(coopBtn);
+	GameLock::buttonPos.push_back(introBtn);
+	GameLock::buttonPos.push_back(exitBtn);
 
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
@@ -402,7 +435,6 @@ void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float w
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderMainMenu() {
-	/*glEnable(GL_FRAMEBUFFER_SRGB);*/
 	BindShader(uiShader);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -416,7 +448,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMainMenu() {
 void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
 	BindShader(uiShader);
 
-	if (GameLock::btnChange) onormalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1_selected.png");
+	if (GameLock::normalBtnChange) normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1_selected.png");
 	else normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1.png");
 
 	glActiveTexture(GL_TEXTURE0);
@@ -425,6 +457,52 @@ void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
 
 	BindMesh(normalBtnMesh);
 	DrawBoundMesh();
+	delete normalBtnTex;
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderCoopButton() {
+	BindShader(uiShader);
+	
+	if (GameLock::coopBtnChange) coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("Game Selection-2_selected.png");
+	else coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("Game Selection-2.png");
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, coopBtnTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(coopBtnMesh);
+	DrawBoundMesh();
+	delete coopBtnTex;
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderIntroButton() {
+	BindShader(uiShader);
+
+	if (GameLock::introBtnChange) introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("Splat Impact-3_selected.png");
+	else introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("Splat Impact-3.png");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, introBtnTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(introBtnMesh);
+	DrawBoundMesh();
+	delete introBtnTex;
+}
+
+void NCL::CSC8503::GameTechRenderer::RenderExitButton(){
+	BindShader(uiShader);
+
+	if (GameLock::exitBtnChange) exitBtnTex = (OGLTexture*)exitBtnTex->SRGBTextureFromFilename("exit_selected.png");
+	else exitBtnTex = (OGLTexture*)exitBtnTex->SRGBTextureFromFilename("exit.png");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, exitBtnTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(exitBtnMesh);
+	DrawBoundMesh();
+	delete exitBtnTex;
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
@@ -490,6 +568,9 @@ void GameTechRenderer::RenderFrame( )
 	if (!GameLock::gamestart) {
 		RenderMainMenu();
 		RenderNormalButton();
+		RenderCoopButton();
+		RenderIntroButton();
+		RenderExitButton();
 	}
 	//RenderHUD();
 

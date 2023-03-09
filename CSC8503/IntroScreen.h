@@ -23,8 +23,8 @@ namespace NCL {
 
 			PushdownResult OnUpdate(float dt,PushdownState** newState) override {
 				
-				Debug::Print("Use Up and Down to select game mode", Vector2(20, 22), Debug::BLACK);
-				Debug::Print("Game Menu", Vector2(60, 40), Debug::BLACK);
+		/*		Debug::Print("Use Up and Down to select game mode", Vector2(20, 22), Debug::BLACK);
+				Debug::Print("Game Menu", Vector2(60, 40), Debug::BLACK);*/
 
 				GameLock::Player1lock = true;
 				 
@@ -41,17 +41,45 @@ namespace NCL {
 				{
 					state = state +1 <= 4 ? state + 1 : 1;
 				}*/
+			/*	if (screenMouse.x >= screenSize.x * 0.5
+					&& screenMouse.x <= screenSize.x * 0.6
+					&& screenMouse.y >= screenSize.y * 0.45
+					&& screenMouse.y <= screenSize.y * 0.5) {
+					GameLock::normalBtnChange = true;
 
-				for (int i = 1; i <= GameLock::buttonPos.size(); i++) {
-					vector<Vector2> MappingPos = GameLock::buttonPos[i];
-					if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
-						state = i;
-						break;
-					}
-					else {
-						state = 0;
+				}*/
+				if (GameLock::buttonPos.size() > 0) {
+					for (int i = 1; i <= GameLock::buttonPos.size(); i++) {
+						vector<Vector2> MappingPos = GameLock::buttonPos[i-1];
+						if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
+							state = i;
+							if (state == 1) {
+								GameLock::normalBtnChange = true;
+								break;
+							} 
+							else if (state == 2) {
+								GameLock::coopBtnChange = true;
+								break;
+							}
+							else if (state == 3) {
+								GameLock::introBtnChange = true;
+								break;
+							}
+							else if (state == 4) {
+								GameLock::exitBtnChange = true;
+							}
+						
+						}
+						else {
+							state = 0;
+							GameLock::normalBtnChange = false;
+							GameLock::coopBtnChange = false;
+							GameLock::introBtnChange = false;
+							GameLock::exitBtnChange = false;
+						}
 					}
 				}
+
 
 				/*switch (state)
 				{
@@ -133,10 +161,10 @@ namespace NCL {
 				state = 0;
 			}
 			bool buttonmapping(Vector2 leftT, Vector2 rightB, Vector2 screenMouse,Vector2 screenSize) {
-				float yMaxMapping = (1 - leftT.y) / 2;
-				float yMinMapping = (1 - rightB.y) / 2;
-				float xMaxMapping = (1 - rightB.x) / 2;
-				float xMinMapping = (1 - leftT.x) / 2;
+				float yMinMapping = (1 - leftT.y) / 2;
+				float yMaxMapping = (1 - rightB.y) / 2;
+				float xMaxMapping = (1 + rightB.x) / 2;
+				float xMinMapping = (1 + leftT.x) / 2;
 				if (screenMouse.y <= yMaxMapping * screenSize.y
 					&& screenMouse.y >= yMinMapping * screenSize.y
 					&& screenMouse.x <= xMaxMapping * screenSize.x
