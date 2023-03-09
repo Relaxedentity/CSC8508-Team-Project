@@ -144,7 +144,7 @@ void TutorialGame::UpdateGame(float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::TAB)) {
 		debug = !debug;
 	}
-	if (debug) {
+	if (debug && !GameLock::Player1lock) {
 		RenderDebug(dt);
 	}
 
@@ -192,10 +192,10 @@ void TutorialGame::UpdateGame(float dt) {
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
-	float scoreOne = world->getColourOneScore();
-	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 15), Debug::WHITE);
-	float scoreTwo = world->getColourTwoScore();
-	Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 17), Debug::WHITE);
+	//float scoreOne = world->getColourOneScore();
+	//Debug::Print(std::to_string((float)scoreOne), Vector2(80, 45), Debug::WHITE);
+	//float scoreTwo = world->getColourTwoScore();
+	//Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 47), Debug::WHITE);
 
 	UpdateKeys();
 
@@ -253,6 +253,7 @@ void TutorialGame::UpdateGame(float dt) {
 		accumulator -= timeStep;
 	}
 	//std::cout << "<<<<<<<<<<frame \n";
+	auto start = std::chrono::high_resolution_clock::now();
 	renderer->Update(dt);
 	
 	frameTime -= dt;
@@ -287,7 +288,8 @@ void TutorialGame::UpdateGame(float dt) {
 	}
 	else
 		renderer->Render();
-		
+	auto end = std::chrono::high_resolution_clock::now();
+	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
 	Debug::UpdateRenderables(dt);
 }
@@ -300,10 +302,13 @@ void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime
 }
 
 void TutorialGame::RenderDebug(float dt) {
-	std::string fps = "FPS: " + std::to_string((int)(1 / dt));
-	Debug::Print(fps, Vector2(5, 8), Debug::WHITE);
-	std::string ft = "Frame Time: " + std::to_string(1000.0f * dt) + "ms";
+	int fps_i = (int)(1 / dt);
+	std::string fps = "FPS: " + std::to_string(fps_i);
+	Debug::Print(fps, Vector2(5, 8), fps_i < 40 ? Vector4(1, 0, 0.25f, 1) : Debug::WHITE);
+	std::string ft = "Frame Time: " + std::to_string((int)(1000.0f * dt)) + "ms";
 	Debug::Print(ft, Vector2(5, 13), Debug::WHITE);
+	std::string rt = "Render Time: " + std::to_string((int)renderTime) + "ms";
+	Debug::Print(rt, Vector2(5, 18), Debug::WHITE);
 
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
@@ -317,19 +322,22 @@ void TutorialGame::RenderDebug(float dt) {
 
 	std::string vramA = "Virtual Mem available: " + std::to_string(totalVirtualMem / (1024 * 1024)) + "MB";
 	std::string vramT = "Virtual Mem in use: " + std::to_string(virtualMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(vramA, Vector2(5, 18), Debug::WHITE);
-	Debug::Print(vramT, Vector2(5, 23), Debug::WHITE);
+	Debug::Print(vramA, Vector2(5, 23), Debug::WHITE);
+	Debug::Print(vramT, Vector2(5, 28), Debug::WHITE);
 
 	std::string pramA = "Physical RAM available: " + std::to_string(totalPhysMem / (1024 * 1024)) + "MB";
 	std::string pramT = "Physical RAM in use: " + std::to_string(physMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(pramA, Vector2(5, 28), Debug::WHITE);
-	Debug::Print(pramT, Vector2(5, 33), Debug::WHITE);
+	Debug::Print(pramA, Vector2(5, 33), Debug::WHITE);
+	Debug::Print(pramT, Vector2(5, 38), Debug::WHITE);
 
 	std::string paintAmount = "Paint Balls in World: " + std::to_string(world->GetPaintBalls());
-	Debug::Print(paintAmount, Vector2(5, 38), Debug::WHITE);
+	Debug::Print(paintAmount, Vector2(5, 43), Debug::WHITE);
 
 	std::string nbRigidBodies = "Number of Rigid Bodies: " + std::to_string(physicsWorld->getNbRigidBodies());
-	Debug::Print(nbRigidBodies, Vector2(5, 43), Debug::WHITE);
+	Debug::Print(nbRigidBodies, Vector2(5, 48), Debug::WHITE);
+
+	std::string gravity = useGravity ? "Gravity: Enabled" : "Gravity: Disabled";
+	Debug::Print(gravity, Vector2(5, 53), useGravity ? Debug::WHITE : Vector4(1, 0, 0.25f, 1));
 }
 
 void TutorialGame::UpdateKeys()
@@ -339,10 +347,10 @@ void TutorialGame::UpdateKeys()
 		physicsWorld->setIsGravityEnabled(useGravity);
 	}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::V) ) {
-		
-		initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::V) ) {
+	//	
+	//	initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
+	//}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
 		std::fstream my_file;

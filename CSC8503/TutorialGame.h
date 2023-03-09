@@ -171,6 +171,7 @@ namespace NCL {
 			bool mouseLock;
 			bool debug;
 
+			float renderTime = 0;
 			float accumulator = 0;
 			const float timeStep = 1.0f / 60.0f;
 
