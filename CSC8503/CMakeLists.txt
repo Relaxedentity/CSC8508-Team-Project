@@ -223,6 +223,8 @@ if(MSVC)
     target_link_libraries(${PROJECT_NAME} LINK_PUBLIC  "Winmm.lib")
 endif()
 
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC  "Xinput.lib")
+
 include_directories("../OpenGLRendering/")
 include_directories("../NCLCoreClasses/")
 include_directories("../CSC8503CoreClasses/")
