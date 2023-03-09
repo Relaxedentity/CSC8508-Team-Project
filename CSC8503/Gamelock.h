@@ -10,6 +10,7 @@ namespace NCL {
 			static bool gamestart;
 			static int gamemod;
 			static ISoundEngine* hitsound;
+			static vector<vector<Vector2>> buttonPos;
 		};
 	}
 }

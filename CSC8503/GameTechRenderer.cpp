@@ -123,6 +123,9 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	normalBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	normalBtnMesh->UploadToGPU();
 
+	vector<Vector2> normalBtn = { {  Vector2(0, 0.1), Vector2(0, 0) , Vector2(0.2, 0), Vector2(0.2, 0.1) } };
+	GameLock::buttonPos.push_back(normalBtn);
+
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
 
