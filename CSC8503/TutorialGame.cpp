@@ -137,7 +137,7 @@ void TutorialGame::UpdateGame(float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::TAB)) {
 		debug = !debug;
 	}
-	if (debug) {
+	if (debug && !GameLock::Player1lock) {
 		RenderDebug(dt);
 	}
 
@@ -185,10 +185,10 @@ void TutorialGame::UpdateGame(float dt) {
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
-	float scoreOne = world->getColourOneScore();
-	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 45), Debug::WHITE);
-	float scoreTwo = world->getColourTwoScore();
-	Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 47), Debug::WHITE);
+	//float scoreOne = world->getColourOneScore();
+	//Debug::Print(std::to_string((float)scoreOne), Vector2(80, 45), Debug::WHITE);
+	//float scoreTwo = world->getColourTwoScore();
+	//Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 47), Debug::WHITE);
 
 	UpdateKeys();
 
@@ -263,8 +263,9 @@ void TutorialGame::UpdateGame(float dt) {
 }
 
 void TutorialGame::RenderDebug(float dt) {
-	std::string fps = "FPS: " + std::to_string((int)(1 / dt));
-	Debug::Print(fps, Vector2(5, 8), Debug::WHITE);
+	int fps_i = (int)(1 / dt);
+	std::string fps = "FPS: " + std::to_string(fps_i);
+	Debug::Print(fps, Vector2(5, 8), fps_i < 40 ? Vector4(1, 0, 0.25f, 1) : Debug::WHITE);
 	std::string ft = "Frame Time: " + std::to_string((int)(1000.0f * dt)) + "ms";
 	Debug::Print(ft, Vector2(5, 13), Debug::WHITE);
 	std::string rt = "Render Time: " + std::to_string((int)renderTime) + "ms";
@@ -297,7 +298,7 @@ void TutorialGame::RenderDebug(float dt) {
 	Debug::Print(nbRigidBodies, Vector2(5, 48), Debug::WHITE);
 
 	std::string gravity = useGravity ? "Gravity: Enabled" : "Gravity: Disabled";
-	Debug::Print(gravity, Vector2(5, 53), useGravity ? Debug::WHITE : Debug::RED);
+	Debug::Print(gravity, Vector2(5, 53), useGravity ? Debug::WHITE : Vector4(1, 0, 0.25f, 1));
 }
 
 void TutorialGame::UpdateKeys()
