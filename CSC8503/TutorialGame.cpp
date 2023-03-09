@@ -186,9 +186,9 @@ void TutorialGame::UpdateGame(float dt) {
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
 	float scoreOne = world->getColourOneScore();
-	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 15), Debug::WHITE);
+	Debug::Print(std::to_string((float)scoreOne), Vector2(80, 45), Debug::WHITE);
 	float scoreTwo = world->getColourTwoScore();
-	Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 17), Debug::WHITE);
+	Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 47), Debug::WHITE);
 
 	UpdateKeys();
 
@@ -246,6 +246,7 @@ void TutorialGame::UpdateGame(float dt) {
 		accumulator -= timeStep;
 	}
 	//std::cout << "<<<<<<<<<<frame \n";
+	auto start = std::chrono::high_resolution_clock::now();
 	renderer->Update(dt);
 
 	if (coopMode && !freeCamera && GameLock::gamemod == 2) {//player2 movelock!
@@ -255,7 +256,8 @@ void TutorialGame::UpdateGame(float dt) {
 	}
 	else
 		renderer->Render();
-		
+	auto end = std::chrono::high_resolution_clock::now();
+	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
 	Debug::UpdateRenderables(dt);
 }
@@ -263,8 +265,10 @@ void TutorialGame::UpdateGame(float dt) {
 void TutorialGame::RenderDebug(float dt) {
 	std::string fps = "FPS: " + std::to_string((int)(1 / dt));
 	Debug::Print(fps, Vector2(5, 8), Debug::WHITE);
-	std::string ft = "Frame Time: " + std::to_string(1000.0f * dt) + "ms";
+	std::string ft = "Frame Time: " + std::to_string((int)(1000.0f * dt)) + "ms";
 	Debug::Print(ft, Vector2(5, 13), Debug::WHITE);
+	std::string rt = "Render Time: " + std::to_string((int)renderTime) + "ms";
+	Debug::Print(rt, Vector2(5, 18), Debug::WHITE);
 
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
@@ -278,19 +282,22 @@ void TutorialGame::RenderDebug(float dt) {
 
 	std::string vramA = "Virtual Mem available: " + std::to_string(totalVirtualMem / (1024 * 1024)) + "MB";
 	std::string vramT = "Virtual Mem in use: " + std::to_string(virtualMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(vramA, Vector2(5, 18), Debug::WHITE);
-	Debug::Print(vramT, Vector2(5, 23), Debug::WHITE);
+	Debug::Print(vramA, Vector2(5, 23), Debug::WHITE);
+	Debug::Print(vramT, Vector2(5, 28), Debug::WHITE);
 
 	std::string pramA = "Physical RAM available: " + std::to_string(totalPhysMem / (1024 * 1024)) + "MB";
 	std::string pramT = "Physical RAM in use: " + std::to_string(physMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(pramA, Vector2(5, 28), Debug::WHITE);
-	Debug::Print(pramT, Vector2(5, 33), Debug::WHITE);
+	Debug::Print(pramA, Vector2(5, 33), Debug::WHITE);
+	Debug::Print(pramT, Vector2(5, 38), Debug::WHITE);
 
 	std::string paintAmount = "Paint Balls in World: " + std::to_string(world->GetPaintBalls());
-	Debug::Print(paintAmount, Vector2(5, 38), Debug::WHITE);
+	Debug::Print(paintAmount, Vector2(5, 43), Debug::WHITE);
 
 	std::string nbRigidBodies = "Number of Rigid Bodies: " + std::to_string(physicsWorld->getNbRigidBodies());
-	Debug::Print(nbRigidBodies, Vector2(5, 43), Debug::WHITE);
+	Debug::Print(nbRigidBodies, Vector2(5, 48), Debug::WHITE);
+
+	std::string gravity = useGravity ? "Gravity: Enabled" : "Gravity: Disabled";
+	Debug::Print(gravity, Vector2(5, 53), useGravity ? Debug::WHITE : Debug::RED);
 }
 
 void TutorialGame::UpdateKeys()
@@ -300,10 +307,10 @@ void TutorialGame::UpdateKeys()
 		physicsWorld->setIsGravityEnabled(useGravity);
 	}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::V) ) {
-		
-		initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
-	}
+	//if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::V) ) {
+	//	
+	//	initSplitScreen ? initSplitScreen = false : initSplitScreen = true;
+	//}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::H)) {
 		std::fstream my_file;
