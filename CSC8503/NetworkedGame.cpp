@@ -272,23 +272,18 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
 				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
-					std::cout << "poop 1\n";
 					o->GameobjectMove(1, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 2) {
-					std::cout << "poop 2\n";
 					o->GameobjectMove(2, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 3) {
-					std::cout << "poop 3\n";
 					o->GameobjectMove(3, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 4) {
-					std::cout << "poop 4\n";
 					o->GameobjectMove(4, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 5) {
-					std::cout << "poop 5\n";
 					o->GameobjectMove(5, yaw, grounded);
 				}	
 				o->GameObjectRotate(yaw);
