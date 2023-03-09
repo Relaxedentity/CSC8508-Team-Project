@@ -679,17 +679,15 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		//
 		//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
+		
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-			Projectile* projectile = projectiles[currentProjectile];
-			currentProjectile = (currentProjectile + 1) % 100;
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
-		invokeTime2 -= dt;
-		if (invokeTime2 <= 0) {
-			Projectile* projectile = projectiles[currentProjectile];
-			currentProjectile = (currentProjectile + 1) % 100;
+			invokeTime2 -= dt;
+			if (invokeTime2 <= 0) {
+				Projectile* projectile = projectiles[currentProjectile];
+				currentProjectile = (currentProjectile + 1) % 100;
 
-			Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
-			reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
+				Quaternion Pitch = Quaternion(world->GetSecCamera()->GetRotationPitch());
+				reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
 			Vector4 colourVector;
 			switch (player->getPaintColour()) {
