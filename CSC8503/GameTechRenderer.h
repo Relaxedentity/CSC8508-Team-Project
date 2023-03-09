@@ -29,7 +29,6 @@ namespace NCL {
 			void RenderProgressBar(float score);
 			void RenderTimerQuad();
 			void RenderCrossHair();
-			void RenderAnim(MeshGeometry* playerMesh, MeshAnimation* playerAnim);
 			
 
 		protected:

@@ -83,7 +83,11 @@ namespace NCL {
 			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* testStateObject;
 			BTreeObject* goose;
-			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int cframe, vector <Matrix4 > fmatrices, const Matrix4* fdata = NULL);
+
+			// animation 
+			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe);
+			void UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime, int &cframe);
+
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
@@ -98,8 +102,7 @@ namespace NCL {
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			void AddHedgeMazeToWorld();
-			void UpdateAnim(float ftime, int cframe, float dt, MeshAnimation* anim, vector <Matrix4 >fmatrices);
-
+			
 			// Making Rebellion mesh-based objects
 			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
 			GameObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
@@ -165,6 +168,7 @@ namespace NCL {
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
 			OGLShader* animatedShader = nullptr;
+			OGLShader* animatedShaderA = nullptr;
 			ShaderBase*		charShader	= nullptr;
 			MeshMaterial* playerMat = nullptr;
 			vector <GLuint > playerTextures;
@@ -172,7 +176,6 @@ namespace NCL {
 			MeshGeometry*	charMesh	= nullptr;
 			MeshGeometry*	enemyMesh	= nullptr;
 			MeshGeometry*	bonusMesh	= nullptr;
-
 			// Rebellion Assets
 			TextureBase*	chairTex	= nullptr;
 			MeshGeometry*	chairMesh	= nullptr;
@@ -210,6 +213,7 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 			bool directionInput;
+			bool directionInputCoop;
 			int currentFrame;
 			float frameTime;
 			int currentFrameA;

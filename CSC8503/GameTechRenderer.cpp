@@ -599,39 +599,7 @@ void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height
 
 	glCullFace(GL_BACK);
 }
-void GameTechRenderer::RenderAnim(MeshGeometry* playerMesh, MeshAnimation* playerAnim) {
-	BindShader(animatedShader);
-	glUniform1i(glGetUniformLocation(animatedShader->GetProgramID(),
-		"diffuseTex"), 0);
-	//Vector3 var = Vector3(0.0f, 0.0f, 0.0f);
-	//Matrix4 model = Matrix4::Translation(var) *
-	//	Matrix4::Scale(Vector3(200.0f, 200.0f, 200.0f)) *
-	//	Matrix4::Rotation(0, Vector3(0, 1, 0));
 
-	//glUniformMatrix4fv(glGetUniformLocation(animatedShader->GetProgramID(),
-	//	"modelMatrix"), 1, false, model.values);
-
-
-	vector <Matrix4 > frameMatrices;
-
-	const vector<Matrix4> invBindPose = playerMesh->GetInverseBindPose();
-	const Matrix4* frameData = playerAnim->GetJointData(currentFrame);
-	for (unsigned int i = 0; i < playerMesh->GetJointCount(); ++i) {
-		frameMatrices.emplace_back(frameData[i] * invBindPose[i]);
-	}
-
-	int j = glGetUniformLocation(animatedShader->GetProgramID(), "joints");
-	glUniformMatrix4fv(j, frameMatrices.size(), false, (float*)frameMatrices.data());
-	for (int i = 0; i < playerMesh->GetSubMeshCount(); ++i) {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, NULL);
-		BindMesh(playerMesh);
-		int layerCount = playerMesh->GetSubMeshCount();
-		for (int i = 0; i < layerCount; ++i) {
-			DrawBoundMesh(i);
-		}
-	}
-}
 
 void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glDisable(GL_CULL_FACE);
@@ -713,7 +681,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
 			int j = glGetUniformLocation(shader->GetProgramID(), "joints");
-			glUniformMatrix4fv(j, gameWorld.frameMatrices.size(), false, (float*)gameWorld.frameMatrices.data());
+			glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
 			Vector3 camPos = camera.GetPosition();
 			
 			
