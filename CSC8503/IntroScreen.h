@@ -23,18 +23,16 @@ namespace NCL {
 
 			PushdownResult OnUpdate(float dt,PushdownState** newState) override {
 				
-				//lock.SetLock(false);
 				Debug::Print("Use Up and Down to select game mode", Vector2(20, 22), Debug::BLACK);
 				Debug::Print("Game Menu", Vector2(60, 40), Debug::BLACK);
 
 				GameLock::Player1lock = true;
 				 
-
 				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
 				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
-				//lock.iflock = true;
 
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
+
+				/*if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
 				{
 					state = state - 1 >0?state-1:4;
 				}
@@ -42,9 +40,20 @@ namespace NCL {
 				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN))
 				{
 					state = state +1 <= 4 ? state + 1 : 1;
+				}*/
+
+				for (int i = 1; i <= GameLock::buttonPos.size(); i++) {
+					vector<Vector2> MappingPos = GameLock::buttonPos[i];
+					if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
+						state = i;
+						break;
+					}
+					else {
+						state = 0;
+					}
 				}
 
-				switch (state)
+				/*switch (state)
 				{
 				case 1:
 					Debug::Print("Start Single Game", Vector2(60, 50),Vector4(1,0,0,1));
@@ -76,22 +85,10 @@ namespace NCL {
 					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
 					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
-				}
-				if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT) 
-					&& screenMouse.x >= screenSize.x * 0.5
-					&& screenMouse.x <= screenSize.x * 0.6
-					&& screenMouse.y >= screenSize.y * 0.45
-					&& screenMouse.y <= screenSize.y * 0.5) {
-					GameLock::gamemod = 1;
-					GameLock::gamestart = true;
-					GameLock::Player1lock = false;
-					*newState = new GameScreen();
-					return PushdownResult::Push;
-
-				}
+				}*/
 
 
- 				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT))
+ 				if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1)
 					{
@@ -134,6 +131,20 @@ namespace NCL {
 			void OnAwake() override 
 			{
 				state = 0;
+			}
+			bool buttonmapping(Vector2 leftT, Vector2 rightB, Vector2 screenMouse,Vector2 screenSize) {
+				float yMaxMapping = (1 - leftT.y) / 2;
+				float yMinMapping = (1 - rightB.y) / 2;
+				float xMaxMapping = (1 - rightB.x) / 2;
+				float xMinMapping = (1 - leftT.x) / 2;
+				if (screenMouse.y <= yMaxMapping * screenSize.y
+					&& screenMouse.y >= yMinMapping * screenSize.y
+					&& screenMouse.x <= xMaxMapping * screenSize.x
+					&& screenMouse.x >= xMinMapping * screenSize.x)
+					return true;
+				else
+					return false;
+				
 			}
 		};
 	}
