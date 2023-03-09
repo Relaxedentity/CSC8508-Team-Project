@@ -504,7 +504,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 			projectile->GetRenderObject()->SetColour(colourVector);
 			projectile->setPaintColour(player->getPaintColour());
 			projectile->Reset();
-			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
 			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 			/*sound mod is here! If you don't want to use it , just comment them out*/
@@ -667,7 +667,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			projectile->GetRenderObject()->SetColour(colourVector);
 			projectile->setPaintColour(player->getPaintColour());
 			projectile->Reset();
-			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(player->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + player->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
 			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(player->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 
@@ -729,7 +729,7 @@ void TutorialGame::cameraInterpolation(Vector3 target, float dt, Camera& camera)
 	Vector3 movement = target - currentCamPos;
 	//float movementLength = movement.Length();
 
-	camera.SetPosition(currentCamPos + movement * cameraInterpBaseSpeed);
+	camera.SetPosition(currentCamPos + movement * cameraInterpBaseSpeed + Vector3(0, 0.4, 0));
 }
 
 Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos, Camera& camera, GameObject* ignorePlayer) {
