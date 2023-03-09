@@ -17,9 +17,10 @@
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
 
-Projectile::Projectile(GameWorld* world, float max_time, std::string name) : PaintClass(world,name) {
+Projectile::Projectile(TutorialGame* t, GameWorld* world, float max_time, std::string name) : PaintClass(world,name) {
 	this->max_time = max_time;
 	time = 0;
+	tgame = t;
 }
 
 Projectile::~Projectile() {
@@ -56,12 +57,16 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-100,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
 	GetPhysicsObject()->setTransform(temp);
+	reactphysics3d::Vector3 tempCollision = reactphysics3d::Vector3(collisionPoint.x, collisionPoint.y, collisionPoint.z);
+	tempParticles = tgame->AddEmitterToWorld(tempCollision,reactphysics3d::Quaternion::identity());
 }
 void Projectile::Update(float dt) {
 	time -= dt;
 	if (time <= 0) {
 		//world->RemovePaintBall();
 		//world->RemoveGameObject(this);
+		world->RemoveGameObject(tempParticles);
+		tempParticles = NULL;
 		reactphysics3d::Transform temp(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity());
 		GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
 		GetPhysicsObject()->setTransform(temp);

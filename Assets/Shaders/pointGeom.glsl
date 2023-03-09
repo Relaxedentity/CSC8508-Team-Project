@@ -1,6 +1,6 @@
 #version 330 core
 
-uniform float particleSize = 20.0f;
+uniform float particleSize = 10.0f;
 uniform mat4 modelMatrix 	= mat4(1.0f);
 uniform mat4 viewMatrix 	= mat4(1.0f);
 uniform mat4 projMatrix 	= mat4(1.0f);
@@ -30,7 +30,8 @@ void main() {
 	mat4 mvp 		  = (projMatrix * viewMatrix * modelMatrix);
 
 	vec4 temp		= mvp * gl_in[ 0 ]. gl_Position;
-
+	OUT.colour = IN[0].colour;
+	OUT.texCoord = IN[0].texCoord;
 	
 		//top right
 		gl_Position = temp;

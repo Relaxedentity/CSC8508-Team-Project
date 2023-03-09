@@ -54,7 +54,7 @@ namespace NCL {
 			reactphysics3d::PhysicsWorld* GetPhysicsWorld() {
 				return physicsWorld;
 			}
-		    
+			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 		protected:
 			void InitialiseAssets();
 			void InitSound();
@@ -105,7 +105,7 @@ namespace NCL {
 			PlayerObject* AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
-			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			
 			void AddHedgeMazeToWorld();
 
 

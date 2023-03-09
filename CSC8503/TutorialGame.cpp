@@ -1025,7 +1025,7 @@ physics worlds. You'll probably need another function for the creation of OBB cu
 
 */
 Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass) {
-	Projectile* sphere = new Projectile(world, 3.0f);
+	Projectile* sphere = new Projectile(this,world, 3.0f);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setMass(mass);
@@ -1309,7 +1309,7 @@ void TutorialGame::InitGameExamples() {
 	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity());
 	playerCoop->setPaintColour('b');
 
-	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
+	AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
 	LockCameraToObject2(playerCoop);
 
