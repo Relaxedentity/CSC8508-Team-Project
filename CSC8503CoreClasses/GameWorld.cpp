@@ -4,6 +4,7 @@
 #include "CollisionDetection.h"
 #include "Camera.h"
 #include "Debug.h"
+#include "RenderObject.h"
 
 using namespace NCL;
 using namespace NCL::CSC8503;
@@ -39,18 +40,19 @@ GameWorld::GameWorld(reactphysics3d::PhysicsWorld* physicsWorld)	{
 }
 
 GameWorld::~GameWorld()	{
-	
+	gameObjects.erase(gameObjects.begin(), gameObjects.end());
 }
 
 void GameWorld::Clear() {
-	gameObjects.clear();
+	gameObjects.erase(gameObjects.begin(), gameObjects.end());
 	worldIDCounter		= 0;
 	worldStateCounter	= 0;
 }
 
 void GameWorld::ClearAndErase() {
 	for (auto& i : gameObjects) {
-		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
+		i->GetPhysicsObject()->removeCollider(0);
+		physicsWorld->destroyRigidBody(i->GetPhysicsObject());
 		delete i;
 	}
 	Clear();
@@ -65,7 +67,8 @@ void GameWorld::AddGameObject(GameObject* o) {
 void GameWorld::RemoveGameObject(GameObject* o, bool andDelete) {
 	gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), o), gameObjects.end());
 	if (andDelete) {
-		//physicsWorld->destroyRigidBody(o->GetPhysicsObject());
+		o->GetPhysicsObject()->removeCollider(0);
+		physicsWorld->destroyRigidBody(o->GetPhysicsObject());
 		delete o;
 	}
 	worldStateCounter++;
@@ -143,15 +146,15 @@ void GameWorld::paintTally() {
 			colourCountTwo++;
 		}
 	}
-	std::cout << "Total nodes: " << totalNodes << "\n";
+	//std::cout << "Total nodes: " << totalNodes << "\n";
 
-	std::cout << "colour count 1: " << colourCountOne << "\n";
+	//std::cout << "colour count 1: " << colourCountOne << "\n";
 	colourOneScore = (float)colourCountOne / totalNodes;
-	std::cout << "colour score 1: " << colourOneScore << "\n";
+	//std::cout << "colour score 1: " << colourOneScore << "\n";
 
-	std::cout << "colour count 2: " << colourCountTwo << "\n";
+	//std::cout << "colour count 2: " << colourCountTwo << "\n";
 	colourTwoScore = (float)colourCountTwo / totalNodes;
-	std::cout << "colour score 2: " << colourTwoScore << "\n";
+	//std::cout << "colour score 2: " << colourTwoScore << "\n";
 }
 
 void GameWorld::testPaintNodes(Vector3 inPos, char iChar) {
@@ -159,9 +162,9 @@ void GameWorld::testPaintNodes(Vector3 inPos, char iChar) {
 	for (auto& i : paintNodes) {
 		if ( (inPos-i->getPos()).Length() < 2.5 && i->getColour() != iChar ) {
 			hasChanged = true;
-			std::cout << "we got a hit!\n";
+			//std::cout << "we got a hit!\n";
 			i->setColour(iChar);
-			std::cout << "node colour: " << i->getColour() << "\n";
+			//std::cout << "node colour: " << i->getColour() << "\n";
 		}
 	}
 	if (hasChanged) paintTally();
@@ -183,4 +186,45 @@ void GameWorld::drawPaintNodes() {
 
 		Debug::DrawPoint(i->getPos(), colourVector, 0.1f);
 	}
+}
+
+
+void GameWorld::AddPaintBall() {
+	paintBallAmount += 1;
+}
+
+void GameWorld::RemovePaintBall() {
+	paintBallAmount -= 1;
+}
+
+int GameWorld::GetPaintBalls() {
+	return paintBallAmount;
+}
+
+void GameWorld::AddMapNode(MapNode* o) {
+	mapNodes.emplace_back(o);
+}
+
+void GameWorld::RemoveMapNode(MapNode* o, bool andDelete) {
+	mapNodes.erase(std::remove(mapNodes.begin(), mapNodes.end(), o), mapNodes.end());
+	if (andDelete) {
+		delete o;
+	}
+}
+
+void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char paintColour) {
+	reactphysics3d::Transform temp = reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), reactphysics3d::Quaternion::identity());
+	paintOrb->GetPhysicsObject()->setTransform(temp);
+	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+	
+	for (auto& i : gameObjects) {
+		if (inputObject == i) continue;
+		if (physicsWorld->testOverlap(paintOrb->GetPhysicsObject(), i->GetPhysicsObject())) {
+			i->GetRenderObject()->PaintSpray(position, paintColour);
+		}
+	}
+	
+	reactphysics3d::Transform dumpster = reactphysics3d::Transform(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity());
+	paintOrb->GetPhysicsObject()->setTransform(dumpster);
+	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
 }

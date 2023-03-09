@@ -1,6 +1,9 @@
 #pragma once
 #include "GameObject.h"
+#include "PaintClass.h"
 #include <string>
+#include "Sound.h"
+#include "TutorialGame.h"
 
 namespace reactphysics3d {
 	class RigidBody;
@@ -9,16 +12,17 @@ namespace reactphysics3d {
 }
 
 namespace NCL::CSC8503 {
-	class Projectile : public GameObject {
+	class Projectile : public PaintClass {
 	public:
-		Projectile(GameWorld* world, std::string name = "");
+		Projectile(GameWorld* world, float time, std::string name = "");
 		~Projectile();
+		void Reset();
 		void OnCollisionBegin(GameObject* otherObject) override;
+		std::vector<reactphysics3d::Vector3> CalculateSphereVertices(Vector3 hitPos);
 		void Update(float dt) override;
+		SoundObject* collisionV;
+	private:
 		float time;
-		void setPaintColour(char input) { paintColour = input; }
-		char getPaintColour() { return paintColour; }
-	protected:
-		char paintColour;
+		float max_time;
 	};
 }

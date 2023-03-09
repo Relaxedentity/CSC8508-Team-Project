@@ -28,7 +28,7 @@ namespace NCL::CSC8503 {
 	class GameObject{
 	public:
 		GameObject(GameWorld* world, std::string name = "");
-		~GameObject();
+		virtual ~GameObject();
 		virtual void Update(float dt){};
 		void setActive(bool active){
 			isActive = active;
@@ -79,13 +79,6 @@ namespace NCL::CSC8503 {
 			//std::cout << "OnCollisionEnd event occured!\n";
 		}
 
-		int getScore() {
-			return score;
-		}
-		void setScore(int point) {
-			score = point;
-		}
-
 		void SetWorldID(int newID) {
 			worldID = newID;
 		}
@@ -119,7 +112,6 @@ namespace NCL::CSC8503 {
 		RenderObject*		renderObject;
 		NetworkObject*		networkObject;
 		GameObject*			associated;
-		int score;
 		bool		isActive;
 		int			worldID;
 		int			objectTag;

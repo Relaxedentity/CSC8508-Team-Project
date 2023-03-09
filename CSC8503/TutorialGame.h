@@ -10,6 +10,8 @@
 #include "PlayerObject.h"
 #include "MeshAnimation.h"
 
+#include "Sound.h"
+
 namespace reactphysics3d {
 	class PhysicsCommon;
 	class PhysicsWorld;
@@ -24,10 +26,10 @@ namespace NCL {
 			void InitWorld();
 			TutorialGame();
 			~TutorialGame();
-			GameObject* getPlayer() {
+			PlayerObject* getPlayer() {
 				return player;
 			}
-			GameObject* getPlayer2() {
+			PlayerObject* getPlayer2() {
 				return player2;
 			}
 			virtual void UpdateGame(float dt);
@@ -40,6 +42,12 @@ namespace NCL {
 			PlayerObject* player3;
 			PlayerObject* player4;
 
+			SoundObject* voice;//
+			SoundObject* Init; //
+			ISoundEngine* initV;
+			float timedetection = 0.0;//
+			float timedetection2 = 0.0;//
+
 			GameWorld* GetGameWorld() {
 				return world;
 			}
@@ -50,7 +58,7 @@ namespace NCL {
 		    
 		protected:
 			void InitialiseAssets();
-			
+			void InitSound();
 			void InitCamera();
 			void InitCameraSec();
 			void UpdateKeys();
@@ -64,6 +72,8 @@ namespace NCL {
 			void InitGameExamples();
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
+			void InitProjectiles();
+			void InitPaintOrb();
 			
 			bool SelectObject();
 
@@ -128,6 +138,17 @@ namespace NCL {
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
 
+			void RenderDebug(float dt);
+
+			/*sound functions*/
+			void MainScreenFireMapping(Vector3 sphereintipos);
+			void MainScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
+			void MainScreenJumpMapping(Vector3 sphereintipos);
+
+			void SecScreenFireMapping(Vector3 sphereintipos);
+			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
+			void SecScreenJumpMapping(Vector3 sphereintipos);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
@@ -148,6 +169,11 @@ namespace NCL {
 			bool inSelectionMode;
 			bool freeCamera;
 			bool mouseLock;
+			bool debug;
+
+			float accumulator = 0;
+			const float timeStep = 1.0f / 60.0f;
+
 			NavigationGrid* worldGrid;
 
 			float		forceMagnitude;
@@ -155,6 +181,8 @@ namespace NCL {
 			float		health =0.8f;
 			float		secHealth = 0.2f;
 			float		timeLimit;
+			float       invokeTime=0.1f;
+			float       invokeTime2 = 0.1f;
 
 			GameObject* selectionObject = nullptr;
 			GameObject* selectionObjectSec = nullptr;
@@ -212,7 +240,10 @@ namespace NCL {
 			float thirdPersonYScalar = 1;
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
+			Projectile* projectiles[100];
+			int currentProjectile = 0;
 			bool directionInput;
+
 			bool directionInputCoop;
 			int currentFrame;
 			float frameTime;
@@ -230,6 +261,10 @@ namespace NCL {
 
 			// Paint Node Functions
 			void addPaintNodeToWorld(Vector3 location);
+
+			void addMapNodeToWorld(Vector3 location);
+			// Rendering the character's paint track
+			void PlayerPaintTracks(PlayerObject* player, char paintColour);
 		};
 	}
 }

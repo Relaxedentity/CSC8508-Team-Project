@@ -519,7 +519,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 	RenderMap();
 
 	RenderHealthBar(gameWorld.GetPlayerHealth());
-	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
+	RenderProgressBar(gameWorld.getColourOneScore() );
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -537,7 +537,7 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
 	RenderTimerQuad();
 	NewRenderText();
 
-	RenderProgressBar(gameWorld.getColourOneScore() + gameWorld.getColourTwoScore());
+	RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -666,6 +666,21 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 
 		BindTextureToShader((OGLTexture*)(*i).GetDefaultTexture(), "mainTex", 0);
 
+
+		if (i->GetPaintedPos().size()/* && shader != activeShader*/) {//////PaintSystem
+			for (int j = 0; j < i->GetPaintedPos().size(); j++)
+			{
+				//std::cout << "shader " << i->GetPaintedPos().size() << std::endl;
+				vector<Vector4> allPos = i->GetPaintedPos();
+				Vector4 paintedPos = allPos[j];
+				//std::cout <<i<< "//////paintedPos::" << paintedPos << std::endl;
+				char buffer[64];
+				sprintf_s(buffer, "paintedPos[%i]", j);
+				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
+				glUniform4fv(paintedLocation, 1, paintedPos.array);
+			}
+		}
+
 		if (activeShader != shader) {
 			projLocation = glGetUniformLocation(shader->GetProgramID(), "projMatrix");
 			viewLocation = glGetUniformLocation(shader->GetProgramID(), "viewMatrix");
@@ -683,15 +698,16 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			int j = glGetUniformLocation(shader->GetProgramID(), "joints");
 			glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
 			Vector3 camPos = camera.GetPosition();
+	
 			
-			
-			for (int i = 0; i < gameWorld.painted.size();i++) {
+			/*for (int i = 0; i < gameWorld.painted.size();i++) {
 				Vector4 paintedPos = gameWorld.painted[i];
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", i);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
 				glUniform4fv(paintedLocation, 1, paintedPos.array);
-			}
+			}*/
+
 			glUniform3fv(cameraLocation, 1, camPos.array);
 			glUniformMatrix4fv(projLocation, 1, false, (float*)&projMatrix);
 			glUniformMatrix4fv(viewLocation, 1, false, (float*)&viewMatrix);

@@ -45,16 +45,21 @@ void main(void)
 	if(hasTexture) {
 	 albedo *= texture(mainTex, IN.texCoord);
 	}
+
+	bool isHit = false;
+	int hitNum = 0;
 	for(int i = 0; i< 1000;i++) {
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
-		if(circledist < 2.0f) {
-
-			vec3 paintColour = (paintedPos[i].w == 1) ? vec3(1, 0, 0) : vec3(0, 0, 1);
-			albedo.rgb  *= paintColour;
-
-			sFactor *= 2;
-			break;
+		if(circledist < 1.5f) {
+			isHit = true;
+			hitNum = i;
 		}
+	}
+
+	if (isHit) {
+		vec3 paintColour = (paintedPos[hitNum].w == 1) ? vec3(1, 0, 0) : vec3(0, 0, 1);
+		albedo.rgb  *= paintColour;
+		sFactor *= 2;
 	}
 
 
