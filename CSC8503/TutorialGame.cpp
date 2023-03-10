@@ -202,8 +202,8 @@ void TutorialGame::UpdateGame(float dt) {
 	GameLock::redScore = world->getColourOneScore();
 	GameLock::blueScore = world->getColourTwoScore();
 
-	Debug::Print(std::to_string((float)GameLock::redScore), Vector2(80, 45), Debug::WHITE);
-	Debug::Print(std::to_string((float)GameLock::blueScore), Vector2(80, 47), Debug::WHITE);
+	//Debug::Print(std::to_string((float)GameLock::redScore), Vector2(80, 45), Debug::WHITE);
+	//Debug::Print(std::to_string((float)GameLock::blueScore), Vector2(80, 47), Debug::WHITE);
 
 	UpdateKeys();
 
