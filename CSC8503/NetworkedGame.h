@@ -53,6 +53,9 @@ namespace NCL {
 			std::map<int, GameObject*> serverPlayers;
 			GameObject* localPlayer;
 			
+			OGLShader* animatedShaderB = nullptr;
+			OGLShader* animatedShaderC = nullptr;
+			OGLShader* animatedShaderD = nullptr;
 		};
 	}
 }

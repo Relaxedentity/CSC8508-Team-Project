@@ -94,8 +94,8 @@ namespace NCL {
 			BTreeObject* goose;
 
 			// animation 
-			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe);
-			void UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime, int &cframe);
+			void DrawAnim(PlayerObject* p, MeshAnimation* anim);
+			void UpdateAnim(PlayerObject* p, MeshAnimation* anim);
 
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
@@ -248,13 +248,6 @@ namespace NCL {
 			float thirdPersonZScalar = 4;
 			Projectile* projectiles[100];
 			int currentProjectile = 0;
-			bool directionInput;
-
-			bool directionInputCoop;
-			int currentFrame;
-			float frameTime;
-			int currentFrameA;
-			float frameTimeA;
 
 			bool thirdPerson = true;
 

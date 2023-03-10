@@ -271,23 +271,25 @@ void TutorialGame::UpdateGame(float dt) {
 	auto start = std::chrono::high_resolution_clock::now();
 	renderer->Update(dt);
 	
-	frameTime -= dt;
-	frameTimeA -= dt;
+	player->GetRenderObject()->frameTime -= dt;
+	if (coopMode) {
+		playerCoop->GetRenderObject()->frameTime -= dt;
+	}
 
 
-	if (directionInput) {
-		UpdateAnim(player,playerWalkAnim, frameTime,currentFrame);
+	if (player->directionInput) {
+		UpdateAnim(player,playerWalkAnim);
 	}
 	else {
-		UpdateAnim(player,playerIdleAnim, frameTime, currentFrame);
+		UpdateAnim(player,playerIdleAnim);
 	}
 	if (coopMode) {
-		if (directionInputCoop) {
-			UpdateAnim(playerCoop, playerWalkAnim, frameTimeA, currentFrameA);
+		if (playerCoop->directionInput) {
+			UpdateAnim(playerCoop, playerWalkAnim);
 			//UpdateAnimCoop(playerCoop, playerWalkAnim, frameTime, currentFrameA, dt);
 		}
 		else {
-			UpdateAnim(playerCoop, playerIdleAnim, frameTimeA, currentFrameA);
+			UpdateAnim(playerCoop, playerIdleAnim);
 			//UpdateAnimCoop(playerCoop, playerIdleAnim, frameTime, currentFrameA, dt );
 		}
 	}
@@ -310,12 +312,12 @@ void TutorialGame::UpdateGame(float dt) {
 	
 	Debug::UpdateRenderables(dt);
 }
-void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime, int &cframe) {
-	while (ftime < 0.0f) {
-		cframe = (cframe + 1) % anim->GetFrameCount();
-		ftime += 1.0f / anim->GetFrameRate();
+void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim) {
+	while (p->GetRenderObject()->frameTime < 0.0f) {
+		p->GetRenderObject()->currentFrame = (p->GetRenderObject()->currentFrame + 1) % anim->GetFrameCount();
+		p->GetRenderObject()->frameTime += 1.0f / anim->GetFrameRate();
 	}
-	DrawAnim(p, anim, cframe);
+	DrawAnim(p, anim);
 }
 
 void TutorialGame::RenderDebug(float dt) {
@@ -423,33 +425,33 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	SceneContactPoint* ground = world->Raycast(ray, player);
 	player->setGrounded(ground->isHit);
 
-	directionInput = false;
+	player->directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
 		endVelocity = MoveForward(player, Yaw, endVelocity);
-		directionInput = true;
+		player->directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
 		endVelocity = MoveBackward(player, Yaw, endVelocity);
-		directionInput = true;
+		player->directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
 		endVelocity = MoveLeft(player, Yaw, endVelocity);
-		directionInput = true;
+		player->directionInput = true;
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
 		endVelocity = MoveRight(player, Yaw, endVelocity);
-		directionInput = true;
+		player->directionInput = true;
 	}
-	if (!directionInput && player->IsGrounded()) {
+	if (!player->directionInput && player->IsGrounded()) {
 		float scalar = (0.95 - dt);
 		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 	}
 
 	//if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
-	if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
+	if (player->directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25) {
 		endVelocity.Normalise();
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
 	}
@@ -567,33 +569,33 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		SceneContactPoint* ground = world->Raycast(ray, player);
 		player->setGrounded(ground->isHit);
 
-		directionInputCoop = false;
+		player->directionInput = false;
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_UP)) {
 			endVelocity = MoveForward(player, Yaw, endVelocity);
-			directionInputCoop = true;
+			player->directionInput = true;
 		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
 			endVelocity = MoveBackward(player, Yaw, endVelocity);
-			directionInputCoop = true;
+			player->directionInput = true;
 		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
 			endVelocity = MoveLeft(player, Yaw, endVelocity);
-			directionInputCoop = true;
+			player->directionInput = true;
 		}
 
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
 			endVelocity = MoveRight(player, Yaw, endVelocity);
-			directionInput = true;
+			player->directionInput = true;
 		}
-		if (!directionInput && player->IsGrounded()) {
+		if (!player->directionInput && player->IsGrounded()) {
 			float scalar = (0.95 - dt);
 			player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
 		}
 
-		if (directionInputCoop && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
+		if (player->directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
 			endVelocity.Normalise();
 			player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(endVelocity.x, endVelocity.y, endVelocity.z) * 20);
 		}
@@ -651,38 +653,38 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 }
 
 Vector3 TutorialGame::MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
-	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
-	MainScreenMoveMapping(playermoveposition, directionInput);
+	Vector3 playermoveposition = p->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
-	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
-	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	Vector3 trajectory = p->IsGrounded() ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
+	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 	return endVelocity + Yaw * Vector3(0, 0, -1);
 }
 
 Vector3 TutorialGame::MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
-	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
-	MainScreenMoveMapping(playermoveposition, directionInput);
+	Vector3 playermoveposition = p->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
-	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
-	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	Vector3 trajectory = p->IsGrounded() ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
+	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 	return endVelocity + Yaw * Vector3(0, 0, 1);
 }
 
 Vector3 TutorialGame::MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
-	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
-	MainScreenMoveMapping(playermoveposition, directionInput);
+	Vector3 playermoveposition = p->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
-	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
-	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	Vector3 trajectory = p->IsGrounded() ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
+	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 	return endVelocity + Yaw * Vector3(-1, 0, 0);
 }
 
 Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity) {
-	Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();
-	MainScreenMoveMapping(playermoveposition, directionInput);
+	Vector3 playermoveposition = p->GetPhysicsObject()->getTransform().getPosition();
+	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
-	Vector3 trajectory = player->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
-	player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	Vector3 trajectory = p->IsGrounded() ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
+	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 	return endVelocity + Yaw * Vector3(1, 0, 0);
 }
 
@@ -1225,10 +1227,10 @@ GameObject* TutorialGame::AddEnemyToWorld(const reactphysics3d::Vector3& positio
 	return character;
 }
 
-void TutorialGame::DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe) {
+void TutorialGame::DrawAnim(PlayerObject* p, MeshAnimation* anim) {
 	//const vector <Matrix4 > invBindPose = playerMesh->GetInverseBindPose();
 	const Matrix4* invBindPose = p->GetRenderObject()->GetMesh()->GetInverseBindPose().data();
-	const Matrix4* frameData = anim->GetJointData(cframe % anim->GetFrameCount());
+	const Matrix4* frameData = anim->GetJointData(p->GetRenderObject()->currentFrame % anim->GetFrameCount());
 	vector <Matrix4 > tempMatrices;
 	for (unsigned int i = 0; i < p->GetRenderObject()->GetMesh()->GetJointCount(); ++i) {
 		tempMatrices.emplace_back(frameData[i] * invBindPose[i]);
