@@ -40,9 +40,9 @@ NetworkedGame::~NetworkedGame() {
 
 void NetworkedGame::StartAsServer() {
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 4);
-	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 2, 2);
-	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 3, 3);
-	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 4, 4);
+	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 2, 2);
+	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 3, 3);
+	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 4, 4);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	//goose->setTarget2(player2);
 	
@@ -52,9 +52,9 @@ void NetworkedGame::StartAsServer() {
 void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient = new GameClient();
 	thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
-	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 2, 2);
-	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 3, 3);
-	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 4, 4);
+	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 2, 2);
+	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 3, 3);
+	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 4, 4);
 
 	thisClient->RegisterPacketHandler(Delta_State, this);
 	thisClient->RegisterPacketHandler(Full_State, this);
@@ -80,12 +80,9 @@ void NetworkedGame::UpdateGame(float dt) {
 
 	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9) && !initSplitScreen) {
 		StartAsServer();
-		coopMode = false;
-		
 	}
 	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10) && !initSplitScreen) {
 		StartAsClient(127, 0, 0, 1);
-		coopMode = false;
 	}
 
 	TutorialGame::UpdateGame(dt);
@@ -272,23 +269,18 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
 				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
-					std::cout << "poop 1\n";
 					o->GameobjectMove(1, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 2) {
-					std::cout << "poop 2\n";
 					o->GameobjectMove(2, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 3) {
-					std::cout << "poop 3\n";
 					o->GameobjectMove(3, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 4) {
-					std::cout << "poop 4\n";
 					o->GameobjectMove(4, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 5) {
-					std::cout << "poop 5\n";
 					o->GameobjectMove(5, yaw, grounded);
 				}	
 				o->GameObjectRotate(yaw);

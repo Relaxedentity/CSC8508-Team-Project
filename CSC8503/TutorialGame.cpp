@@ -53,12 +53,16 @@ TutorialGame::TutorialGame()	{
 	freeCamera		= false;
 	mouseLock		= true;
 	debug = false;
+	coopMode = false;
+
 	world->SetPlayerHealth(1.0f);
-	world->SetPlayerCoopHealth(1.0f);
+	if (coopMode) {
+		world->SetPlayerCoopHealth(1.0f);
+	}
 
 	gpConnected = true;
 
-	coopMode = true;
+
 	InitialiseAssets();
 }
 
@@ -187,7 +191,10 @@ void TutorialGame::UpdateGame(float dt) {
 	}
 
 	world->SetPlayerHealth(health);
-	world->SetPlayerCoopHealth(secHealth);
+	if (coopMode) {
+		world->SetPlayerCoopHealth(secHealth);
+	}
+
 	if (GameLock::gamestart && !GameLock::gamePause) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
 		GameLock::gametime = timeLimit;
@@ -249,8 +256,9 @@ void TutorialGame::UpdateGame(float dt) {
 	SelectObject();
 	MoveSelectedObject();
 	PlayerPaintTracks(player,'r');
-	PlayerPaintTracks(playerCoop, 'b');
-
+	if (coopMode) {
+		PlayerPaintTracks(playerCoop, 'b');
+	}
 
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
@@ -273,13 +281,15 @@ void TutorialGame::UpdateGame(float dt) {
 	else {
 		UpdateAnim(player,playerIdleAnim, frameTime, currentFrame);
 	}
-	if (directionInputCoop) {
-		UpdateAnim(playerCoop, playerWalkAnim, frameTimeA, currentFrameA);
-		//UpdateAnimCoop(playerCoop, playerWalkAnim, frameTime, currentFrameA, dt);
-	}
-	else {
-		UpdateAnim(playerCoop, playerIdleAnim, frameTimeA, currentFrameA);
-		//UpdateAnimCoop(playerCoop, playerIdleAnim, frameTime, currentFrameA, dt );
+	if (coopMode) {
+		if (directionInputCoop) {
+			UpdateAnim(playerCoop, playerWalkAnim, frameTimeA, currentFrameA);
+			//UpdateAnimCoop(playerCoop, playerWalkAnim, frameTime, currentFrameA, dt);
+		}
+		else {
+			UpdateAnim(playerCoop, playerIdleAnim, frameTimeA, currentFrameA);
+			//UpdateAnimCoop(playerCoop, playerIdleAnim, frameTime, currentFrameA, dt );
+		}
 	}
 	
 	/*else {
@@ -1350,18 +1360,17 @@ void TutorialGame::InitDefaultFloor() {
 void TutorialGame::InitGameExamples() {
 	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 1, 1);
 	player->setPaintColour('r');
-	playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 1, 2);
-	playerCoop->setPaintColour('b');
-	
-
-	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);
-	LockCameraToObject2(playerCoop);
-
-	patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
-	//AddBonusToWorld(reactphysics3d::Vector3(10, 5, 0), reactphysics3d::Quaternion::identity());
 	world->SetPlayer(player);
-	world->SetPlayerCoop(playerCoop);
+
+	if (coopMode) {
+		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 1, 2);
+		playerCoop->setPaintColour('b');
+		LockCameraToObject2(playerCoop);
+		world->SetPlayerCoop(playerCoop);
+	}
+
+	//patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 }
 
 void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents) {
