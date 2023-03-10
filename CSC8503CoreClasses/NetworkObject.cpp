@@ -139,30 +139,35 @@ void NetworkObject::UpdateStateHistory(int minID) {
 void NetworkObject::GameobjectMove(int i, Quaternion yaw, bool grounded) {
 	Vector3 trajectory;
 	GameObject& g = getGameObject();
+	g.directionInput = false;
 	switch (i)
 	{
 	case 1:
 		trajectory = grounded ? yaw * Vector3(0, 0, -15) : yaw * Vector3(0, 0, -7);
 		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		//g.GetPhysicsObject()->applyLocalForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, -5)); // forward
+		g.directionInput = true;
 		break;
 
 	case 2:
 		trajectory = grounded ? yaw * Vector3(0, 0, 15) : yaw * Vector3(0, 0, 7);
 		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		//g.GetPhysicsObject()->applyLocalForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, 5)); //backward
+		g.directionInput = true;
 		break;
 
 	case 3:
 		trajectory = grounded ? yaw * Vector3(-15, 0, 0) : yaw * Vector3(-7, 0, 0);
 		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		//g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, 2, 0)); //left
+		g.directionInput = true;
 		break;
 
 	case 4:
 		trajectory = grounded ? yaw * Vector3(15, 0, 0) : yaw * Vector3(7, 0, 0);
 		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
 		//g.GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(0, -2, 0)); //right
+		g.directionInput = true;
 		break;
 
 	case 5:

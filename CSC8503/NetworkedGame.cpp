@@ -93,9 +93,10 @@ void NetworkedGame::UpdateGame(float dt) {
 }
 
 void NetworkedGame::UpdateAsServer(float dt) {
+	UpdateNetworkAnimations(dt);
 	MovePlayer(player, dt);
 	thisServer->UpdateServer();
-
+	
 
 	packetsToSnapshot--;
 	if (packetsToSnapshot < 0) {
@@ -110,40 +111,20 @@ void NetworkedGame::UpdateAsServer(float dt) {
 void NetworkedGame::UpdateAsClient(float dt) {
 	reactphysics3d::Quaternion yaw;
 	bool grounded = false;
-	player2->GetRenderObject()->frameTime -= dt;
-	player3->GetRenderObject()->frameTime -= dt;
-	player4->GetRenderObject()->frameTime -= dt;
+	UpdateNetworkAnimations(dt);
 	switch (thisClient->clientID) {
 	case 1:
 		MovePlayer(player2, dt);
-		if (player2->directionInput) {
-			UpdateAnim(player2, playerWalkAnim);
-		}
-		else {
-			UpdateAnim(player2, playerIdleAnim);
-		}
 		yaw = player2->GetYaw();
 		grounded = player2->IsGrounded();
 		break;
 	case 2:
 		MovePlayer(player3, dt); 
-		if (player3->directionInput) {
-			UpdateAnim(player3, playerWalkAnim);
-		}
-		else {
-			UpdateAnim(player3, playerIdleAnim);
-		}
 		yaw = player3->GetYaw();
 		grounded = player3->IsGrounded();
 		break;
 	case 3:
 		MovePlayer(player4, dt);
-		if (player4->directionInput) {
-			UpdateAnim(player4, playerWalkAnim);
-		}
-		else {
-			UpdateAnim(player4, playerIdleAnim);
-		}
 		yaw = player4->GetYaw();
 		grounded = player4->IsGrounded();
 		break;
@@ -309,6 +290,12 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 					o->GameobjectMove(5, yaw, grounded);
 				}	
 				o->GameObjectRotate(yaw);
+				if (o->getGameObject().directionInput) {
+					UpdateAnim((PlayerObject*)&o->getGameObject(), playerWalkAnim);
+				}
+				else {
+					UpdateAnim((PlayerObject*)&o->getGameObject(), playerIdleAnim);
+				}
 			}
 		}
 
@@ -325,5 +312,30 @@ void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b) {
 
 		newPacket.playerID = b->GetPlayerNum();
 		thisClient->SendPacket(newPacket);
+	}
+}
+
+void  NetworkedGame::UpdateNetworkAnimations(float dt) {
+	player2->GetRenderObject()->frameTime -= dt;
+	player3->GetRenderObject()->frameTime -= dt;
+	player4->GetRenderObject()->frameTime -= dt;
+
+	if (player2->directionInput) {
+		UpdateAnim(player2, playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player2, playerIdleAnim);
+	}
+	if (player3->directionInput) {
+		UpdateAnim(player3, playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player3, playerIdleAnim);
+	}
+	if (player4->directionInput) {
+		UpdateAnim(player4, playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player4, playerIdleAnim);
 	}
 }

@@ -37,7 +37,7 @@ namespace NCL {
 		protected:
 			void UpdateAsServer(float dt);
 			void UpdateAsClient(float dt);
-
+			void UpdateNetworkAnimations(float dt);
 			void BroadcastSnapshot(bool deltaFrame);
 			void UpdateMinimumState();
 			std::map<int, int> stateIDs;
