@@ -6,7 +6,7 @@
 class GamePad
 {
 public:
-	GamePad() : deadzoneX(0.05f), deadzoneY(0.05f) {}
+	GamePad() : deadzoneX(0.15f), deadzoneY(0.15f) {}
 	~GamePad();
 	GamePad(float dzX, float dzY) : deadzoneX(dzX), deadzoneY(dzY) {}
 

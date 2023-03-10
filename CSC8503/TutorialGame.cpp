@@ -176,7 +176,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		world->GetMainCamera()->UpdateCamera(dt);
-		world->GetSecCamera()->UpdateCamera(dt);
+		world->GetSecCamera()->UpdateCameraController(dt, gamepad.leftStickX, gamepad.rightStickY);
 	}
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
@@ -567,7 +567,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			thirdPerson = !thirdPerson;
 		}
 
-		std::cout << gamepad.rightStickX << std::endl;
+		//std::cout << gamepad.rightStickX << std::endl;
 
 		world->GetSecCamera()->ControlThirdPersonUpdateRot(gamepad.rightStickX, gamepad.rightStickY);
 
@@ -590,7 +590,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			camPos = world->GetSecCamera()->GetPosition();
 		}
 
-		world->GetSecCamera()->SetYaw(gamepad.rightStickX);
+	
 		Quaternion Yaw = Quaternion(world->GetSecCamera()->GetRotationYaw());
 		player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
 
@@ -603,7 +603,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 
 	directionInputCoop = false;
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_UP)) {
+		if (gamepad.leftStickY > 0.3) {
 
 			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
@@ -614,7 +614,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		directionInputCoop = true;
 	}
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
+		if (gamepad.leftStickY < -0.3) {
 
 			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
@@ -625,7 +625,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		directionInputCoop = true;
 	}
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
+		if (gamepad.leftStickX < -0.3) {
 
 			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
@@ -636,7 +636,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		directionInputCoop = true;
 	}
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
+		if (gamepad.leftStickX > 0.3) {
 
 			Vector3 playermoveposition = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			SecScreenMoveMapping(playermoveposition, directionInput);///////////////////////////////////////////
