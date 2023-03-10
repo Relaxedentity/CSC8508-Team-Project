@@ -101,7 +101,7 @@ void TutorialGame::InitialiseAssets() {
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
-	timeLimit = 300;
+	timeLimit;
 
 	InitSound();
 	InitCamera();
@@ -199,10 +199,11 @@ void TutorialGame::UpdateGame(float dt) {
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
-	//float scoreOne = world->getColourOneScore();
-	//Debug::Print(std::to_string((float)scoreOne), Vector2(80, 45), Debug::WHITE);
-	//float scoreTwo = world->getColourTwoScore();
-	//Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 47), Debug::WHITE);
+	GameLock::redScore = world->getColourOneScore();
+	GameLock::blueScore = world->getColourTwoScore();
+
+	Debug::Print(std::to_string((float)GameLock::redScore), Vector2(80, 45), Debug::WHITE);
+	Debug::Print(std::to_string((float)GameLock::blueScore), Vector2(80, 47), Debug::WHITE);
 
 	UpdateKeys();
 

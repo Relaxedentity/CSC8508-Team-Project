@@ -55,6 +55,9 @@ namespace NCL {
 			reactphysics3d::PhysicsWorld* GetPhysicsWorld() {
 				return physicsWorld;
 			}
+
+			float redScore = 0.0f;
+			float blueScore = 0.0f;
 		    
 		protected:
 			void InitialiseAssets();
