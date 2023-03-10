@@ -49,6 +49,47 @@ void Camera::UpdateCamera(float dt) {
 	}
 }
 
+void NCL::Camera::UpdateCameraController(float dt, float x, float y)
+{
+	//Update the mouse by how much
+	pitch	-= (y);
+	yaw		-= (x);
+
+	//Bounds check the pitch, to be between straight up and straight down ;)
+	pitch = std::min(pitch, 90.0f);
+	pitch = std::max(pitch, -90.0f);
+
+	if (yaw <0) {
+		yaw += 360.0f;
+	}
+	if (yaw > 360.0f) {
+		yaw -= 360.0f;
+	}
+
+	float frameSpeed = 100 * dt;
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
+		position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * frameSpeed;
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
+		position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(0, 0, -1) * frameSpeed;
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
+		position += Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * frameSpeed;
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
+		position -= Matrix4::Rotation(yaw, Vector3(0, 1, 0)) * Vector3(-1, 0, 0) * frameSpeed;
+	}
+
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SHIFT)) {
+		position.y += frameSpeed;
+	}
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::SPACE)) {
+		position.y -= frameSpeed;
+	}
+}
+
 void Camera::ThirdPersonUpdateRot( ) {
 	//Update the mouse by how much
 	pitch -= (Window::GetMouse()->GetRelativePosition().y);
@@ -57,6 +98,7 @@ void Camera::ThirdPersonUpdateRot( ) {
 	//Bounds check the pitch, to be between straight up and straight down ;)
 	pitch = std::min(pitch, 90.0f);
 	pitch = std::max(pitch, -90.0f);
+
 
 	if (yaw < 0) {
 		yaw += 360.0f;
@@ -75,11 +117,12 @@ void Camera::ControlThirdPersonUpdateRot(float x, float y) {
 	pitch = std::min(pitch, 90.0f);
 	pitch = std::max(pitch, -90.0f);
 
+
 	if (yaw < 0) {
-		yaw += 360.0f;
+		yaw -= 360.0f;
 	}
 	if (yaw > 360.0f) {
-		yaw -= 360.0f;
+		yaw += 360.0f;
 	}
 }
 
