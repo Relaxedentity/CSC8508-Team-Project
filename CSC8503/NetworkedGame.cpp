@@ -88,7 +88,6 @@ void NetworkedGame::UpdateGame(float dt) {
 	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10) && !initSplitScreen) {
 		StartAsClient(127, 0, 0, 1);
 	}
-
 	TutorialGame::UpdateGame(dt);
 }
 
@@ -96,8 +95,9 @@ void NetworkedGame::UpdateAsServer(float dt) {
 	UpdateNetworkAnimations(dt);
 	MovePlayer(player, dt);
 	thisServer->UpdateServer();
-	
-
+	ResetMovementFrame(player2);
+	ResetMovementFrame(player3);
+	ResetMovementFrame(player4);
 	packetsToSnapshot--;
 	if (packetsToSnapshot < 0) {
 		BroadcastSnapshot(false);
@@ -117,18 +117,26 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		MovePlayer(player2, dt);
 		yaw = player2->GetYaw();
 		grounded = player2->IsGrounded();
+		ResetMovementFrame(player3);
+		ResetMovementFrame(player4);
 		break;
 	case 2:
 		MovePlayer(player3, dt); 
 		yaw = player3->GetYaw();
 		grounded = player3->IsGrounded();
+		ResetMovementFrame(player2);
+		ResetMovementFrame(player4);
 		break;
 	case 3:
 		MovePlayer(player4, dt);
 		yaw = player4->GetYaw();
 		grounded = player4->IsGrounded();
+		ResetMovementFrame(player2);
+		ResetMovementFrame(player3);
 		break;
 	}
+	ResetMovementFrame(player);
+
 	thisClient->UpdateClient();
 
 	ClientPacket newPacket;
@@ -268,12 +276,14 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 		}
 		if (type == Received_State) {
 			if (o->getGameObject().GetWorldID() == ((ClientPacket*)payload)->myID + 1) {
+				o->getGameObject().directionInput = false;
 				//std::cout << "client" << source << std::endl;
 				// o->GameObjectRotate(reactphysics3d::Quaternion(((ClientPacket*)payload)->orientation[0],
 				//((ClientPacket*)payload)->orientation[1], ((ClientPacket*)payload)->orientation[2], ((ClientPacket*)payload)->orientation[3]));
 				//std::cout << ((ClientPacket*)payload)->orientation[0] << ((ClientPacket*)payload)->orientation[1] << ((ClientPacket*)payload)->orientation[2] << ((ClientPacket*)payload)->orientation[3];
 				Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
 				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
+				o->getGameObject().GetPhysicsObject()->resetTorque();
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
 					o->GameobjectMove(1, yaw, grounded);
 				}
@@ -290,12 +300,6 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 					o->GameobjectMove(5, yaw, grounded);
 				}	
 				o->GameObjectRotate(yaw);
-				if (o->getGameObject().directionInput) {
-					UpdateAnim((PlayerObject*)&o->getGameObject(), playerWalkAnim);
-				}
-				else {
-					UpdateAnim((PlayerObject*)&o->getGameObject(), playerIdleAnim);
-				}
 			}
 		}
 
@@ -339,3 +343,11 @@ void  NetworkedGame::UpdateNetworkAnimations(float dt) {
 		UpdateAnim(player4, playerIdleAnim);
 	}
 }
+void  NetworkedGame::ResetMovementFrame(GameObject* p) {
+	if (!p->directionInput) {
+		p->GetPhysicsObject()->resetForce();
+		p->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
+	}
+	
+}
+

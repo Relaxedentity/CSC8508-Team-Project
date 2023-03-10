@@ -446,8 +446,10 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 		player->directionInput = true;
 	}
 	if (!player->directionInput && player->IsGrounded()) {
-		float scalar = (0.95 - dt);
-		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
+		//float scalar = (0.95 - dt);
+		//player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
+		player->GetPhysicsObject()->resetForce();
+		player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
 	}
 
 	//if (directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
@@ -475,7 +477,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
 	}
-
+	
 	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Quaternion(goatRealRotation.x, goatRealRotation.y, goatRealRotation.z, goatRealRotation.w));
 
 	player->GetPhysicsObject()->setTransform(newTransform);
@@ -592,7 +594,8 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		}
 		if (!player->directionInput && player->IsGrounded()) {
 			float scalar = (0.95 - dt);
-			player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(startVelocity.x * scalar, startVelocity.y, startVelocity.z * scalar));
+			player->GetPhysicsObject()->resetForce();
+			player->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
 		}
 
 		if (player->directionInput && (endVelocity.Normalised() - Vector3(startVelocity).Normalised()).Length() > 1.25 && player->IsGrounded()) {
