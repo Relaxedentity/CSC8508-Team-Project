@@ -106,6 +106,7 @@ namespace NCL::CSC8503 {
 		}
 
 		NCL::Maths::Vector3 collisionPoint;
+		bool directionInput;
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;

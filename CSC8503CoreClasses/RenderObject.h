@@ -90,6 +90,8 @@ namespace NCL {
 				return frameMatrices;
 			}
 
+			float frameTime;
+			int currentFrame;
 		protected:
 			int paintCount = 0;
 			int paintMax = 50;
@@ -102,7 +104,6 @@ namespace NCL {
 			Vector3         scale;
 			Vector4			colour;
 			std::vector <Matrix4 > frameMatrices;
-
 		};
 	}
 }
