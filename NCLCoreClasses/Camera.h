@@ -50,6 +50,7 @@ namespace NCL {
 		~Camera(void) = default;
 
 		void UpdateCamera(float dt);
+		void UpdateCameraController(float dt, float x, float y);
 
 		void ThirdPersonUpdateRot();
 		void ControlThirdPersonUpdateRot(float x, float y);

@@ -21,7 +21,17 @@ namespace NCL {
 		public:
 			PushdownResult OnUpdate(float dt, PushdownState** newState) override {
 				GameLock::gametime = 0;
-				Debug::Print("Game End.\n", Vector2(40, 50), Vector4(1, 1, 1, 1));
+				Debug::Print("Game Over:\n", Vector2(40, 40), Vector4(1, 1, 1, 1));
+
+				if (GameLock::redScore > GameLock::blueScore)
+				{
+					Debug::Print("Red has Won!\n", Vector2(40, 45), Vector4(1, 0, 0, 1));
+				}
+				else
+				{
+					Debug::Print("Blue has Won!\n", Vector2(40, 45), Vector4(0, 0, 1, 1));
+				}
+
 				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
 				{
 					state = state - 1 > 0 ? state - 1 : 1;
@@ -68,7 +78,7 @@ namespace NCL {
 				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RIGHT))
 				{
 					if (state == 1) {
-						GameLock::gametime = 300;
+						GameLock::gametime = GameLock::gamelength;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;

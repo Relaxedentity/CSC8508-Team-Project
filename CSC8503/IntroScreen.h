@@ -83,6 +83,8 @@ namespace NCL {
 						GameLock::gamemod = 1;
 						GameLock::gamestart = true;
 						GameLock::Player1lock = false;
+						GameLock::redScore = 0.0f;
+						GameLock::blueScore = 0.0f;
 						*newState = new GameScreen();
 						//t->InitWorld();
 						//g->InitWorld();
@@ -98,6 +100,8 @@ namespace NCL {
 						GameLock::gamestart = true;
 						GameLock::Player1lock = false;
 						GameLock::Player2lock = false;
+						GameLock::redScore = 0.0f;
+						GameLock::blueScore = 0.0f;
 						*newState = new GameScreen();
 						return PushdownResult::Push;
 					}

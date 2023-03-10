@@ -105,7 +105,7 @@ void TutorialGame::InitialiseAssets() {
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
-	timeLimit = 300;
+	timeLimit;
 
 	InitSound();
 	InitCamera();
@@ -180,7 +180,7 @@ void TutorialGame::UpdateGame(float dt) {
 			Window::GetWindow()->LockMouseToWindow(mouseLock);
 		}
 		world->GetMainCamera()->UpdateCamera(dt);
-		world->GetSecCamera()->UpdateCamera(dt);
+		world->GetSecCamera()->UpdateCameraController(dt, gamepad.leftStickX, gamepad.rightStickY);
 	}
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
@@ -206,10 +206,11 @@ void TutorialGame::UpdateGame(float dt) {
 
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
-	//float scoreOne = world->getColourOneScore();
-	//Debug::Print(std::to_string((float)scoreOne), Vector2(80, 45), Debug::WHITE);
-	//float scoreTwo = world->getColourTwoScore();
-	//Debug::Print(std::to_string((float)scoreTwo), Vector2(80, 47), Debug::WHITE);
+	GameLock::redScore = world->getColourOneScore();
+	GameLock::blueScore = world->getColourTwoScore();
+
+	//Debug::Print(std::to_string((float)GameLock::redScore), Vector2(80, 45), Debug::WHITE);
+	//Debug::Print(std::to_string((float)GameLock::blueScore), Vector2(80, 47), Debug::WHITE);
 
 	UpdateKeys();
 
@@ -537,7 +538,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			thirdPerson = !thirdPerson;
 		}
 
-		std::cout << gamepad.rightStickX << std::endl;
+		//std::cout << gamepad.rightStickX << std::endl;
 
 		world->GetSecCamera()->ControlThirdPersonUpdateRot(gamepad.rightStickX, gamepad.rightStickY);
 
@@ -560,7 +561,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			camPos = world->GetSecCamera()->GetPosition();
 		}
 
-		world->GetSecCamera()->SetYaw(gamepad.rightStickX);
+	
 		Quaternion Yaw = Quaternion(world->GetSecCamera()->GetRotationYaw());
 		player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
 
@@ -573,22 +574,22 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 
 		player->directionInput = false;
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_UP)) {
+		if (gamepad.leftStickY > 0.3) {
 			endVelocity = MoveForward(player, Yaw, endVelocity);
 			player->directionInput = true;
 		}
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_DOWN)) {
+		if (gamepad.leftStickY < -0.3) {
 			endVelocity = MoveBackward(player, Yaw, endVelocity);
 			player->directionInput = true;
 		}
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
+		if (gamepad.leftStickX < -0.3) {
 			endVelocity = MoveLeft(player, Yaw, endVelocity);
 			player->directionInput = true;
 		}
 
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_DPAD_RIGHT)) {
+		if (gamepad.leftStickX > 0.3) {
 			endVelocity = MoveRight(player, Yaw, endVelocity);
 			player->directionInput = true;
 		}

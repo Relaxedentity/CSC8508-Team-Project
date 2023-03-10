@@ -8,4 +8,6 @@ bool GameLock::gamestart;
 bool GameLock::gamePause;
 int  GameLock::gamemod;
 float GameLock::gametime;
+float GameLock::redScore;
+float GameLock::blueScore;
 ISoundEngine* GameLock::hitsound;
