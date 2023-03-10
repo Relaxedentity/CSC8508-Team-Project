@@ -12,7 +12,7 @@ namespace NCL {
 			static bool gamestart;
 			static bool gamePause;
 			static int gamemod;
-			static const int gamelength = 15;
+			static const int gamelength = 200;
 			static ISoundEngine* hitsound;
 		};
 	}
