@@ -23,9 +23,19 @@ set(Source_Files
 )
 source_group("Source Files" FILES ${Source_Files})
 
+set (Shader_Files
+    "FragShader.pssl"
+    "VertexShader.pssl"
+)
+source_group("Shader_Files" FILES ${Shader_Files})
+
+set_property(SOURCE ${Shader_Files} PROPERTY VS_TOOL_OVERRIDE WavePsslc)
+set_property(SOURCE ${Shader_Files} PROPERTY VS_SETTINGS "GenerateHeader=true")
+
 set(ALL_FILES
     ${Header_Files}
     ${Source_Files}
+    ${Shader_Files}
 )
 
 set_source_files_properties(${ALL_FILES} PROPERTIES LANGUAGE CXX)

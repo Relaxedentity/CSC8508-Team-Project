@@ -20,6 +20,7 @@ namespace NCL::Rendering {
 		friend class NCL::Window;
 
 		RendererBase(Window& w);
+		RendererBase();
 		virtual ~RendererBase();
 
 		virtual bool HasInitialised() const {return true;}

@@ -3,12 +3,6 @@ set(PROJECT_NAME CSC8503)
 ################################################################################
 # Source groups
 ################################################################################
-set(PSShaders_Files
-    "FragShader.pssl"
-    "VertexShader.pssl"
-)
-source_group("PS4 Shader Files" FILES ${PSShaders_Files})
-
 set(Header_Files
     "GameTechRenderer.h"
     "NetworkedGame.h"
@@ -45,14 +39,12 @@ endif()
 source_group("Source Files" FILES ${Source_Files})
 
 set(ALL_FILES
-    ${PSShaders_Files}
     ${Header_Files}
     ${Source_Files}
 )
 
 if(USE_VULKAN)
     set(ALL_FILES 
-        ${PSShaders_Files}
         ${Header_Files}
         ${Source_Files}
         ${SHADER_FILES}
@@ -211,7 +203,12 @@ include_directories("../CSC8503CoreClasses/")
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC NCLCoreClasses)
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC CSC8503CoreClasses)
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC OpenGLRendering)
+if (NOT USE_PS4)
+	target_link_libraries(${PROJECT_NAME} LINK_PUBLIC OpenGLRendering)
+endif()
+if (USE_PS4)
+	target_link_libraries(${PROJECT_NAME} LINK_PUBLIC PS4Rendering)
+endif()
 
 if(USE_VULKAN)
 include_directories("../VulkanRendering/")

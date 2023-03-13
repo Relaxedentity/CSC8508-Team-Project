@@ -1,18 +1,28 @@
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
+set(USE_PS4 CACHE BOOL FORCE)
+if(USE_PS4)
+    add_compile_definitions("USEPS4") 
+endif()
+
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
+if (USE_PS4)
+	set(CMAKE_GENERATOR_PLATFORM ORBIS)
+endif()
 
 project(CSC8503 CXX)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
 ################################################################################
-if(NOT CMAKE_VS_PLATFORM_NAME)
+if (USE_PS4)
+    set(CMAKE_VS_PLATFORM_NAME "ORBIS")
+elseif(NOT CMAKE_VS_PLATFORM_NAME)
     set(CMAKE_VS_PLATFORM_NAME "x64")
 endif()
 message("${CMAKE_VS_PLATFORM_NAME} architecture in use")
 
-if(NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64"))
+if(NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64" OR "${CMAKE_VS_PLATFORM_NAME}" STREQUAL "ORBIS"))
     message(FATAL_ERROR "${CMAKE_VS_PLATFORM_NAME} arch is not supported!")
 endif()
 
@@ -75,8 +85,14 @@ find_package(ReactPhysics3D REQUIRED)
 ################################################################################
 add_subdirectory(NCLCoreClasses)
 add_subdirectory(CSC8503CoreClasses)
-add_subdirectory(OpenGLRendering)
-add_subdirectory(PS4Rendering)
+if (NOT USE_PS4)
+	add_subdirectory(OpenGLRendering)
+endif()
+
+if (USE_PS4)
+	add_subdirectory(PS4Rendering)
+endif()
+
 add_subdirectory(CSC8503)
 if(USE_VULKAN)
     add_subdirectory(VulkanRendering)
