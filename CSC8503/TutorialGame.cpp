@@ -53,7 +53,7 @@ TutorialGame::TutorialGame()	{
 	freeCamera		= false;
 	mouseLock		= true;
 	debug = false;
-	coopMode = false;
+	coopMode = true;
 
 	world->SetPlayerHealth(1.0f);
 	if (coopMode) {

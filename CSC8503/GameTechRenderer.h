@@ -60,9 +60,10 @@ namespace NCL {
 			void LoadSkybox();
 			
 			void RenderCircle(float cx, float cy, float r, const Vector4& color);
-			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color);
-			void RenderMap();
+			void RenderTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector4& color, Vector2 windowSize);
+			void RenderMap(Vector2 window_pos, Vector2 window_size, GameObject* player);
 			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
+			void RenderRectangle(Vector2 tl, Vector2 br, Vector4 color, Vector2 windowSize);
 			
 			void SetDebugStringBufferSizes(size_t newVertCount);
 			void SetDebugLineBufferSizes(size_t newVertCount);
