@@ -1080,6 +1080,8 @@ GameObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& positio
 	floor->SetRenderObject(new RenderObject(body, Vector3(halfextents) * 2, cubeMesh, basicTex, basicShader));
 
 	world->AddGameObject(floor);
+	NetworkObject* n = new NetworkObject(*floor, world->worldNetworkIDCounter++);
+	floor->SetNetworkObject(n);
 
 	return floor;
 }
@@ -1120,6 +1122,8 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	sphere->GetRenderObject()->SetColour(colourVector);
 
 	world->AddGameObject(sphere);
+	NetworkObject* n = new NetworkObject(*sphere, world->worldNetworkIDCounter++);
+	sphere->SetNetworkObject(n);
 	world->AddPaintBall();
 
 	return sphere;
@@ -1401,6 +1405,8 @@ GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& p
 	wall->SetRenderObject(new RenderObject(body, Vector3(scale), corridorStraightMesh, corridorTexture, basicShader));
 
 	world->AddGameObject(wall);
+	NetworkObject* n = new NetworkObject(*wall, world->worldNetworkIDCounter++);
+	wall->SetNetworkObject(n);
 
 	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
 	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
@@ -1430,6 +1436,8 @@ GameObject* TutorialGame::AddRebWallRightToWorld(const reactphysics3d::Vector3& 
 	wall->SetRenderObject(new RenderObject(body, Vector3(scale), corridorCornerRightSideMesh, corridorTexture, basicShader));
 
 	world->AddGameObject(wall);
+	NetworkObject* n = new NetworkObject(*wall, world->worldNetworkIDCounter++);
+	wall->SetNetworkObject(n);
 
 	if (nodes) {
 		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
@@ -1453,6 +1461,8 @@ GameObject* TutorialGame::AddRebWallLeftToWorld(const reactphysics3d::Vector3& p
 	wall->SetRenderObject(new RenderObject(body, Vector3(scale), corridorCornerLeftSideMesh, corridorTexture, basicShader));
 
 	world->AddGameObject(wall);
+	NetworkObject* n = new NetworkObject(*wall, world->worldNetworkIDCounter++);
+	wall->SetNetworkObject(n);
 
 	if (nodes) {
 		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));

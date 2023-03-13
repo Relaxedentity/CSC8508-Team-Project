@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 namespace NCL {
 	using namespace Maths;
 	namespace CSC8503 {
@@ -12,6 +12,7 @@ namespace NCL {
 			Vector3		position;
 			Quaternion	orientation;
 			int			stateID;
+			std::vector<Vector4> paintPos;
 		};
 	}
 }

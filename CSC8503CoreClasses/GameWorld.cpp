@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Debug.h"
 #include "RenderObject.h"
+#include "NetworkObject.h"
 
 using namespace NCL;
 using namespace NCL::CSC8503;

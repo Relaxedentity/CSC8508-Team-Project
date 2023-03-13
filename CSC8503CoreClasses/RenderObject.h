@@ -89,13 +89,13 @@ namespace NCL {
 			std::vector<Matrix4> GetFrameMatrices() const {
 				return frameMatrices;
 			}
-
+			std::vector<Vector4> paints;
 			float frameTime;
 			int currentFrame;
 		protected:
 			int paintCount = 0;
 			int paintMax = 50;
-			std::vector<Vector4> paints;
+
 			
 			MeshGeometry*	mesh;
 			TextureBase*	texture;

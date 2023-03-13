@@ -3,6 +3,7 @@
 #include "Window.h"
 #include <reactphysics3d/reactphysics3d.h>
 #include "Maths.h"
+#include "RenderObject.h"
 using namespace NCL;
 using namespace CSC8503;
 
@@ -65,7 +66,7 @@ bool NetworkObject::ReadFullPacket(FullPacket &p) {
 	lastFullState = p.fullState;
 
 	object.GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(lastFullState.position.x, lastFullState.position.y, lastFullState.position.z), reactphysics3d::Quaternion(lastFullState.orientation.x, lastFullState.orientation.y, lastFullState.orientation.z, lastFullState.orientation.w)));
-
+	object.GetRenderObject()->paints = p.fullState.paintPos;
 	stateHistory.emplace_back(lastFullState);
 
 	return true;
@@ -94,7 +95,6 @@ bool NetworkObject::WriteDeltaPacket(GamePacket**p, int stateID) {
 	dp->orientation[1] = (char)(currentOrientation.y * 127.0f);
 	dp->orientation[2] = (char)(currentOrientation.z * 127.0f);
 	dp->orientation[3] = (char)(currentOrientation.x * 127.0f);
-
 	*p = dp;
 
 	return true;
@@ -106,6 +106,7 @@ bool NetworkObject::WriteFullPacket(GamePacket**p) {
 	fp->objectID = networkID;
 	fp->fullState.position = object.GetPhysicsObject()->getTransform().getPosition();
 	fp->fullState.orientation = object.GetPhysicsObject()->getTransform().getOrientation();
+	fp->fullState.paintPos = object.GetRenderObject()->paints;
 	fp->fullState.stateID = lastFullState.stateID++;
 	*p = fp;
 	return true;

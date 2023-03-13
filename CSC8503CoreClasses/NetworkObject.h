@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "NetworkBase.h"
 #include "NetworkState.h"
+#include<vector>
 
 namespace NCL::CSC8503 {
 	class GameObject;
@@ -21,6 +22,7 @@ namespace NCL::CSC8503 {
 		int		objectID	= -1;
 		char	pos[3];
 		char	orientation[4];
+		std::vector<Vector4> deltaPaint;
 
 		DeltaPacket() {
 			type = Delta_State;

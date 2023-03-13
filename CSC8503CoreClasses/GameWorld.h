@@ -170,6 +170,8 @@ namespace NCL {
 				paintOrb = i;
 			}
 
+			int		worldNetworkIDCounter = 5;
+			vector<Vector4> networkPaint;
 		protected:
 			std::vector<GameObject*> gameObjects;
 
