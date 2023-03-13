@@ -43,30 +43,6 @@ namespace NCL {
 			// root
 			BehaviourSequence* rootSequence;
 
-			// first layer
-			BehaviourSequence* patrolSequence;
-			BehaviourSequence* attackSequence;
-			
-			//second layer
-			BehaviourSequence* seenPlayerSequence;
-			BehaviourSelector* rangeForAttackSelector;
-			BehaviourSequence* InRangeToTargetSequence;
-			
-			//thd layer
-			BehaviourSelector* moveSelector;
-			BehaviourSequence* midRangeSequence;
-			BehaviourSequence* farRangeSequence;
-			BehaviourSequence* closeRangeSequence;
-
-			//fourth layer
-			BehaviourSequence* moveTimerSequence;
-			BehaviourSelector* closeMoveSelector;
-			BehaviourSequence* randomAttackSetSequence;
-
-			// fifth layer
-			//move timer is reused
-
-
 			BehaviourState currentstate;
 		};
 	}
