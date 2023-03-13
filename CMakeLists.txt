@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
 
+set(USE_PS4 CACHE BOOL FORCE)
+if(USE_PS4)
+    add_compile_definitions("USEPS4") 
+	set(CMAKE_GENERATOR_PLATFORM ORBIS)
+	set(CMAKE_VS_PLATFORM_NAME "ORBIS")
+	set(CMAKE_GENERATOR_TOOLSET "Clang")
+	unset(WIN32)
+endif()
+
 project(CSC8503 CXX)
 
 ################################################################################
@@ -12,7 +21,7 @@ if(NOT CMAKE_VS_PLATFORM_NAME)
 endif()
 message("${CMAKE_VS_PLATFORM_NAME} architecture in use")
 
-if(NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64"))
+if(NOT (("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64") OR ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "ORBIS")))
     message(FATAL_ERROR "${CMAKE_VS_PLATFORM_NAME} arch is not supported!")
 endif()
 
@@ -65,9 +74,7 @@ if(USE_VULKAN)
     add_compile_definitions("USEVULKAN") 
 endif() 
 
-if(WIN32) 
-  list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ReactPhysics3D") 
-endif() 
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ReactPhysics3D") 
 
 find_package(ReactPhysics3D REQUIRED)
 
@@ -80,7 +87,11 @@ find_library(IRRKLANG_LIBRARY NAMES irrKlang PATHS ${IRRKLANG_LIB_DIR})
 ################################################################################
 add_subdirectory(NCLCoreClasses)
 add_subdirectory(CSC8503CoreClasses)
-add_subdirectory(OpenGLRendering)
+if(USE_PS4)
+   add_subdirectory(PS4Rendering)
+else()
+   add_subdirectory(OpenGLRendering)
+endif()
 add_subdirectory(CSC8503)
 if(USE_VULKAN)
     add_subdirectory(VulkanRendering)

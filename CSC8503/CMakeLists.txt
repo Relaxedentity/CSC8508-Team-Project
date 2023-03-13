@@ -127,6 +127,10 @@ add_executable(${PROJECT_NAME}  ${ALL_FILES})
 use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE CSC8503)
 
+if(USE_PS4)
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".elf")
+endif()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
 )
@@ -219,20 +223,28 @@ endif()
 ################################################################################
 # Dependencies
 ################################################################################
-if(MSVC)
+if(MSVC AND NOT USE_PS4)
     target_link_libraries(${PROJECT_NAME} LINK_PUBLIC  "Winmm.lib")
 endif()
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC  "Xinput.lib")
 
-include_directories("../OpenGLRendering/")
+if(USE_PS4)
+    include_directories("../PS4Rendering/")
+else()
+    include_directories("../OpenGLRendering/")
+endif()
 include_directories("../NCLCoreClasses/")
 include_directories("../CSC8503CoreClasses/")
 include_directories (${IRRKLANG_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC NCLCoreClasses)
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC CSC8503CoreClasses)
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC OpenGLRendering)
+if(USE_PS4)
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC PS4Rendering)
+else()
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC OpenGLRendering)
+endif()
 
 if(USE_VULKAN)
 include_directories("../VulkanRendering/")

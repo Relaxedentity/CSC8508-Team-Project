@@ -176,15 +176,21 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 ################################################################################
 # Dependencies
 ################################################################################
-set(ADDITIONAL_LIBRARY_DEPENDENCIES
-    "NCLCoreClasses"
-    "ws2_32.lib"
-)
+if(NOT USE_PS4)
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
+        "NCLCoreClasses"
+        "ws2_32.lib"
+    )
+else()
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
+        "NCLCoreClasses"
+    )
+endif()
 
 include_directories("../NCLCoreClasses/")
 include_directories("./")
 
-if(MSVC)
+if(MSVC AND NOT USE_PS4)
     target_link_libraries(${PROJECT_NAME} PRIVATE "ws2_32.lib")
 endif()
 

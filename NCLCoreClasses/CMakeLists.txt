@@ -118,7 +118,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 ################################################################################
 # Compile and link options
 ################################################################################
-if(MSVC)
+if(MSVC AND NOT USE_PS4)
     target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Debug>:
             /Od
