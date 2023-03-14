@@ -46,7 +46,7 @@ TutorialGame::TutorialGame()	{
 	renderer = new GameTechRenderer(*world);
 #endif
 
-	testStateObject = nullptr;
+	//testStateObject = nullptr;
 	forceMagnitude	= 10.0f;
 	useGravity		= true;
 	inSelectionMode = false;
@@ -196,7 +196,6 @@ void TutorialGame::UpdateGame(float dt) {
 		timeLimit = GameLock::gametime;
 	}
 
-
 	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	
 	//float scoreOne = world->getColourOneScore();
@@ -224,27 +223,28 @@ void TutorialGame::UpdateGame(float dt) {
 		}
 	}
 
-	if (testStateObject) {
-		testStateObject->Update(dt);
-		for (int i = 1; i < nodes.size(); ++i) {
-			Vector3 a = nodes[i - 1];
-			Vector3 b = nodes[i];
+	//if (testStateObject) {
+	//	testStateObject->Update(dt);
+	//	for (int i = 1; i < nodes.size(); ++i) {
+	//		Vector3 a = nodes[i - 1];
+	//		Vector3 b = nodes[i];
 
-			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-		}
-	}
-	if (goose) {
-		goose->Update(dt);
-		for (int i = 1; i < nodes2.size(); ++i) {
-			Vector3 a = nodes2[i - 1];
-			Vector3 b = nodes2[i];
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
+	//}
 
-			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-		}
+	//if (goose) {
+	//	goose->Update(dt);
+	//	for (int i = 1; i < nodes2.size(); ++i) {
+	//		Vector3 a = nodes2[i - 1];
+	//		Vector3 b = nodes2[i];
 
-		reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
-		transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
-	}
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
+
+	//	reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
+	//	transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
+	//}
 
 	SelectObject();
 	MoveSelectedObject();
@@ -299,6 +299,7 @@ void TutorialGame::UpdateGame(float dt) {
 	auto end = std::chrono::high_resolution_clock::now();
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
+	UpdateEnemies(dt);
 	Debug::UpdateRenderables(dt);
 }
 void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime, int &cframe) {
@@ -376,6 +377,98 @@ void TutorialGame::UpdateKeys()
 		std::cout << "Highest Score is "<< x <<std::endl;
 	}
 }
+
+void NCL::CSC8503::TutorialGame::UpdateEnemies(float dt)
+{
+	//if (goose) {
+	//	goose->Update(dt);
+	//	for (int i = 1; i < nodes2.size(); ++i) {
+	//		Vector3 a = nodes2[i - 1];
+	//		Vector3 b = nodes2[i];
+
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
+
+	//	reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
+	//	transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
+	//}
+
+	if (boss) {
+		boss->Update(dt);
+		
+		reactphysics3d::Transform transform = boss->GetPhysicsObject()->getTransform();
+		transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
+	}
+
+}
+
+//void NCL::CSC8503::TutorialGame::CreatePath(Vector3& position)
+//{
+//	NavigationGrid grid("TestGrid1.txt");
+//	NavigationPath outPath;
+//
+//	float x = targetDist.x - (-110);
+//	float z = targetDist.z - (20);
+//
+//	Vector3 endPos = Vector3(x, 0, z);
+//
+//	bool found = grid.FindPath(goose->GetTransform().GetPosition() - Vector3(-113, 0, 15), endPos, outPath);
+//	foundPath = found;
+//
+//	Vector3 pos;
+//	while (outPath.PopWaypoint(pos)) {
+//		newNodes.push_back(pos);
+//	}
+//}
+//
+//void NCL::CSC8503::TutorialGame::DisplayPath()
+//{
+//	for (int i = 1; i < newNodes.size(); ++i) {
+//		Vector3 a = newNodes[i - 1];
+//		Vector3 b = newNodes[i];
+//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+//	}
+//}
+//
+//void NCL::CSC8503::TutorialGame::WalkPath(Vector3& destination)
+//{
+//	if (newNodes.size() == 0) {
+//		CreatePath(targetDestination);
+//		destNotArrived = true;
+//	}
+//
+//	if (!foundPath) {
+//		CreatePath(targetDestination);
+//	}
+//
+//	if (walkToPlayer && nodeIndex == newNodes.size()) {
+//		nodeIndex = 0;
+//		newNodes.clear();
+//		destNotArrived = true;
+//		return;
+//	}
+//	else if (nodeIndex == newNodes.size())
+//	{
+//		destNotArrived = false;
+//		nodeIndex = 0;
+//		newNodes.clear();
+//		rNum == 0 ? rNum = 1 : rNum = 0;
+//		return;
+//	}
+//
+//	float distToNode = (goose->GetTransform().GetPosition() - newNodes[nodeIndex]).Length();
+//
+//	if (distToNode >= 2.0f && destNotArrived) {
+//		float x = newNodes[nodeIndex].x > goose->GetTransform().GetPosition().x ? 13 : -13;
+//		float z = newNodes[nodeIndex].z > goose->GetTransform().GetPosition().z ? 13 : -13;
+//		goose->GetPhysicsObject()->AddForce({ x, 0, z });
+//	}
+//
+//	if (distToNode <= 4.0f && destNotArrived)
+//	{
+//		nodeIndex += 1;
+//	}
+//}
 
 void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
@@ -1347,6 +1440,26 @@ StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vecto
 
 	return apple;
 }
+BossAI* NCL::CSC8503::TutorialGame::AddBossAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
+{
+	BossAI* boss = new BossAI(world, testNodes);
+	//boss->setTarget1(player);
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setMass(2.0f);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5f, 0.5f, 0.5f));
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	boss->SetPhysicsObject(body);
+	boss->SetRenderObject(new RenderObject(body, Vector3(2, 2, 2), gooseMesh, nullptr, basicShader));
+	boss->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
+
+	//NetworkObject* n = new NetworkObject(*boss, 3);
+	world->AddGameObject(boss);
+
+	return boss;
+}
+
+
 BTreeObject* TutorialGame::AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes) {
 	BTreeObject* apple = new BTreeObject(world,testNodes);
 	apple->setTarget1(player);
