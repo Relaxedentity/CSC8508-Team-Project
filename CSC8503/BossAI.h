@@ -6,6 +6,12 @@
 #include "BehaviourSelector.h"
 #include "BehaviourAction.h"
 
+enum AttackRange {
+	closeRange,
+	midRange,
+	farRange,
+};
+
 namespace NCL {
 	namespace CSC8503 {
 		class StateMachine;
@@ -35,6 +41,14 @@ namespace NCL {
 				target2 = gametarget;
 			};
 		protected:
+
+			void WalkPath(NCL::Maths::Vector3 position);
+			bool SeenPlayer();
+			void StrafeAroundPlayer(NCL::Maths::Vector3 position);
+
+			uint8_t range;
+			float timeLimit;
+
 			GameObject* target1;
 			GameObject* target2;
 			NCL::Maths::Vector3 targetPosition;

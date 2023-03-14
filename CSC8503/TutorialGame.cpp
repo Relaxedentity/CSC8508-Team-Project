@@ -1459,7 +1459,6 @@ BossAI* NCL::CSC8503::TutorialGame::AddBossAIToWorld(const reactphysics3d::Vecto
 	return boss;
 }
 
-
 BTreeObject* TutorialGame::AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes) {
 	BTreeObject* apple = new BTreeObject(world,testNodes);
 	apple->setTarget1(player);
