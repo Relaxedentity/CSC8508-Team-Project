@@ -106,7 +106,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 
 	uiShader = new OGLShader("ui.vert", "ui.frag");
 	menuTex = new OGLTexture();
-	menuTex = (OGLTexture*)menuTex->SRGBTextureFromFilename("Game Selection.png");
+	menuTex = (OGLTexture*)menuTex->SRGBTextureFromFilename("MenuBG.png");
 	menuMesh = new OGLMesh();
 	menuMesh->SetVertexPositions({ Vector3(1, 1.1,0), Vector3(1, -1.1,0) , Vector3(-1, -1.1,0) , Vector3(-1, 1.1,0) });
 	menuMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
@@ -115,45 +115,46 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	menuMesh->UploadToGPU();
 
 	normalBtnTex = new OGLTexture();
-	normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1.png");
+	normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("mode1.png");
 	normalBtnMesh = new OGLMesh();
-	normalBtnMesh->SetVertexPositions({ Vector3(0.6, 0.5,0), Vector3(0.6, 0.3,0) , Vector3(0.2, 0.3, 0) , Vector3(0.2, 0.5, 0) });
+	normalBtnMesh->SetVertexPositions({ Vector3(0.2, 0.3,0), Vector3(0.2, 0.1,0) , Vector3(-0.2, 0.1, 0) , Vector3(-0.2, 0.3, 0) });
 	normalBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	normalBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	normalBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	normalBtnMesh->UploadToGPU();
 
 	coopBtnTex = new OGLTexture();
-	coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("Game Selection-2.png");
+	coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("mode2.png");
 	coopBtnMesh = new OGLMesh();
-	coopBtnMesh->SetVertexPositions({ Vector3(0.6, 0.2,0), Vector3(0.6, 0,0) , Vector3(0.2, 0, 0) , Vector3(0.2, 0.2, 0) });
+	coopBtnMesh->SetVertexPositions({ Vector3(0.2, 0,0), Vector3(0.2, -0.2,0) , Vector3(-0.2, -0.2, 0) , Vector3(-0.2, 0, 0) });
 	coopBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	coopBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	coopBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	coopBtnMesh->UploadToGPU();
 
 	introBtnTex = new OGLTexture();
-	introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("Splat Impact-3.png");
+	introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("intro.png");
 	introBtnMesh = new OGLMesh();
-	introBtnMesh->SetVertexPositions({ Vector3(0.6, -0.1,0), Vector3(0.6, -0.3,0) , Vector3(0.2, -0.3, 0) , Vector3(0.2, -0.1, 0) });
+	introBtnMesh->SetVertexPositions({ Vector3(0.2, -0.3,0), Vector3(0.2, -0.5,0) , Vector3(-0.2, -0.5, 0) , Vector3(-0.2, -0.3, 0) });
 	introBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	introBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	introBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	introBtnMesh->UploadToGPU();
 
 	exitBtnTex = new OGLTexture();
-	exitBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("exit.png");
+	exitBtnTex = (OGLTexture*)exitBtnTex->SRGBTextureFromFilename("exit.png");
 	exitBtnMesh = new OGLMesh();
-	exitBtnMesh->SetVertexPositions({ Vector3(0.5, -0.4,0), Vector3(0.5, -0.6,0) , Vector3(0.3, -0.6, 0) , Vector3(0.3, -0.4, 0) });
+	exitBtnMesh->SetVertexPositions({ Vector3(0.1, -0.6,0), Vector3(0.1, -0.75,0) , Vector3(-0.1, -0.75, 0) , Vector3(-0.1, -0.6, 0) });
 	exitBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	exitBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	exitBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	exitBtnMesh->UploadToGPU();
 
-	vector<Vector2> normalBtn = { {  Vector2(0.2, 0.5) , Vector2(0.6, 0.3) } };
-	vector<Vector2> coopBtn =   { {  Vector2(0.2,0.2),   Vector2(0.6,0)  } };
-	vector<Vector2> introBtn =  { {  Vector2(0.2,-0.1),  Vector2(0.6,-0.3)} };
-	vector<Vector2> exitBtn =   { {  Vector2(0.3,-0.4),  Vector2(0.5,-0.6)} };
+	
+	vector<Vector2> normalBtn = { {  Vector2(-0.2, 0.3) , Vector2(0.2, 0.1) } };
+	vector<Vector2> coopBtn = { {  Vector2(-0.2,0),   Vector2(0.2,-0.2)  } };
+	vector<Vector2> introBtn = { {  Vector2(-0.2,-0.3),  Vector2(0.2,-0.5)} };
+	vector<Vector2> exitBtn = { {  Vector2(-0.1,-0.6),  Vector2(0.1,-0.75)} };
 	GameLock::buttonPos.push_back(normalBtn);
 	GameLock::buttonPos.push_back(coopBtn);
 	GameLock::buttonPos.push_back(introBtn);
@@ -448,8 +449,8 @@ void NCL::CSC8503::GameTechRenderer::RenderMainMenu() {
 void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
 	BindShader(uiShader);
 
-	if (GameLock::normalBtnChange) normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1_selected.png");
-	else normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("Game Selection-1.png");
+	if (GameLock::normalBtnChange) normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("mode1_selected.png");
+	else normalBtnTex = (OGLTexture*)normalBtnTex->SRGBTextureFromFilename("mode1.png");
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, normalBtnTex->GetObjectID());
@@ -463,8 +464,8 @@ void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
 void NCL::CSC8503::GameTechRenderer::RenderCoopButton() {
 	BindShader(uiShader);
 	
-	if (GameLock::coopBtnChange) coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("Game Selection-2_selected.png");
-	else coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("Game Selection-2.png");
+	if (GameLock::coopBtnChange) coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("mode2_selected.png");
+	else coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("mode2.png");
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, coopBtnTex->GetObjectID());
@@ -478,8 +479,8 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopButton() {
 void NCL::CSC8503::GameTechRenderer::RenderIntroButton() {
 	BindShader(uiShader);
 
-	if (GameLock::introBtnChange) introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("Splat Impact-3_selected.png");
-	else introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("Splat Impact-3.png");
+	if (GameLock::introBtnChange) introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("intro_selected.png");
+	else introBtnTex = (OGLTexture*)introBtnTex->SRGBTextureFromFilename("intro.png");
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, introBtnTex->GetObjectID());
