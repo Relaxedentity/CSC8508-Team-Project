@@ -1,5 +1,9 @@
 set(PROJECT_NAME CSC8503)
 
+if (USE_PS4)
+	unset(WIN32)
+endif()
+
 ################################################################################
 # Source groups
 ################################################################################
@@ -131,9 +135,14 @@ if(USE_PS4)
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".elf")
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_GLOBAL_KEYWORD "Win32Proj"
-)
+set_target_properties(${PROJECT_NAME} PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "*.sdb;*.o;*.o-*;*.d;*.map;*.pch;*.gch;*.tmp;*.rsp;*.tlog;*.dep;*.plist;*.s;*.json;*.xml")
+
+if(NOT USE_PS4)
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_GLOBAL_KEYWORD "Win32Proj")
+else()
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_GLOBAL_KEYWORD "Orbis")
+endif()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
 )
@@ -141,7 +150,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 ################################################################################
 # Compile definitions
 ################################################################################
-if(MSVC)
+if(MSVC AND NOT USE_PS4)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
         "UNICODE;"
         "_UNICODE" 
@@ -152,6 +161,16 @@ if(MSVC)
         "NOMINMAX"
     )
 endif()
+
+if (USE_PS4)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		"UNICODE;"
+        "_UNICODE"
+		"SCE_GNM_DEBUG"
+		"_DEBUG"
+		"NOMINMAX"
+	)
+endif()	
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE
     <vector>
@@ -198,7 +217,7 @@ endif()
 ################################################################################
 # Compile and link options
 ################################################################################
-if(MSVC)
+if(MSVC AND NOT USE_PS4)
     target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:
             /Oi;

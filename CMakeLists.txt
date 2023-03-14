@@ -8,10 +8,13 @@ if(USE_PS4)
 	set(CMAKE_GENERATOR_PLATFORM ORBIS)
 	set(CMAKE_VS_PLATFORM_NAME "ORBIS")
 	set(CMAKE_GENERATOR_TOOLSET "Clang")
-	unset(WIN32)
 endif()
 
 project(CSC8503 CXX)
+
+if (USE_PS4)
+	unset(WIN32)
+endif()
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.

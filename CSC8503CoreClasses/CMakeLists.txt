@@ -1,5 +1,9 @@
 set(PROJECT_NAME CSC8503CoreClasses)
 
+if (USE_PS4)
+	unset(WIN32)
+endif()
+
 ################################################################################
 # Source groups
 ################################################################################
@@ -129,23 +133,38 @@ add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
 use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE CSC8503CoreClasses)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_GLOBAL_KEYWORD "Win32Proj"
-)
+if(NOT USE_PS4)
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_GLOBAL_KEYWORD "Win32Proj")
+else()
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_GLOBAL_KEYWORD "Orbis")
+endif()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
 )
 ################################################################################
 # Compile definitions
 ################################################################################
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    ";"
-    "UNICODE"
-    "_UNICODE"
-    "WIN32_LEAN_AND_MEAN"
-    "_WINSOCK_DEPRECATED_NO_WARNINGS"
-    "NOMINMAX"	
-)
+if(MSVC AND NOT USE_PS4)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		";"
+		"UNICODE"
+		"_UNICODE"
+		"WIN32_LEAN_AND_MEAN"
+		"_WINSOCK_DEPRECATED_NO_WARNINGS"
+		"NOMINMAX"	
+	)
+endif()
+
+if (USE_PS4)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		"UNICODE;"
+        "_UNICODE"
+		"SCE_GNM_DEBUG"
+		"_DEBUG"
+		"NOMINMAX"
+	)
+endif()
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE
     <vector>
