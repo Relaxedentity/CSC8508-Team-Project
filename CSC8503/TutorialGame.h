@@ -272,6 +272,10 @@ namespace NCL {
 			void PlayerPaintTracks(PlayerObject* player, char paintColour);
 
 			IKSystem* IKtest = nullptr;
+			GameObject* IKLeg1 = nullptr;
+			GameObject* IKLeg2 = nullptr;
+
+			GameObject* AddIKLegToWorld();
 		};
 	}
 }

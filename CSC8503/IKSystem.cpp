@@ -26,6 +26,7 @@ void IKSystem::IKSystemUpdate(float dt) {
 	Debug::DrawPoint(newIKIdealTargetPos, Vector4(1, 0, 0, 1), 0.1f);
 
 	rootPos = IKHostObj->GetPhysicsObject()->getTransform().getPosition() + IKHostObj->GetPhysicsObject()->getTransform().getOrientation() * bodyOffset;
+	Debug::DrawPoint(rootPos, Vector4(0, 1, 0, 1), 0.1f);
 
 	Ray r = Ray(rootPos, Vector3(newIKIdealTargetPos) - rootPos);
 	RayCollision legCollision;
@@ -46,7 +47,7 @@ void IKSystem::IKSystemUpdate(float dt) {
 		footOnFloor = false;
 		timer = 0;
 		IKTargetPos = targetTipPos;
-		IKEndTargetPos = targetTipPos + (newIKTargetPos - targetTipPos) * 1.25;
+		IKEndTargetPos = targetTipPos + (newIKTargetPos - targetTipPos) * 1.5;
 	}
 	if (footOnFloor == false) {
 		timer += dt * stepTime;
@@ -65,28 +66,36 @@ void IKSystem::IKSystemUpdate(float dt) {
 	//IKLegObjectProcess();
 }
 
-//void IKSystem::IKLegObjectProcess() {
-//	IKLegObj1->GetTransform().SetPosition(rootPos + (targetJointPos - rootPos) * 0.5);
-//	IKLegObj1->GetTransform().SetOrientation(vectorToRotation(targetJointPos - rootPos));
-//	IKLegObj2->GetTransform().SetPosition(targetJointPos + (targetTipPos - targetJointPos) * 0.5);
-//	IKLegObj2->GetTransform().SetOrientation(vectorToRotation(targetTipPos - targetJointPos));
-//}
+void IKSystem::IKLegObjectProcess() {
+	reactphysics3d::Vector3 newPos = reactphysics3d::Vector3(rootPos.x, rootPos.y, rootPos.z) + (reactphysics3d::Vector3(targetJointPos.x, targetJointPos.y, targetJointPos.z) - reactphysics3d::Vector3(rootPos.x, rootPos.y, rootPos.z)) * 0.5;
+	reactphysics3d::Transform newTransform = reactphysics3d::Transform(newPos, vectorToRotation(targetJointPos - rootPos));
+	IKLegObj1->GetPhysicsObject()->setTransform(newTransform);
 
-//Quaternion IKSystem::vectorToRotation(Vector3 input) {
-//	float pi = 3.14159265358979323846;
-//	float theta = (atan2(input.z, input.x) * 180) / pi;
-//	//std::cout << theta << "\n";
-//	Quaternion YRot = Quaternion(Matrix4::Rotation(theta, Vector3(0, 1, 0)));
-//	Quaternion antiYRot = Quaternion(Matrix4::Rotation(-theta, Vector3(0, 1, 0)));
-//	Vector3 AtoC = YRot * input;
-//
-//	theta = (atan2(AtoC.x, AtoC.y) * 180) / pi;
-//	Quaternion XRot = Quaternion(Matrix4::Rotation(-theta, Vector3(0, 0, 1)));
-//	return antiYRot * XRot;
-//}
+	newPos = reactphysics3d::Vector3(targetJointPos.x, targetJointPos.y, targetJointPos.z) + (reactphysics3d::Vector3(targetTipPos.x, targetTipPos.y, targetTipPos.z) - reactphysics3d::Vector3(targetJointPos.x, targetJointPos.y, targetJointPos.z)) * 0.5;
+	newTransform = reactphysics3d::Transform(newPos, vectorToRotation(targetTipPos - targetJointPos));
+	IKLegObj2->GetPhysicsObject()->setTransform(newTransform);
+
+	//IKLegObj1->GetTransform().SetPosition(rootPos + (targetJointPos - rootPos) * 0.5);
+	//IKLegObj1->GetTransform().SetOrientation(vectorToRotation(targetJointPos - rootPos));
+	//IKLegObj2->GetTransform().SetPosition(targetJointPos + (targetTipPos - targetJointPos) * 0.5);
+	//IKLegObj2->GetTransform().SetOrientation(vectorToRotation(targetTipPos - targetJointPos));
+}
+
+reactphysics3d::Quaternion IKSystem::vectorToRotation(NCL::Vector3 input) {
+	float pi = 3.14159265358979323846;
+	float theta = (atan2(input.z, input.x) * 180) / pi;
+	//std::cout << theta << "\n";
+	Quaternion YRot = Quaternion(Matrix4::Rotation(theta, Vector3(0, 1, 0)));
+	Quaternion antiYRot = Quaternion(Matrix4::Rotation(-theta, Vector3(0, 1, 0)));
+	Vector3 AtoC = YRot * input;
+
+	theta = (atan2(AtoC.x, AtoC.y) * 180) / pi;
+	Quaternion XRot = Quaternion(Matrix4::Rotation(-theta, Vector3(0, 0, 1)));
+	XRot = antiYRot * XRot;
+	return reactphysics3d::Quaternion(XRot.x, XRot.y, XRot.z, XRot.w);
+}
 
 void IKSystem::IKProcess() {
-	//float pi = 3.14159265358979323846;
 	float theta = (atan2((targetTipPos.z - rootPos.z), (targetTipPos.x - rootPos.x)) * 180) / PI_RP3D;
 	//std::cout << theta << "\n";
 	Quaternion YRot = Quaternion(Matrix4::Rotation(theta, Vector3(0, 1, 0)));

@@ -409,11 +409,11 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 	Vector3 camPos;
 	if (!thirdPerson) {
-		camPos = orbitCameraProcess(objPos, *world->GetMainCamera(), lockedObject);
+		camPos = orbitCameraProcess(objPos, *world->GetMainCamera(), player);
 		cameraInterpolation(camPos, dt, *world->GetMainCamera());
 	}
 	else {
-		camPos = thirdPersonCameraProcess(objPos, *world->GetMainCamera(), lockedObject);
+		camPos = thirdPersonCameraProcess(objPos, *world->GetMainCamera(), player);
 		cameraInterpolation(camPos, dt, *world->GetMainCamera());
 		camPos = world->GetMainCamera()->GetPosition();
 	}
@@ -474,7 +474,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 		float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
 		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
 		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
-		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
+		goatRealRotation = (currentVelocity.Length() > 1) ? Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f) : goatStartRotation;
 	}
 	else {
 		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
@@ -1372,7 +1372,9 @@ void TutorialGame::InitGameExamples() {
 	LockCameraToObject(player);
 	world->SetPlayer(player);
 
-	IKtest = new IKSystem(2.5f, 1.0f, reactphysics3d::Vector3(0, 1.5f, 0.5f), reactphysics3d::Vector3(0, -1, 4), player, world);
+	IKtest = new IKSystem(2.5f, 2.0f, reactphysics3d::Vector3(0.5, 1.5f, 0), reactphysics3d::Vector3(4, -1, 0), player, world);
+	IKLeg1 = AddIKLegToWorld();
+	IKLeg2 = AddIKLegToWorld();
 
 	if (coopMode) {
 		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 1, 2);
@@ -1858,4 +1860,18 @@ void TutorialGame::SecScreenJumpMapping(Vector3 playerjumpos) {
 		Vector3 jumpposition = playerjumpos - world->GetMainCamera()->GetPosition();
 		voice->JumpVoice(initV, jumpposition);
 	}
+}
+
+GameObject* TutorialGame::AddIKLegToWorld() {
+	GameObject* leg = new GameObject(world);
+	reactphysics3d::Transform transform(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion(0, 0, 0, 1));
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setMass(0);
+	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.25f, 2.0f);
+	leg->SetPhysicsObject(body);
+	leg->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), capsuleMesh, nullptr, charShader));
+	leg->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
+	world->AddGameObject(leg);
+	
+	return leg;
 }

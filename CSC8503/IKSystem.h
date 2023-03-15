@@ -81,7 +81,7 @@ namespace NCL::CSC8503 {
 		GameObject* IKLegObj1 = nullptr;
 		GameObject* IKLegObj2 = nullptr;
 
-		//void IKLegObjectProcess();
-		//Quaternion vectorToRotation(Vector3 input);
+		void IKLegObjectProcess();
+		reactphysics3d::Quaternion vectorToRotation(NCL::Vector3 input);
 	};
 }
