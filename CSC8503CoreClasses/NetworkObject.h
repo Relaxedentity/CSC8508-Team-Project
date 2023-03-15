@@ -32,7 +32,8 @@ namespace NCL::CSC8503 {
 		int		lastID;
 		char	buttonstates[8];
 		int		myID;
-		float	yaw[5];
+		float	yaw[9];
+		Vector3 projPos;
 
 		ClientPacket() {
 			type = Received_State;

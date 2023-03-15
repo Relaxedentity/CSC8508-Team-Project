@@ -58,7 +58,7 @@ namespace NCL {
 
 			float redScore = 0.0f;
 			float blueScore = 0.0f;
-		    
+			
 		protected:
 			void InitialiseAssets();
 			void InitSound();
@@ -149,12 +149,13 @@ namespace NCL {
 			void SecScreenFireMapping(Vector3 sphereintipos);
 			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
 			void SecScreenJumpMapping(Vector3 sphereintipos);
-
+			void shootPaint(PlayerObject* p, float dt, Camera* c);
 			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			void ShootProjectile(PlayerObject* p, Camera* c);
+			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
+			void moveDesignatedPlayer(PlayerObject* p, float dt);
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
@@ -178,7 +179,7 @@ namespace NCL {
 			bool freeCamera;
 			bool mouseLock;
 			bool debug;
-
+			bool isMultiplayer;
 			float renderTime = 0;
 			float accumulator = 0;
 			const float timeStep = 1.0f / 60.0f;

@@ -19,9 +19,9 @@ namespace NCL {
 
 			void UpdateGame(float dt) override;
 
-			void SpawnPlayer();
+			//void SpawnPlayer();
 
-			void StartLevel();
+			//void StartLevel();
 
 			void ReceivePacket(int type, GamePacket* payload, int source) override;
 
@@ -29,7 +29,7 @@ namespace NCL {
 			int worldCount;
 			int netID;
 			int playerDistance;
-
+			
 			/*int worldCount;
 			int netID;
 			int playerDistance;*/

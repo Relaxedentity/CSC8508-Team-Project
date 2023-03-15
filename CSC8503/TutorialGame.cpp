@@ -53,8 +53,8 @@ TutorialGame::TutorialGame()	{
 	freeCamera		= false;
 	mouseLock		= true;
 	debug = false;
-	coopMode = true;
-
+	coopMode = false;
+	isMultiplayer = false;
 	world->SetPlayerHealth(1.0f);
 	if (coopMode) {
 		world->SetPlayerCoopHealth(1.0f);
@@ -157,7 +157,9 @@ void TutorialGame::UpdateGame(float dt) {
 	if (debug && !GameLock::Player1lock) {
 		RenderDebug(dt);
 	}
-
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
+		world->drawPaintNodes();
+	}
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::E) && freeCamera) {
 		inSelectionMode = !inSelectionMode;
@@ -185,8 +187,8 @@ void TutorialGame::UpdateGame(float dt) {
 	else {
 		Window::GetWindow()->ShowOSPointer(false);
 		Window::GetWindow()->LockMouseToWindow(mouseLock);
-		if (lockedObject == player && !GameLock::Player1lock) {//player movelock!
-			MovePlayer(player, dt);
+		if (!isMultiplayer) {
+			moveDesignatedPlayer(player, dt);
 		}
 	}
 
@@ -313,6 +315,13 @@ void TutorialGame::UpdateGame(float dt) {
 	
 	Debug::UpdateRenderables(dt);
 }
+void TutorialGame::moveDesignatedPlayer(PlayerObject* p, float dt) {
+	if (lockedObject == p && !GameLock::Player1lock) {//player movelock!
+		MovePlayer(p, dt);
+		shootPaint(p, dt, world->GetMainCamera());
+	}
+}
+
 void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim) {
 	while (p->GetRenderObject()->frameTime < 0.0f) {
 		p->GetRenderObject()->currentFrame = (p->GetRenderObject()->currentFrame + 1) % anim->GetFrameCount();
@@ -417,6 +426,8 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 
 	Quaternion Yaw = Quaternion(world->GetMainCamera()->GetRotationYaw());
 	player->SetYaw(reactphysics3d::Quaternion(Yaw.x, Yaw.y, Yaw.z, Yaw.w));
+	Quaternion Pitch = Quaternion(world->GetMainCamera()->GetRotationPitch());
+	player->SetPitch(reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w));
 
 	Vector3 startVelocity = lockedObject->GetPhysicsObject()->getLinearVelocity();
 	Vector3 endVelocity = Vector3(0, 0, 0);
@@ -490,27 +501,23 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	//
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
-		invokeTime -= dt;
-		if (invokeTime <= 0) {
-			ShootProjectile(player, world->GetMainCamera());
-			
-			/*sound mod is here! If you don't want to use it , just comment them out*/
-			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
-			MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
-			invokeTime = 0.1f;
-		}
-		
-	}
-
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
-		world->drawPaintNodes();
-	}
-
 	timedetection += dt;/////////////////////////////////////////
 
 	// splines, curves, improve interpolation, TCB curves
+}
+
+void NCL::CSC8503::TutorialGame::shootPaint(PlayerObject* p, float dt, Camera* c) {
+	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
+		invokeTime -= dt;
+		if (invokeTime <= 0) {
+			ShootProjectile(p, c->GetRotationPitch());
+
+			/*sound mod is here! If you don't want to use it , just comment them out*/
+			Vector3 sphereintipos = p->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
+			MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
+			invokeTime = 0.1f;
+		}
+	}
 }
 
 void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
@@ -640,7 +647,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
 			invokeTime2 -= dt;
 			if (invokeTime2 <= 0) {
-				ShootProjectile(player, world->GetSecCamera());
+				ShootProjectile(player, world->GetSecCamera()->GetRotationPitch());
 				/*sound mod is here! If you don't want to use it , just comment them out*/
 				Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 				SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
@@ -692,11 +699,11 @@ Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelo
 	return endVelocity + Yaw * Vector3(1, 0, 0);
 }
 
-void TutorialGame::ShootProjectile(PlayerObject* p, Camera* c) {
+void TutorialGame::ShootProjectile(PlayerObject* p, Quaternion Pitch) {
 	Projectile* projectile = projectiles[currentProjectile];
 	currentProjectile = (currentProjectile + 1) % 100;
 
-	Quaternion Pitch = Quaternion(c->GetRotationPitch());
+	
 	reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 
 	Vector4 colourVector;
@@ -1120,6 +1127,7 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	sphere->GetRenderObject()->SetColour(colourVector);
 
 	world->AddGameObject(sphere);
+	NetworkObject* n = new NetworkObject(*sphere, 5);
 	world->AddPaintBall();
 
 	return sphere;

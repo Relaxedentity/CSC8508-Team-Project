@@ -98,6 +98,12 @@ namespace NCL::CSC8503 {
 		reactphysics3d::Quaternion GetYaw() {
 			return yaw;
 		}
+		reactphysics3d::Quaternion GetPitch() {
+			return pitch;
+		}
+		void SetPitch(reactphysics3d::Quaternion pitch) {
+			this->pitch = pitch;
+		}
 		void setGrounded(bool groundedness) {
 			isGrounded = groundedness;
 		}
@@ -118,6 +124,7 @@ namespace NCL::CSC8503 {
 		int			objectTag;
 		std::string	name;
 		reactphysics3d::Quaternion yaw;
+		reactphysics3d::Quaternion pitch;
 		bool isGrounded = false;
 		GameWorld* world;
 

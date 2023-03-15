@@ -54,8 +54,8 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	world->testPaintNodes(collisionPoint, paintColour);
 
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-100,0),reactphysics3d::Quaternion::identity());
-	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
-	GetPhysicsObject()->setTransform(temp);
+	//GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+	//GetPhysicsObject()->setTransform(temp);
 }
 void Projectile::Update(float dt) {
 	time -= dt;
