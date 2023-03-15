@@ -9,6 +9,7 @@
 #include "MeshMaterial.h"
 #include "PlayerObject.h"
 #include "MeshAnimation.h"
+#include "IKSystem.h"
 
 #include "Sound.h"
 
@@ -21,6 +22,7 @@ namespace NCL {
 	namespace CSC8503 {
 		class GameObject;
 		class Projectile;
+		class IKSystem;
 		class TutorialGame		{
 		public:
 			void InitWorld();
@@ -268,6 +270,8 @@ namespace NCL {
 			void addMapNodeToWorld(Vector3 location);
 			// Rendering the character's paint track
 			void PlayerPaintTracks(PlayerObject* player, char paintColour);
+
+			IKSystem* IKtest = nullptr;
 		};
 	}
 }

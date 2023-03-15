@@ -190,6 +190,8 @@ void TutorialGame::UpdateGame(float dt) {
 		}
 	}
 
+	IKtest->IKSystemUpdate(dt);
+
 	world->SetPlayerHealth(health);
 	if (coopMode) {
 		world->SetPlayerCoopHealth(secHealth);
@@ -308,6 +310,7 @@ void TutorialGame::UpdateGame(float dt) {
 	}
 	else
 		renderer->Render();
+
 	auto end = std::chrono::high_resolution_clock::now();
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
@@ -569,7 +572,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		Vector3 endVelocity = Vector3(0, 0, 0);
 
 		reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
-		SceneContactPoint* ground = world->Raycast(ray, player);
+		SceneContactPoint* ground	 = world->Raycast(ray, player);
 		player->setGrounded(ground->isHit);
 
 		player->directionInput = false;
@@ -1368,6 +1371,8 @@ void TutorialGame::InitGameExamples() {
 	player->setPaintColour('r');
 	LockCameraToObject(player);
 	world->SetPlayer(player);
+
+	IKtest = new IKSystem(2.5f, 1.0f, reactphysics3d::Vector3(0, 1.5f, 0.5f), reactphysics3d::Vector3(0, -1, 4), player, world);
 
 	if (coopMode) {
 		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 1, 2);
