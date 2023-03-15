@@ -92,7 +92,8 @@ namespace NCL {
 								GameLock::gamemod = 0;
 								GameLock::gamestart = false;
 								GameLock::Player1lock = true;
-								return PushdownResult::Pop;
+								GameLock::Mainmenuawake = true;
+								return PushdownResult::ExitoMainMenu;
 							}
 						}
 					}

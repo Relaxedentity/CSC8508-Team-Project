@@ -8,6 +8,7 @@
 #include "GameIntroduction.h"
 #include "PauseScreen.h"
 #include "GameEnd.h"
+#include "GameLoad.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -31,26 +32,9 @@ namespace NCL {
 				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
 				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
 
-
-				/*if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
-				{
-					state = state - 1 >0?state-1:4;
-				}
-
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN))
-				{
-					state = state +1 <= 4 ? state + 1 : 1;
-				}*/
-			/*	if (screenMouse.x >= screenSize.x * 0.5
-					&& screenMouse.x <= screenSize.x * 0.6
-					&& screenMouse.y >= screenSize.y * 0.45
-					&& screenMouse.y <= screenSize.y * 0.5) {
-					GameLock::normalBtnChange = true;
-
-				}*/
-				if (GameLock::buttonPos.size() > 0) {
-					for (int i = 1; i <= GameLock::buttonPos.size(); i++) {
-						vector<Vector2> MappingPos = GameLock::buttonPos[i-1];
+				if (GameLock::IntroButtonPos.size() > 0) {
+					for (int i = 1; i <= GameLock::IntroButtonPos.size(); i++) {
+						vector<Vector2> MappingPos = GameLock::IntroButtonPos[i-1];
 						if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
 							state = i;
 							if (state == 1) {
@@ -116,17 +100,14 @@ namespace NCL {
 				}*/
 
 
- 				if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::LEFT))
+ 				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1)
 					{
 						//iflock = false;
-						GameLock::gamemod = 1;
-						GameLock::gamestart = true;
-						GameLock::Player1lock = false;
-						*newState = new GameScreen();
-						//t->InitWorld();
-						//g->InitWorld();
+						GameLock::isloading1 = true;
+						GameLock::Mainmenuawake = false;
+						*newState = new GameLoad();
 						return PushdownResult::Push;
 
 						//Game Start
@@ -135,15 +116,15 @@ namespace NCL {
 						//return PushdownResult::Push;
 					}
 					if (state == 2) {
-						GameLock::gamemod = 2;
-						GameLock::gamestart = true;
-						GameLock::Player1lock = false;
-						GameLock::Player2lock = false;
-						*newState = new GameScreen();
+						GameLock::isloading2 = true;
+						GameLock::Mainmenuawake = false;
+						*newState = new GameLoad();
 						return PushdownResult::Push;
 					}
 					if (state == 3)
 					{
+						GameLock::IntroMenuawake = true;
+						GameLock::Mainmenuawake = false;
 						*newState = new GameIntroduction();
 						return PushdownResult::Push;
 					}

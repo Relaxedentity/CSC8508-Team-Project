@@ -1697,7 +1697,10 @@ void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
 	if (player->IsGrounded()) {
 		//std::cout << player->collisionPoint << std::endl;
 		float distance = sqrt(pow(player->collisionPoint.x - player->currentPos.x, 2) + pow(player->collisionPoint.z - player->currentPos.z, 2));
-		if (distance > 1) {
+		if(!GameLock::gamestart){
+			floor->GetRenderObject()->PaintSpray(player->collisionPoint, 'O');
+		}
+		else if (distance > 1) {
 			floor->GetRenderObject()->PaintSpray(player->collisionPoint,paintColour);
 			player->currentPos = player->collisionPoint;
 

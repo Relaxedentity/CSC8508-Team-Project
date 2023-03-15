@@ -26,6 +26,7 @@ namespace NCL {
 			
 			void RenderHealthBar(float health);
 			void RenderProgressBar(float score);
+			void RenderloadingBar(float progress);
 			void RenderTimerQuad();
 			void RenderCrossHair();
 
@@ -69,6 +70,18 @@ namespace NCL {
 			void RenderIntroButton();
 			void RenderExitButton();
 
+			void RenderIntroPage();
+			void RenderBackButton();
+
+			void RenderEndScreen();
+			void RendererSinScore();
+			void RendererCooScore1();
+			void RendererCooScore2();
+			void RenderEndExitScreen();
+			void RenderCoopEndExitScreen();
+
+			void RenderLoadingScreen();
+	
 
 			void SetDebugStringBufferSizes(size_t newVertCount);
 			void SetDebugLineBufferSizes(size_t newVertCount);
@@ -92,6 +105,11 @@ namespace NCL {
 			// progress shader
 			OGLShader* progressShader;
 			OGLMesh* progressBar;
+
+			OGLTexture* loadingTex;////////////修改
+			OGLMesh* loadingMesh;////////////修改
+			OGLShader* loadingBarShader;
+			OGLMesh* loadingBar;
 
 			//timer background
 			OGLShader* simpleShader;
@@ -130,6 +148,34 @@ namespace NCL {
 			OGLTexture* exitBtnTex;
 			OGLMesh* exitBtnMesh;
 
+			/// introscreen 
+            /// </summary>
+			OGLTexture* intropageTex;////////////修改
+			OGLMesh* intropageMesh;////////////修改
+			/// normalButton
+			/// </summary>
+			OGLTexture* backBtnTex;///////修改
+			OGLMesh* backBtnMesh;///////修改 
+
+
+			/// EndBG//------------
+			OGLTexture* endTex;
+			OGLMesh* endMesh;
+
+			OGLTexture* sinscoreTex;
+			OGLMesh* sinscoreMesh;
+
+			OGLTexture* cooscore1Tex;
+			OGLMesh* cooscore1Mesh;
+
+			OGLTexture* cooscore2Tex;
+			OGLMesh* cooscore2Mesh;
+
+			OGLTexture* endexitBtnTex;
+			OGLMesh* endexitBtnMesh;
+
+
+
 			//shadow mapping things
 			OGLShader*	shadowShader;
 			GLuint		shadowTex;
@@ -142,6 +188,7 @@ namespace NCL {
 			Vector3		lightPosition;
 
 			//Debug data storage things
+			float progress = 0;
 			vector<Vector3> debugLineData;
 
 			vector<Vector3> debugTextPos;

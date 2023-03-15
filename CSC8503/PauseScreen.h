@@ -63,9 +63,10 @@ namespace NCL {
 					{
 						GameLock::gametime = 300;
 						GameLock::gamemod = 0;
+						GameLock::Mainmenuawake = true;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;
-						return PushdownResult::ExitoMainMenu;
+						return PushdownResult::GotoMainMenu;
 					}
 				}
 				if (GameLock::gametime <= 0) {

@@ -10,11 +10,28 @@ namespace NCL {
 			static bool gamestart;
 			static int gamemod;
 			static ISoundEngine* hitsound;
-			static vector<vector<Vector2>> buttonPos;
+			static vector<vector<Vector2>> IntroButtonPos;
+			static vector<vector<Vector2>> EndButtonPos;
+			static vector<vector<Vector2>> CoopButtonPos;
+			static vector<vector<Vector2>> BackButtonPos;
 			static bool normalBtnChange;
 			static bool coopBtnChange;
 			static bool introBtnChange;
 			static bool exitBtnChange;
+			static bool BackBtnChange;
+
+			static bool SingleExitBtnChange;
+			static bool CoopExitBtnChange;
+			static bool BacktoMainMenu;
+
+			static bool Mainmenuawake;
+			static bool SingleEndMenuawake;
+			static bool CoopEndMenuawake;
+			static bool IntroMenuawake;
+
+			static bool isloading1;
+			static bool isloading2;
+			static int loadingdone;
 		};
 	}
 }

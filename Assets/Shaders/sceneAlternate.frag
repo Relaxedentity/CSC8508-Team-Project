@@ -11,6 +11,7 @@ uniform vec4	lightColour;
 uniform vec3	cameraPos;
 uniform vec4 paintedPos[50];
 uniform bool hasTexture;
+uniform bool gamestart;
 //uniform int paintCount;
 in Vertex
 {
@@ -45,10 +46,9 @@ void main(void)
 	if(hasTexture) {
 	 albedo *= texture(mainTex, IN.texCoord);
 	}
-
+    if(gamestart == true){
 	bool isHit = false;
 	int hitNum = 0;
-
 	for(int i = 0; i< paintedPos.length();i++) {
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
 		if(circledist < 1.5f) {
@@ -62,7 +62,16 @@ void main(void)
 		albedo.rgb  *= paintColour;
 		sFactor *= 2;
 	}
-
+	}
+	else if(gamestart == false){
+	for(int i=0;i<paintedPos.length();i++){
+	float circledist = distance(paintedPos[i].xyz, IN.worldPos);
+		if(circledist < 1.5f) {
+			albedo = texture(mainTex, IN.texCoord);
+		}
+	}
+	
+	}
 
 	albedo.rgb = pow(albedo.rgb, vec3(2.2));
 	

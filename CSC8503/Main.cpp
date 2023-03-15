@@ -48,10 +48,24 @@ hide or show the
 */
 
 int main() {
+
+	GameLock::normalBtnChange = false;
+	GameLock::coopBtnChange = false;
+	GameLock::introBtnChange = false;
+	GameLock::exitBtnChange = false;
+
+	GameLock::isloading1 = false;
+	GameLock::isloading2 = false;
+
+	GameLock::Mainmenuawake = true;
+	GameLock::SingleEndMenuawake = false;
+	GameLock::CoopEndMenuawake = false;
+	GameLock::IntroMenuawake = false;
+
 	GameLock::Player1lock = true;//menu value init
 	GameLock::gamemod = 0;///////////////////////////
 	GameLock::gamestart = false;////////////////
-	GameLock::gametime = 300;////////////////////////////
+	GameLock::gametime = 10;////////////////////////////
 	bool NotConfirmExit = true;///////////////////////////
 	PushdownMachine* machine = new PushdownMachine(new IntroScreen());//menuinit
 
