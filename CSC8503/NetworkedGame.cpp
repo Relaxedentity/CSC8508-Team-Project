@@ -96,7 +96,8 @@ void NetworkedGame::UpdateGame(float dt) {
 
 void NetworkedGame::UpdateAsServer(float dt) {
 	UpdateNetworkAnimations(dt);
-	moveDesignatedPlayer(player, dt);
+	updateCamera(player, dt);
+	moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
 	//MovePlayer(player, dt);
 	thisServer->UpdateServer();
 	ResetMovementFrame(player2);
@@ -119,8 +120,10 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	UpdateNetworkAnimations(dt);
 	switch (thisClient->clientID) {
 	case 1:
-		//MovePlayer(player2, dt);
-		//shootPaint(player2, dt, world->GetMainCamera());
+		//moveDesignatedPlayer(player2, dt);
+		updateCamera(player2, dt);
+		MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
+		shootPaint(player2, dt, world->GetMainCamera());
 		yaw = player2->GetYaw();
 		pitch = player2->GetPitch();
 		grounded = player2->IsGrounded();
@@ -128,8 +131,10 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		ResetMovementFrame(player4);
 		break;
 	case 2:
-		//MovePlayer(player3, dt); 
-		//shootPaint(player3, dt, world->GetMainCamera());
+		//moveDesignatedPlayer(player3, dt);
+		updateCamera(player3, dt);
+		MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
+		shootPaint(player3, dt, world->GetMainCamera());
 		yaw = player3->GetYaw();
 		pitch = player3->GetPitch();
 		grounded = player3->IsGrounded();
@@ -137,8 +142,10 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		ResetMovementFrame(player4);
 		break;
 	case 3:
-		//MovePlayer(player4, dt);
-		//shootPaint(player4, dt, world->GetMainCamera());
+		//moveDesignatedPlayer(player4, dt);
+		updateCamera(player4, dt);
+		MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
+		shootPaint(player4, dt, world->GetMainCamera());
 		yaw = player4->GetYaw();
 		pitch = player4->GetPitch();
 		grounded = player4->IsGrounded();
@@ -264,12 +271,11 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 			o->ReadPacket(*payload);
 		}
 		if (((DeltaPacket*)payload)->objectID == o->GetNetworkID()) {
-			//std::cout << "server " << source << std::endl;
 			std::cout << "Delta_poop";
 			o->ReadPacket(*payload);
 		}
 		if (type == Delta_State) {
-			
+			std::cout << "Delta_poop";
 		}
 		if (type == Full_State) {
 			//std::cout << "Full_poop";

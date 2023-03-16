@@ -8,6 +8,7 @@ namespace NCL::CSC8503 {
 
 	struct FullPacket : public GamePacket {
 		int		objectID = -1;
+		int projectileID;
 		NetworkState fullState;
 
 		FullPacket() {
@@ -21,6 +22,7 @@ namespace NCL::CSC8503 {
 		int		objectID	= -1;
 		char	pos[3];
 		char	orientation[4];
+		int projectileID;
 
 		DeltaPacket() {
 			type = Delta_State;

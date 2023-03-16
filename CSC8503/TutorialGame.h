@@ -83,7 +83,7 @@ namespace NCL {
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
-			void MovePlayer(PlayerObject* player, float dt);
+			void MovePlayer(PlayerObject* player, float dt, Vector3 camPos);
 
 			//test
 			void MovePlayerCoop(PlayerObject* player, float dt);
@@ -101,7 +101,7 @@ namespace NCL {
 			void UpdateAnim(PlayerObject* p, MeshAnimation* anim);
 
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
-			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
+			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, int netId, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
@@ -154,8 +154,9 @@ namespace NCL {
 			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			void updateCamera(PlayerObject* player, float dt);
 			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
-			void moveDesignatedPlayer(PlayerObject* p, float dt);
+			void moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos);
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;

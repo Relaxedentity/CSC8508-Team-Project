@@ -142,8 +142,10 @@ void NetworkObject::GameobjectMove(int i, Quaternion yaw, bool grounded) {
 	switch (i)
 	{
 	case 1:
+		std::cout << "poop" << std::endl;
 		trajectory = grounded ? yaw * Vector3(0, 0, -25) : yaw * Vector3(0, 0, -12);
 		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		std::cout << g.GetPhysicsObject()->getForce().x << ", " << g.GetPhysicsObject()->getForce().y << ", " << g.GetPhysicsObject()->getForce().z << std::endl;
 		//g.GetPhysicsObject()->applyLocalForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, -5)); // forward
 		g.directionInput = true;
 		break;
