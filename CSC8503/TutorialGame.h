@@ -20,6 +20,7 @@ namespace reactphysics3d {
 namespace NCL {
 	namespace CSC8503 {
 		class GameObject;
+		class TerrainObject;
 		class Projectile;
 		class TutorialGame		{
 		public:
@@ -100,7 +101,7 @@ namespace NCL {
 			void DrawAnim(PlayerObject* p, MeshAnimation* anim);
 			void UpdateAnim(PlayerObject* p, MeshAnimation* anim);
 
-			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
+			TerrainObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, MapNode* node);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
@@ -115,29 +116,29 @@ namespace NCL {
 			void AddHedgeMazeToWorld();
 			
 			// Making Rebellion mesh-based objects
-			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
-			GameObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
-			GameObject* AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
+			TerrainObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
+			TerrainObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
+			TerrainObject* AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
 
-			void AddRebWallSquareToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallSquareToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
-			void AddRebWallNorthToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallSouthToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallEastToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallWestToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
-			void AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
-			void AddRebWallOpeningNorthToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallOpeningSouthToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallOpeningEastToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallOpeningNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallOpeningSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallOpeningEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
-			void AddRebWallCornerNorthEastToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position);
-			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position);
+			void AddRebWallCornerNorthEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
 			void RenderDebug(float dt);
 
@@ -262,8 +263,7 @@ namespace NCL {
 
 			Quaternion thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos);
 
-			// Paint Node Functions
-			void addPaintNodeToWorld(Vector3 location);
+			
 
 			void addMapNodeToWorld(Vector3 location);
 			// Rendering the character's paint track

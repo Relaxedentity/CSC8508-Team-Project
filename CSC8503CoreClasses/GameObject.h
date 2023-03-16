@@ -108,6 +108,8 @@ namespace NCL::CSC8503 {
 		NCL::Maths::Vector3 collisionPoint;
 		bool directionInput;
 
+		virtual void paintHit(NCL::Maths::Vector3 position, char paintColour) {}
+
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;
 		RenderObject*		renderObject;

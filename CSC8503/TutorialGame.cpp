@@ -969,67 +969,57 @@ void TutorialGame::buildGameworld() {
 			GridNode& n = nodes[(gridwidth * y) + x];
 			Vector3 Nposition = n.position;
 			GameObject* object;
+			if (n.type == 'N') continue;
+			MapNode* Node = new MapNode(Nposition);
+			world->AddMapNode(Node);
 			switch (n.type) {
-			case 'N':
-				break;
 			case '.':
-				AddFloorToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y, Nposition.z), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 2, 5));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x-3.5, Nposition.y + 1, Nposition.z-3.5));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y + 1, Nposition.z - 3.5));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x+3.5, Nposition.y + 1, Nposition.z - 3.5));
-
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x - 3.5, Nposition.y + 1, Nposition.z));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y + 1, Nposition.z));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x+3.5, Nposition.y + 1, Nposition.z));
-
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x-3.5, Nposition.y + 1, Nposition.z+3.5));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y + 1, Nposition.z + 3.5));
-				addPaintNodeToWorld(reactphysics3d::Vector3(Nposition.x + 3.5, Nposition.y + 1, Nposition.z + 3.5));
+				AddFloorToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y, Nposition.z), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 2, 5), Node);
 				break;
 			case 'x':
-				AddRebWallSquareToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallSquareToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break; 
 			case 'n':
-				AddRebWallNorthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallNorthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 's':
-				AddRebWallSouthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallSouthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'e':
-				AddRebWallEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'w':
-				AddRebWallWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case '=':
-				AddRebWallDualHorizontalToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallDualHorizontalToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'h':
-				AddRebWallDualVerticalToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallDualVerticalToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'u':
-				AddRebWallOpeningNorthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallOpeningNorthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'm':
-				AddRebWallOpeningSouthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallOpeningSouthToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'c':
-				AddRebWallOpeningEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallOpeningEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case 'd':
-				AddRebWallOpeningWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallOpeningWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case '9':
-				AddRebWallCornerNorthEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallCornerNorthEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case '7':
-				AddRebWallCornerNorthWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallCornerNorthWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case '3':
-				AddRebWallCornerSouthEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallCornerSouthEastToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			case '1':
-				AddRebWallCornerSouthWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z));
+				AddRebWallCornerSouthWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
 				break;
 			}
 		}
@@ -1068,8 +1058,8 @@ void TutorialGame::AddHedgeMazeToWorld() {
 A single function to add a large immoveable cube to the bottom of our world
 
 */
-GameObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents) {
-	GameObject* floor = new GameObject(world);
+TerrainObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, MapNode* node) {
+	TerrainObject* floor = new TerrainObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -1081,6 +1071,22 @@ GameObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& positio
 
 	world->AddGameObject(floor);
 
+	floor->addPaintNode(reactphysics3d::Vector3(position.x - 3.5, position.y + 1, position.z - 3.5));
+	floor->addPaintNode(reactphysics3d::Vector3(position.x, position.y + 1, position.z - 3.5));
+	floor->addPaintNode(reactphysics3d::Vector3(position.x + 3.5, position.y + 1, position.z - 3.5));
+
+	floor->addPaintNode(reactphysics3d::Vector3(position.x - 3.5, position.y + 1, position.z));
+	floor->addPaintNode(reactphysics3d::Vector3(position.x, position.y + 1, position.z));
+	floor->addPaintNode(reactphysics3d::Vector3(position.x + 3.5, position.y + 1, position.z));
+
+	floor->addPaintNode(reactphysics3d::Vector3(position.x - 3.5, position.y + 1, position.z + 3.5));
+	floor->addPaintNode(reactphysics3d::Vector3(position.x, position.y + 1, position.z + 3.5));
+	floor->addPaintNode(reactphysics3d::Vector3(position.x + 3.5, position.y + 1, position.z + 3.5));
+
+	world->addToNodeCount(9);
+
+	node->addObject(floor);
+	
 	return floor;
 }
 
@@ -1360,7 +1366,7 @@ void TutorialGame::TestHedgefinding(Vector3 position) {
 }
 
 void TutorialGame::InitDefaultFloor() {
-	AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
+	//AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
 }
 
 void TutorialGame::InitGameExamples() {
@@ -1388,8 +1394,8 @@ void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing,
 }
 
 // Rebellion Asset Objects
-GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale) {
-	GameObject* wall = new GameObject(world, "cube");
+TerrainObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale) {
+	TerrainObject* wall = new TerrainObject(world, "cube");
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -1402,23 +1408,25 @@ GameObject* TutorialGame::AddRebWallMainToWorld(const reactphysics3d::Vector3& p
 
 	world->AddGameObject(wall);
 
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 9.5, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 9.5, -0.75 * scale.z));
 
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0.3 * scale.x, 4.5, -0.75 * scale.z));
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0.3 * scale.x, 7, -0.75 * scale.z));
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0.3 * scale.x, 9.5, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0.3 * scale.x, 4.5, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0.3 * scale.x, 7, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0.3 * scale.x, 9.5, -0.75 * scale.z));
 
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(-0.3 * scale.x, 4.5, -0.75 * scale.z));
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(-0.3 * scale.x, 7, -0.75 * scale.z));
-	addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(-0.3 * scale.x, 9.5, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(-0.3 * scale.x, 4.5, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(-0.3 * scale.x, 7, -0.75 * scale.z));
+	wall->addPaintNode(position + orientation * reactphysics3d::Vector3(-0.3 * scale.x, 9.5, -0.75 * scale.z));
+
+	world->addToNodeCount(9);
 
 	return wall;
 }
 
-GameObject* TutorialGame::AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes) {
-	GameObject* wall = new GameObject(world);
+TerrainObject* TutorialGame::AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes) {
+	TerrainObject* wall = new TerrainObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -1432,16 +1440,17 @@ GameObject* TutorialGame::AddRebWallRightToWorld(const reactphysics3d::Vector3& 
 	world->AddGameObject(wall);
 
 	if (nodes) {
-		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
-		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
-		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 9.5, -0.75 * scale.z));
+		wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
+		wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
+		wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 9.5, -0.75 * scale.z));
+		world->addToNodeCount(3);
 	}
 
 	return wall;
 }
 
-GameObject* TutorialGame::AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes) {
-	GameObject* wall = new GameObject(world);
+TerrainObject* TutorialGame::AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes) {
+	TerrainObject* wall = new TerrainObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -1455,205 +1464,206 @@ GameObject* TutorialGame::AddRebWallLeftToWorld(const reactphysics3d::Vector3& p
 	world->AddGameObject(wall);
 
 	if (nodes) {
-		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
-		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
-		addPaintNodeToWorld(position + orientation * reactphysics3d::Vector3(0, 9.5, -0.75 * scale.z));
+		wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 4.5, -0.75 * scale.z));
+		wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 7, -0.75 * scale.z));
+		wall->addPaintNode(position + orientation * reactphysics3d::Vector3(0, 9.5, -0.75 * scale.z));
+		world->addToNodeCount(3);
 	}
 
 	return wall;
 }
 
-void TutorialGame::AddRebWallSquareToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true);
+void TutorialGame::AddRebWallSquareToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true));
 
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 	
 	objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 	
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 	
 	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 	
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
 }
 
-void TutorialGame::AddRebWallNorthToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
+void TutorialGame::AddRebWallNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallSouthToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallEastToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallEastToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallWestToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallWestToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
+void TutorialGame::AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1)));
 
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 
 	objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallOpeningSouthToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallOpeningSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1)));
 
 	objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
 
 	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 }
 
-void TutorialGame::AddRebWallOpeningNorthToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), false);
+void TutorialGame::AddRebWallOpeningNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), false));
 	
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, -0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, -0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
 
 	objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, -0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, -0.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1)));
 }
 
-void TutorialGame::AddRebWallOpeningEastToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(9, 3, 1));
+void TutorialGame::AddRebWallOpeningEastToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(9, 3, 1)));
 
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 
 	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(0.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(0.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1)));
 }
 
-void TutorialGame::AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-0.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(9, 3, 1));
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true);
+void TutorialGame::AddRebWallOpeningWestToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-0.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(9, 3, 1)));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true));
 
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 0), realObjectRotation, reactphysics3d::Vector3(8, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 
 	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-0.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-0.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(9, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
 }
 
-void TutorialGame::AddRebWallCornerNorthEastToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(1, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
+void TutorialGame::AddRebWallCornerNorthEastToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(1, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1)));
 
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, -1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, -1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 }
 
-void TutorialGame::AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position) {
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
+void TutorialGame::AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(4.5, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(1, 3, 1), true));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, 5.5), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1)));
 
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, -1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, -1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(5.5, 0, 4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 }
 
-void TutorialGame::AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-5.5, 0, 1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(-5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
 
 	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(-4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
-void TutorialGame::AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position) {
+void TutorialGame::AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node) {
 	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
 	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
-	AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true);
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(5.5, 0, 1), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
+	node->addObject(AddRebWallRightToWorld(position + reactphysics3d::Vector3(5.5, 0, -4.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), true));
 
 	objectRotation = Quaternion(Matrix4::Rotation(180, Vector3(0, 1, 0)));
 	realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
 
-	AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false);
-	AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1));
+	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
+	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
 }
 
 /*
@@ -1756,16 +1766,13 @@ void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
 
 			player->currentPos = player->collisionPoint;
 
-			world->testPaintNodes(player->collisionPoint, paintColour);
+			//world->testPaintNodes(player->collisionPoint, paintColour);
 		}
 	}
 }
 
 // Paint Node Functions
-void TutorialGame::addPaintNodeToWorld(Vector3 location) {
-	PaintNode* node = new PaintNode(location);
-	world->AddPaintNode(node);
-}
+
 
 void TutorialGame::addMapNodeToWorld(Vector3 location) {
 	MapNode* node = new MapNode(location);

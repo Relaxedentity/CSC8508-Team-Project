@@ -51,7 +51,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 
 	//std::cout << "projectile paint colour: " << paintColour << "\n";
 
-	world->testPaintNodes(collisionPoint, paintColour);
+	//world->testPaintNodes(collisionPoint, paintColour);
 
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-100,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);

@@ -11,3 +11,13 @@ MapNode::MapNode(Vector3 pos) {
 MapNode::~MapNode() {
 
 }
+
+void MapNode::addObject(TerrainObject* i) {
+	objects.push_back(i);
+}
+
+void MapNode::drawNodes() {
+	for (auto& i : objects) {
+		i->drawPaintNodes();
+	}
+}
