@@ -4,30 +4,53 @@
 #include "StateTransition.h"
 #include "StateMachine.h"
 #include "State.h"
-#include "HierarchicalState.h"
 #include "Window.h"
 #include "BehaviourNode.h"
 #include "BehaviourSelector.h"
 #include "BehaviourSequence.h"
 #include "BehaviourAction.h"
 #include <Debug.cpp>
+#include "RenderObject.h"
+#include "NavigationGrid.h"
+#include "NavigationMesh.h"
+
 
 using namespace NCL;
 using namespace CSC8503;
 
 BossAI::~BossAI() {
 	delete rootSequence;
+	delete patrolSequence;
+	delete attackSequence;
+	delete seenPlayerSequence;
+	delete rangeForAttackSelector;
+	delete inRangeToTargetSequence;
+	delete moveSelector;
+	delete midRangeSequence;
+	delete farRangeSequence;
+	delete closeRangeSequence;
+	delete moveTimerSequence;
+	delete closeMoveSelector;
+	delete randomAttackSetSequence;
 }
 
-BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world) {
-	nodes = testNodes; // getPathNodes
+BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) {
+	pathNodes = mapNodes; // getPathNodes
 	currentNode = 1;
+	nodeIndex = 1;
+	
+	rNum = 0;
 	float t;
 	float restTime;
 	GameObject* a;
-	float l1;
-	float l2;
 
+	dest = Vector3(-50, 0, 30);
+
+	CreateBehaviourTree();
+}
+
+void NCL::CSC8503::BossAI::CreateBehaviourTree()
+{
 	BehaviourAction* walkAct = new BehaviourAction("Patrolling ", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
 			std::cout << " patrolling !\n";
@@ -35,25 +58,26 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 		}
 		else if (state == Ongoing) {
 
-			WalkingPath(Vector3(-50, 0, 30));
+
+			WalkPath(dest);
 
 			// if the player is within the maze return true.
 
-			if (playerInMaze) {
+			if (seenPlayer) {
 				std::cout << " Found Player !\n";
 				state = Success;
 			}
 		}
-		return state; // will be ’ongoing ’ until success
+	return state; // will be ’ongoing ’ until success
 		});
 
 	BehaviourAction* setRangeToTargetAct = new BehaviourAction("Chase player", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
 			//std::cout << " Going to the loot room !\n";
 			state = Ongoing;
-			goose->GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
+			GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
 			nodeIndex = 0;
-			newNodes.clear();
+			pathNodes.clear();
 			destNotArrived = true;
 
 			walkToPlayer = true;
@@ -61,17 +85,17 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 		else if (state == Ongoing) {
 
 			// Get player position
-			float currentDistance = (goose->GetTransform().GetPosition() - lockedObject->GetTransform().GetPosition()).Length();
+			float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
 			//move towards the plajyer with using the player's position as the end goal for pathfinding.
 
 			// while ongoing creates a new path
 
 			//std::cout << newNodes.size() << std::endl;
-			WalkingPath(lockedObject->GetTransform().GetPosition());
+			//WalkingPath(lockedObject->GetTransform().GetPosition());
 
-			// if hte idstance to the palyer is within striking zone return success
-			if (currentDistance < 5.0f || !playerInMaze) {
+			// if the idstance to the palyer is within striking zone return success
+			if (currentDist < 5.0f ) {
 				std::cout << " Caught the Player !\n";
 				state = Success;
 			}
@@ -97,8 +121,8 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 			bool steal = rand() % 2;
 
 			if (steal) {
-				lockedObject->SetPlayerScore(0);
-				lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+				//lockedObject->SetPlayerScore(0);
+				//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
 				std::cout << "Stole coins!\n";
 
 				state = Success;
@@ -117,7 +141,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 		}
 		else if (state == Ongoing) {
 			// move the player outside the maze 
-			lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
 			state = Success;
 		}
 		return state;
@@ -129,7 +153,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 		}
 		else if (state == Ongoing) {
 			// move the player outside the maze 
-			lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
 			state = Success;
 		}
 		return state;
@@ -141,7 +165,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 		}
 		else if (state == Ongoing) {
 			// move the player outside the maze 
-			lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
 			state = Success;
 		}
 		return state;
@@ -153,7 +177,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 		}
 		else if (state == Ongoing) {
 			// move the player outside the maze 
-			lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
 			state = Success;
 		}
 		return state;
@@ -163,7 +187,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 	//root layer
 
 	rootSequence = new BehaviourSequence("Root Sequence");
-	rootSequence;->AddChild(patrolSequence);
+	rootSequence->AddChild(patrolSequence);
 	rootSequence->AddChild(attackSequence);
 
 	//first layer 
@@ -222,7 +246,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 	randomAttackSetSequence->AddChild(setAttackAnimAct);
 	randomAttackSetSequence->AddChild(playAttackAnimAct);
 
-	//fifTHI
+	//fifth layer 
 	moveTimerSequence = new BehaviourSequence("Move To Player Sequence");
 	moveTimerSequence->AddChild(moveTowardPlayerAct);
 	moveTimerSequence->AddChild(checkRangeAndTimeAct);
@@ -230,9 +254,84 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > testNodes) :GameObject(world)
 	BehaviourState state = Ongoing;
 }
 
-void BossAI::Update(float dt) {
+
+
+void BossAI::UpdateBoss(float dt, Vector3& playerPos) {
+	
+	currPlayerPos = playerPos;
 	if (rootSequence->Execute(dt) == Success) {
 		rootSequence->Reset();
 	}
 
+}
+
+void NCL::CSC8503::BossAI::CreatePath(Vector3& targetDist)
+{
+	NavigationGrid grid("TestGrid1.txt");
+	NavigationPath outPath;
+
+	float x = targetDist.x - (-110);
+	float z = targetDist.z - (20);
+
+	Vector3 endPos = Vector3(x, 0, z);
+
+	bool found = grid.FindPath(GetPhysicsObject()->getTransform().getPosition(), endPos, outPath);
+	foundPath = found;
+
+	Vector3 pos;
+	while (outPath.PopWaypoint(pos)) {
+		pathNodes.push_back(pos);
+	}
+}
+
+void NCL::CSC8503::BossAI::DisplayPath()
+{
+
+	for (int i = 1; i < pathNodes.size(); ++i) {
+		Vector3 a = pathNodes[i - 1];
+		Vector3 b = pathNodes[i];
+		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	}
+}
+
+void NCL::CSC8503::BossAI::WalkPath(Vector3& destination)
+{
+
+	if (pathNodes.size() == 0) {
+		CreatePath(destination);
+		destNotArrived = true;
+	}
+
+	if (!foundPath) {
+		CreatePath(destination);
+	}
+
+	if (walkToPlayer && nodeIndex == pathNodes.size()) {
+		nodeIndex = 0;
+		pathNodes.clear();
+		destNotArrived = true;
+		return;
+	}
+	else if (nodeIndex == pathNodes.size())
+	{
+		destNotArrived = false;
+		nodeIndex = 0;
+		pathNodes.clear();
+		rNum == 0 ? rNum = 1 : rNum = 0;
+		return;
+	}
+	//Vector3(GetPhysicsObject()->getTransform().getPosition())
+	
+	float distToNode = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - pathNodes[nodeIndex]).Length();
+
+	if (distToNode >= 2.0f && destNotArrived) {
+		float x = pathNodes[nodeIndex].x > GetPhysicsObject()->getTransform().getPosition().x ? 13 : -13;
+		float z = pathNodes[nodeIndex].z > GetPhysicsObject()->getTransform().getPosition().z ? 13 : -13;
+		this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(x, 0, z));
+	}
+
+	if (distToNode <= 4.0f && destNotArrived)
+	{
+		nodeIndex += 1;
+	}
 }

@@ -11,36 +11,42 @@ namespace NCL {
 		class StateMachine;
 		class BossAI : public GameObject {
 		public:
-			BossAI(GameWorld* world, std::vector<NCL::Maths::Vector3> testNodes);
+			BossAI(GameWorld* world, std::vector<NCL::Maths::Vector3> mapNodes);
 			~BossAI();
 
-			void Update(float dt) override;
+			void CreateBehaviourTree();
 
-			NCL::Maths::Vector3 getTargetPosition() {
-				return targetPosition;
-			};
-			void setTargetPosition(NCL::Maths::Vector3 position) {
-				targetPosition = position;
-			};
-			GameObject* getTarget1() {
-				return target1;
-			};
-			GameObject* getTarget2() {
-				return target2;
-			};
-			void setTarget1(GameObject* gametarget) {
-				target1 = gametarget;
-			};
-			void setTarget2(GameObject* gametarget) {
-				target2 = gametarget;
-			};
+			void UpdateBoss(float dt, NCL::Maths::Vector3& playePos) ;
+
+
+
+			//void CreatePath(Vector3& position);
+			//void DisplayPath();
+			//void WalkPath(Vector3& destination);
+
+			
 		protected:
-			GameObject* target1;
-			GameObject* target2;
+
+			void CreatePath(NCL::Maths::Vector3& position);
+			void DisplayPath();
+			void WalkPath(NCL::Maths::Vector3& destination);
+			
 			NCL::Maths::Vector3 targetPosition;
 
-			std::vector<NCL::Maths::Vector3> nodes;
+			std::vector<NCL::Maths::Vector3> pathNodes;
 			int currentNode;
+
+			NCL::Maths::Vector3 dest;
+			NCL::Maths::Vector3 currPlayerPos;
+
+
+			bool destNotArrived;
+			bool seenPlayer;
+			bool foundPath;
+			bool walkToPlayer;
+
+			int nodeIndex;
+			int rNum;
 
 			// root
 			BehaviourSequence* rootSequence;

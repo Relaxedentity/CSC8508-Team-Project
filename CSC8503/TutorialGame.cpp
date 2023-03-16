@@ -380,19 +380,6 @@ void TutorialGame::UpdateKeys()
 
 void NCL::CSC8503::TutorialGame::UpdateEnemies(float dt)
 {
-	//if (goose) {
-	//	goose->Update(dt);
-	//	for (int i = 1; i < nodes2.size(); ++i) {
-	//		Vector3 a = nodes2[i - 1];
-	//		Vector3 b = nodes2[i];
-
-	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-	//	}
-
-	//	reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
-	//	transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
-	//}
-
 	if (boss) {
 		boss->Update(dt);
 		

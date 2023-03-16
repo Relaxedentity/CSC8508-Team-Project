@@ -6,6 +6,7 @@
 #include "NavigationGrid.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
+#include "BossAI.h"
 #include "MeshMaterial.h"
 #include "PlayerObject.h"
 #include "MeshAnimation.h"
@@ -62,13 +63,7 @@ namespace NCL {
 			void InitCamera();
 			void InitCameraSec();
 			void UpdateKeys();
-
 			
-			/*
-			These are some of the world/object creation functions I created when testing the functionality
-			in the module. Feel free to mess around with them to see different objects being created in different
-			test scenarios (constraints, collision types, and so on). 
-			*/
 			void InitGameExamples();
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
@@ -85,13 +80,24 @@ namespace NCL {
 			//test
 			void MovePlayerCoop(PlayerObject* player, float dt);
 
-
+			// AI
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
 			BTreeObject* AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
-			StateGameObject* testStateObject;
-			BTreeObject* goose;
+			BossAI* AddBossAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
+			//StateGameObject* testStateObject;
+			//BTreeObject* goose;
+
+			BossAI* boss;
+
+			void UpdateEnemies(float dt);
+
+			//// pathfinding
+			//void CreatePath(Vector3& position);
+			//void DisplayPath();
+			//void WalkPath(Vector3& destination);
+
 
 			// animation 
 			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe);
@@ -161,6 +167,8 @@ namespace NCL {
 			GameObject* button;
 			GameObject* door;
 
+			vector <Vector3> newNodes;
+
 			bool initSplitScreen;
 			bool coopMode;
 			bool gpConnected;
@@ -221,15 +229,10 @@ namespace NCL {
 			GameObject* lockedObject	= nullptr;
 			GameObject* lockedSecObject = nullptr;
 
-			void LockCameraToObject(GameObject* o) {
-				lockedObject = o;
-			}
-			void LockCameraToObject2(GameObject* o) {
-				lockedSecObject = o;
-			}
+			void LockCameraToObject(GameObject* o) {lockedObject = o;}
+			void LockCameraToObject2(GameObject* o) {lockedSecObject = o;}
 
 			GameObject* objClosest = nullptr;
-
 
 			// Third Person Camera Tests
 
