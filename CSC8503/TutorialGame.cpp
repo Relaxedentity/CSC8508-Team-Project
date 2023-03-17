@@ -1098,7 +1098,7 @@ physics worlds. You'll probably need another function for the creation of OBB cu
 
 */
 Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass) {
-	Projectile* sphere = new Projectile(world, 3.0f);
+	Projectile* sphere = new Projectile(this,world, 3.0f);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setMass(mass);
@@ -1259,13 +1259,12 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 
 	std::vector <Vector3 > verts;
 
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < 50; ++i) {
 		float x = (float)(rand() % 100 - 50);
 		float y = (float)(rand() % 100 - 50);
 		float z = (float)(rand() % 100 - 50);
 
 		verts.push_back(Vector3(x, y, z));
-
 	}
 
 	OGLMesh* pointSprites = new OGLMesh();

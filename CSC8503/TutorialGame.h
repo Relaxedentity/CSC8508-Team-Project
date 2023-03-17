@@ -56,6 +56,7 @@ namespace NCL {
 			reactphysics3d::PhysicsWorld* GetPhysicsWorld() {
 				return physicsWorld;
 			}
+			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			float redScore = 0.0f;
 			float blueScore = 0.0f;
@@ -112,7 +113,7 @@ namespace NCL {
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
-			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			
 			void AddHedgeMazeToWorld();
 			
 			// Making Rebellion mesh-based objects

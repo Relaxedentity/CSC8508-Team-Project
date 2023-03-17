@@ -14,7 +14,7 @@ namespace reactphysics3d {
 namespace NCL::CSC8503 {
 	class Projectile : public PaintClass {
 	public:
-		Projectile(GameWorld* world, float time, std::string name = "");
+		Projectile(TutorialGame* t, GameWorld* world, float time, std::string name = "");
 		~Projectile();
 		void Reset();
 		void OnCollisionBegin(GameObject* otherObject) override;
@@ -23,6 +23,10 @@ namespace NCL::CSC8503 {
 		SoundObject* collisionV;
 	private:
 		float time;
+		float particleTime;
 		float max_time;
+		reactphysics3d::Vector3 burstPos;
+		vector<GameObject*> tempParticles;
+		TutorialGame* tgame;
 	};
 }

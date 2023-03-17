@@ -72,7 +72,7 @@ void main(void)
 	fragColor.rgb += lightColour.rgb * sFactor * shadow; //specular light
 	
 	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / 2.2f));
-	
+	//fragColor.a = (texture(mainTex, IN.texCoord)).a;
 	fragColor.a = 1;
 	
 	//if(fragColor.a<0.00001f){
