@@ -131,16 +131,18 @@ add_executable(${PROJECT_NAME}  ${ALL_FILES})
 use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE CSC8503)
 
-if(USE_PS4)
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".elf")
-endif()
-
-set_target_properties(${PROJECT_NAME} PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "*.sdb;*.o;*.o-*;*.d;*.map;*.pch;*.gch;*.tmp;*.rsp;*.tlog;*.dep;*.plist;*.s;*.json;*.xml")
-
 if(NOT USE_PS4)
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_GLOBAL_KEYWORD "Win32Proj")
 else()
+	set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".elf")
+	set_target_properties(${PROJECT_NAME} PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "*.sdb;*.o;*.o-*;*.d;*.map;*.pch;*.gch;*.tmp;*.rsp;*.tlog;*.dep;*.plist;*.s;*.json;*.xml")
+	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_OPTIONS "-Wall")
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_GLOBAL_KEYWORD "Orbis")
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_OPTIONS "-o abc")
+	set(PROP "C:/Program Files (x86)/SCE/ORBIS SDKs/10.000/target/samples/sample_code/graphics/api_gnm/basic-sample/basic-sample.vcxproj")
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_PROPERTY_SHEETS "${PROP}")
+	set(SCE_ROOT_DIR "C:/Program Files (x86)/SCE/")
+	set(SCE_ORBIS_SDK_DIR "C:/Program Files (x86)/SCE/ORBIS SDKs/8.000")
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
