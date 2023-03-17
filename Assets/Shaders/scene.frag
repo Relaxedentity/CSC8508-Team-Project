@@ -64,6 +64,7 @@ void main(void)
 			fragColor.rgb  *= vec3(1,0,0);
 		}
 	}
+	*/
 	//fragColor.a = 1;
 	
 	if(fragColor.a<0.0001f){
