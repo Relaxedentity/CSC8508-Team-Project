@@ -214,7 +214,6 @@ void TutorialGame::UpdateGame(float dt) {
 
 	UpdateKeys();
 
-	RayCollision closestCollision;
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::K) && selectionObject) {
 		reactphysics3d::Vector3 rayDir = selectionObject->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -1);
 		reactphysics3d::Vector3 rayPos = selectionObject->GetPhysicsObject()->getTransform().getPosition();
@@ -230,6 +229,7 @@ void TutorialGame::UpdateGame(float dt) {
 
 			objClosest->GetRenderObject()->SetColour(Vector4(1, 0, 1, 1));
 		}
+		delete closestCollision;
 	}
 
 	if (testStateObject) {
@@ -745,6 +745,7 @@ Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* o
 		return goatRealRotation;
 	}
 	Matrix4 Yaw = cam->GetRotationYaw();
+	delete aimCollision;
 	return Quaternion(Yaw);
 }
 
@@ -776,6 +777,7 @@ Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos, Camera& camera, GameObj
 			camPos = objPos + rotationAmount * Vector3(0, 0, distance);
 		}
 	}
+	delete cameraCollision;
 	return camPos;
 }
 
@@ -807,6 +809,9 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos, Camera& camera, G
 			endVector.z = distance;
 		}
 	}
+
+	delete cameraCollision;
+	delete cameraCollision2;
 	return objPos + rotationAmount * endVector;
 }
 
@@ -1704,9 +1709,11 @@ bool TutorialGame::SelectObject() {
 					//std::cout << x<<"\n";
 				}
 				//std::cout << world->painted[0];
+				delete closestCollision;
 				return true;
 			}
 			else {
+				delete closestCollision;
 				return false;
 			}
 		}
@@ -1755,6 +1762,7 @@ void TutorialGame::MoveSelectedObject() {
 				selectionObject->GetPhysicsObject()->applyWorldForceAtWorldPosition(reactphysics3d::Vector3(force.x, force.y, force.z), closestCollision->hitPos);
 			}
 		}
+		delete closestCollision;
 	}
 }
 
