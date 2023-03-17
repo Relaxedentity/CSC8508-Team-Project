@@ -1259,7 +1259,6 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 		float z = (float)(rand() % 100 - 50);
 
 		verts.push_back(Vector3(x, y, z));
-
 	}
 
 	OGLMesh* pointSprites = new OGLMesh();

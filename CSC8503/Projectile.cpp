@@ -33,6 +33,8 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 		return;
 	}
 
+	burstPos = GetPhysicsObject()->getTransform().getPosition();
+
 	/*Sound mod*/
 	Vector3 hitposition = collisionPoint - world->GetMainCamera()->GetPosition();//
 	Vector3 hitposition2 = collisionPoint - world->GetSecCamera()->GetPosition();//
@@ -58,9 +60,12 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	reactphysics3d::Transform temp(reactphysics3d::Vector3(0,-100,0),reactphysics3d::Quaternion::identity());
 	GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
 	GetPhysicsObject()->setTransform(temp);
+
+
 	reactphysics3d::Vector3 tempCollision = reactphysics3d::Vector3(collisionPoint.x, collisionPoint.y, collisionPoint.z);
-	tempParticles = tgame->AddEmitterToWorld(tempCollision,reactphysics3d::Quaternion::identity());
-	particleTime = 0.1f;
+	tempParticles.push_back( tgame->AddEmitterToWorld(tempCollision, reactphysics3d::Quaternion::identity()));
+	particleTime = 0.3f;
+
 }
 void Projectile::Update(float dt) {
 	time -= dt;
@@ -74,10 +79,32 @@ void Projectile::Update(float dt) {
 		GetPhysicsObject()->setTransform(temp);
 	}
 	if (particleTime <= 0) {
-		world->RemoveGameObject(tempParticles);
-		tempParticles = NULL;
+		for (int i = 0; i < tempParticles.size(); i++)
+		{
+			world->RemoveGameObject(tempParticles[i]);
+			tempParticles[i] = NULL;
+			delete tempParticles[i];
+		}
+		tempParticles.clear();
+		tempParticles.shrink_to_fit();
 	}
 
+	if (tempParticles.size()) {
+		for (int i = 0; i < tempParticles.size(); i++)
+		{
+			if (tempParticles[i]) {
+				reactphysics3d::Transform transform = tempParticles[i]->GetPhysicsObject()->getTransform();
+				reactphysics3d::Vector3 collisionPos = reactphysics3d::Vector3(collisionPoint.x, collisionPoint.y, collisionPoint.z);
+				reactphysics3d::Vector3 ray = burstPos - collisionPos;
+			/*	Debug::DrawPoint(collisionPoint,Vector4(0, 1, 1, 1),60);
+				Debug::DrawPoint(burstPos, Vector4(1, 0, 1, 1), 60);
+				Debug::DrawLine(collisionPos, burstPos, Vector4(1, 0, 0, 1), 60);*/
+				tempParticles[i]->GetPhysicsObject()->setTransform(reactphysics3d::Transform(transform.getPosition() + ray * 10 * dt, transform.getOrientation()));
+				reactphysics3d::Vector3 vec = tempParticles[i]->GetPhysicsObject()->getTransform().getPosition();
+				/*std::cout << "Î»ÖÃÊÇLocation is:" << Vector3(vec.x, vec.y, vec.z) << std::endl;*/
+			}
+		}	
+	}
 }
 /// <summary>
 /// Get all the vertices of the sphere

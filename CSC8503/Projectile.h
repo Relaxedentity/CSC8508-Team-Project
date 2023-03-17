@@ -25,7 +25,8 @@ namespace NCL::CSC8503 {
 		float time;
 		float particleTime;
 		float max_time;
-		GameObject* tempParticles;
+		reactphysics3d::Vector3 burstPos;
+		vector<GameObject*> tempParticles;
 		TutorialGame* tgame;
 	};
 }
