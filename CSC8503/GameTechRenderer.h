@@ -3,7 +3,8 @@
 #include "OGLShader.h"
 #include "OGLTexture.h"
 #include "OGLMesh.h"
-
+#include "MeshAnimation.h"
+#include "MeshMaterial.h"
 #include "GameWorld.h"
 
 namespace NCL {
@@ -23,12 +24,11 @@ namespace NCL {
 			ShaderBase*		LoadShader(const string& vertex, const string& fragment);
 
 
-			
+			void AnimUpdate(MeshAnimation* playerAnim, float dt);
 			void RenderHealthBar(float health);
 			void RenderProgressBar(float score);
 			void RenderTimerQuad();
 			void RenderCrossHair();
-
 			
 
 		protected:
@@ -58,13 +58,13 @@ namespace NCL {
 			void RenderSkybox(Camera& camera);
 			void Particles();
 			void LoadSkybox();
-
+			
 			void RenderCircle(float cx, float cy, float r, const Vector4& color);
-			void RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color);
-			void RenderMap();
+			void RenderTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector4& color, Vector2 windowSize);
+			void RenderMap(Vector2 window_pos, Vector2 window_size, GameObject* player);
 			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
-
-
+			void RenderRectangle(Vector2 tl, Vector2 br, Vector4 color, Vector2 windowSize);
+			
 			void SetDebugStringBufferSizes(size_t newVertCount);
 			void SetDebugLineBufferSizes(size_t newVertCount);
 
@@ -124,6 +124,16 @@ namespace NCL {
 			GLuint textColourVBO;
 			GLuint textTexVBO;
 			size_t textCount;
+
+			//animated things
+			OGLShader* animatedShader;
+			TextureBase* playerTex;
+			MeshMaterial* playerMat;
+			MeshAnimation* playerAnim;
+			MeshGeometry* playerMesh;
+
+			int currentFrame;
+			float frameTime;
 		};
 	}
 }

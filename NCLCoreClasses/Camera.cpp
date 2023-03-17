@@ -49,7 +49,26 @@ void Camera::UpdateCamera(float dt) {
 	}
 }
 
-void Camera::ThirdPersonUpdateRot() {
+void NCL::Camera::UpdateCameraController(float dt, float x, float y)
+{
+	//Update the mouse by how much
+	pitch -= (y);
+	yaw -= (x);
+
+	//Bounds check the pitch, to be between straight up and straight down ;)
+	pitch = std::min(pitch, 90.0f);
+	pitch = std::max(pitch, -90.0f);
+
+	if (yaw < 0) {
+		yaw += 360.0f;
+	}
+	if (yaw > 360.0f) {
+		yaw -= 360.0f;
+	}
+
+}
+
+void Camera::ThirdPersonUpdateRot( ) {
 	//Update the mouse by how much
 	pitch -= (Window::GetMouse()->GetRelativePosition().y);
 	yaw -= (Window::GetMouse()->GetRelativePosition().x);
@@ -63,6 +82,23 @@ void Camera::ThirdPersonUpdateRot() {
 	}
 	if (yaw > 360.0f) {
 		yaw -= 360.0f;
+	}
+}
+
+void Camera::ControlThirdPersonUpdateRot(float x, float y) {
+	//Update the controller by how much
+	pitch -= (y);
+	yaw += (x);
+
+	//Bounds check the pitch, to be between straight up and straight down ;)
+	pitch = std::min(pitch, 90.0f);
+	pitch = std::max(pitch, -90.0f);
+
+	if (yaw < 0) {
+		yaw -= 360.0f;
+	}
+	if (yaw > 360.0f) {
+		yaw += 360.0f;
 	}
 }
 

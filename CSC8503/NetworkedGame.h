@@ -37,9 +37,10 @@ namespace NCL {
 		protected:
 			void UpdateAsServer(float dt);
 			void UpdateAsClient(float dt);
-
+			void UpdateNetworkAnimations(float dt);
 			void BroadcastSnapshot(bool deltaFrame);
 			void UpdateMinimumState();
+			void ResetMovementFrame(GameObject* p);
 			std::map<int, int> stateIDs;
 
 			GameServer* thisServer;
@@ -53,6 +54,9 @@ namespace NCL {
 			std::map<int, GameObject*> serverPlayers;
 			GameObject* localPlayer;
 			
+			OGLShader* animatedShaderB = nullptr;
+			OGLShader* animatedShaderC = nullptr;
+			OGLShader* animatedShaderD = nullptr;
 		};
 	}
 }

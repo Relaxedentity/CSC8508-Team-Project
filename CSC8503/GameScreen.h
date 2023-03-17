@@ -29,13 +29,15 @@ namespace NCL {
 			PushdownResult OnUpdate(float dt, PushdownState** newState) override
 			{
 				if (GameLock::gamemod == 1) {
-					Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
-					Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
-					Debug::Print("Player1 Press (F1) to call menu!\n", Vector2(20, 17), Vector4(1, 1, 1, 1));
+					//Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
+					//Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
+					Debug::Print("Press (F1)", Vector2(73, 7), Vector4(1, 1, 1, 1));
+					Debug::Print("to open menu!", Vector2(73, 12), Vector4(1, 1, 1, 1));
 
 					if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1) || player1menuAwake) {
 
 						GameLock::Player1lock = true;
+						GameLock::gamePause = true;
 						player1menuAwake = false;
 						*newState = new PauseScreen();
 						return PushdownResult::Push;
@@ -43,9 +45,13 @@ namespace NCL {
 				}
 
 				if (GameLock::gamemod == 2) {
-					Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
-					Debug::Print("Player1 Press (F1) to call menu!\n", Vector2(20, 17), Vector4(1, 1, 1, 1));
-					Debug::Print("Player2 Press (F2) to call menu!\n", Vector2(20, 22), Vector4(1, 1, 1, 1));
+					//Debug::Print("Welcome To A Really Awesome Game!\n", Vector2(20, 12), Vector4(1, 1, 1, 1));
+					Debug::Print("Player1 Press", Vector2(73, 7), Vector4(1, 1, 1, 1));
+					Debug::Print("(F1) to open", Vector2(73, 12), Vector4(1, 1, 1, 1));
+					Debug::Print("menu!", Vector2(73, 17), Vector4(1, 1, 1, 1));
+					Debug::Print("Player2 Press", Vector2(73, 22), Vector4(1, 1, 1, 1));
+					Debug::Print("(F2) to open", Vector2(73, 27), Vector4(1, 1, 1, 1));
+					Debug::Print("menu!", Vector2(73, 32), Vector4(1, 1, 1, 1));
 					if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1)) {
 						player1menuAwake = true;
 						GameLock::Player1lock = true;
@@ -62,7 +68,6 @@ namespace NCL {
 						if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::S)){
 								state1 = state1 + 1 <= 2 ? state1 + 1 : 1;
 						}
-
 						switch (state1)
 						{
 						case 1:
@@ -88,7 +93,7 @@ namespace NCL {
 							}
 							if (state1 == 2)
 							{
-								GameLock::gametime = 300;
+								GameLock::gametime = GameLock::gamelength;
 								GameLock::gamemod = 0;
 								GameLock::gamestart = false;
 								GameLock::Player1lock = true;
@@ -161,6 +166,8 @@ namespace NCL {
 				state2 = 0;
 				bool player1menuAwake = false;
 				bool player2menuAwake = false;
+
+				GameLock::gamePause = false;
 			}
 		protected:
 			int coinsMined = 0;

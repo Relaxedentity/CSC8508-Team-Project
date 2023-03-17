@@ -1,6 +1,7 @@
 #pragma once
 #include "TextureBase.h"
 #include "ShaderBase.h"
+#include <vector>
 
 namespace reactphysics3d {
 	class RigidBody;
@@ -81,6 +82,16 @@ namespace NCL {
 				}
 			}
 
+			void SetFrameMatrices(const std::vector <Matrix4>& fmatrices) {
+				frameMatrices = fmatrices;
+			}
+
+			std::vector<Matrix4> GetFrameMatrices() const {
+				return frameMatrices;
+			}
+
+			float frameTime;
+			int currentFrame;
 		protected:
 			int paintCount = 0;
 			int paintMax = 50;
@@ -92,6 +103,7 @@ namespace NCL {
 			reactphysics3d::RigidBody* rigidBody;
 			Vector3         scale;
 			Vector4			colour;
+			std::vector <Matrix4 > frameMatrices;
 		};
 	}
 }

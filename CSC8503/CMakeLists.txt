@@ -17,6 +17,7 @@ set(Header_Files
     "PaintClass.h"
     "PlayerObject.h"
     "Sound.h"
+    "Gamepad.h"
 )
 source_group("Header Files" FILES ${Header_Files})
 
@@ -46,6 +47,7 @@ set(Source_Files
     "PaintClass.cpp"
     "PlayerObject.cpp"
     "Sound.cpp"
+    "Gamepad.cpp"
 )
 
 if(USE_VULKAN)
@@ -220,6 +222,8 @@ endif()
 if(MSVC)
     target_link_libraries(${PROJECT_NAME} LINK_PUBLIC  "Winmm.lib")
 endif()
+
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC  "Xinput.lib")
 
 include_directories("../OpenGLRendering/")
 include_directories("../NCLCoreClasses/")

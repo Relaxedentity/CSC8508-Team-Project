@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "TextureLoader.h"
 #include "Debug.h"
+#include "Gamelock.h"
 using namespace NCL;
 using namespace Rendering;
 using namespace CSC8503;
@@ -46,6 +47,9 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	
 	glClearColor(1, 1, 1, 1);
 
+	//Animated Objects
+	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag"); 
+
 	//Set up the light properties
 	lightColour = Vector4(0.8f, 0.8f, 0.5f, 1.0f);
 	lightRadius = 1000.0f;
@@ -57,7 +61,6 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	skyboxMesh->SetVertexPositions({Vector3(-1, 1,-1), Vector3(-1,-1,-1) , Vector3(1,-1,-1) , Vector3(1,1,-1) });
 	skyboxMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	skyboxMesh->UploadToGPU();
-
 	LoadSkybox();
 
 	// healthbar
@@ -231,20 +234,19 @@ void NCL::CSC8503::GameTechRenderer::RenderCircle(float cx, float cy, float r, c
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2& v1, Vector2& v2, Vector2& v3, Vector4& color)
+void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector4& color, Vector2 windowSize)
 {
-	
 	BindShader(miniMapPlayer);
 	const auto& u_color = glGetUniformLocation(miniMapPlayer->GetProgramID(), "u_Color");
 
-	v1.x = (v1.x / windowWidth) * 2 - 1.0f;
-	v1.y = (v1.y / windowHeight) * 2 - 1.0f;
+	v1.x = (v1.x / windowSize.x) * 2 - 1.0f;
+	v1.y = (v1.y / windowSize.y) * 2 - 1.0f;
 
-	v2.x = (v2.x / windowWidth) * 2 - 1.0f;
-	v2.y = (v2.y / windowHeight) * 2 - 1.0f;
+	v2.x = (v2.x / windowSize.x) * 2 - 1.0f;
+	v2.y = (v2.y / windowSize.y) * 2 - 1.0f;
 
-	v3.x = (v3.x / windowWidth) * 2 - 1.0f;
-	v3.y = (v3.y / windowHeight) * 2 - 1.0f;
+	v3.x = (v3.x / windowSize.x) * 2 - 1.0f;
+	v3.y = (v3.y / windowSize.y) * 2 - 1.0f;
 
 	// form the triangle in constrained format
 	float map_area[] = {
@@ -276,14 +278,14 @@ void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2& v1, Vector2& v2, Ve
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderMap()
+void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windowSize, GameObject* player)
 {
-	float map_x = 1100.0f;
-	float map_y = 100.0f;
+	float map_x = windowSize.x - 100.0f;
+	float map_y = 100;
 	float map_size = 80.0f;
 	float draw_distance = 25.0f;
 	Vector4 map_color(0.8f, 0.8f, 0.8f, 0.7f);
-	RenderCircle(map_x, map_y, map_size, map_color);
+	RenderCircle(window_pos.x + map_x, window_pos.y + map_y, map_size, map_color);
 
 	// player triangle(center in map)
 	// in counter clock order
@@ -292,11 +294,10 @@ void NCL::CSC8503::GameTechRenderer::RenderMap()
 	Vector2 p_right(map_x + p_size, map_y - p_size);
 	Vector2 p_up(map_x, map_y + p_size);
 	Vector4 p_color(0.0f, 0.8f, 0.0f, 0.7f);
-
 	glClear(GL_DEPTH_BUFFER_BIT);
-	RenderTriangle(p_left, p_right, p_up, p_color);
+	RenderTriangle(p_left, p_right, p_up, p_color, windowSize);
 
-	const auto& player = gameWorld.GetPlayer();
+	/*const auto &player = gameWorld.GetPlayer();*/
 	const auto& camera = gameWorld.GetMainCamera();
 
 	// objects that is near the player
@@ -306,14 +307,14 @@ void NCL::CSC8503::GameTechRenderer::RenderMap()
 		[&](GameObject* o)
 		{
 			if (o->GetName() != "cube" && o->GetName() != "goose")
-				return;
-			Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
-			Vector2 o_pos(o->GetPhysicsObject()->getTransform().getPosition().x, o->GetPhysicsObject()->getTransform().getPosition().z);
-			float dis = (p_pos - o_pos).Length();
-			if (dis < draw_distance)
-			{
-				near_objects.push_back(o);
-			}
+			return;
+	        Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
+        	Vector2 o_pos(o->GetPhysicsObject()->getTransform().getPosition().x, o->GetPhysicsObject()->getTransform().getPosition().z);
+	        float dis = (p_pos - o_pos).Length();
+	        if (dis < draw_distance)
+	        {
+		       near_objects.push_back(o);
+	        }
 		});
 
 	// rotation matrix of camera
@@ -331,7 +332,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMap()
 		.SetColumn(0, Vector2(rot_array[0][0], -rot_array[0][1]) * coe)
 		.SetColumn(1, Vector2(-rot_array[1][0], rot_array[1][1]) * coe);
 
-	Vector4 cubeColor(0.3f, 0.3f, 0.3f, 0.7f);
+	Vector4 cubeColor(0.3f, 0.3f, 0.3f, 1.0f);
 	Vector4 gooseColor(0.0f, 0.0f, 0.3f, 0.7f);
 
 	for (const auto& object : near_objects)
@@ -339,31 +340,46 @@ void NCL::CSC8503::GameTechRenderer::RenderMap()
 		Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
 		Vector2 o_pos(object->GetPhysicsObject()->getTransform().getPosition().x, object->GetPhysicsObject()->getTransform().getPosition().z);
 
+		int rect_width = 10;
+		int rect_height = 10;
+
+		Vector2 tl = { o_pos.x - rect_width / 2, o_pos.y + rect_height / 2 };
+		Vector2 br = { o_pos.x + rect_width / 2, o_pos.y - rect_height / 2 };
+
 		// the relative vector without any rotation for the object
-		Vector2 object_vec = o_pos - p_pos;
+		Vector2 tl_vec = tl - p_pos;
+		Vector2 br_vec = br - p_pos;
 
-		const float dis = object_vec.Length();
+		const float tl_dis = tl_vec.Length();
+		const float br_dis = br_vec.Length();
 
-		// inverse the yaw of the camera
-		Vector2 object_vec_inverse = inverse * object_vec.Normalised();
+		// inverse the yaw of the cameraf
+		Vector2 tl_vec_inverse = inverse * tl_vec.Normalised();
+		Vector2 br_vec_inverse = inverse * br_vec.Normalised();
 
 		// determin how far we should draw from the player ?
-		float draw_ratio = dis / draw_distance;
-		object_vec_inverse.x *= -1;
+		float tl_draw_ratio = tl_dis / draw_distance;
+		float br_draw_ratio = br_dis / draw_distance;
 
+		tl_vec_inverse.x *= -1;
+		br_vec_inverse.x *= -1;
 		// the final position in the map
-		Vector2 object_pos = Vector2(map_x, map_y) + ((object_vec_inverse * map_size) * draw_ratio);
+		Vector2 tl_pos = Vector2(map_x, map_y) + ((tl_vec_inverse * map_size) * tl_draw_ratio);
+		Vector2 br_pos = Vector2(map_x, map_y) + ((br_vec_inverse * map_size) * br_draw_ratio);
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		RenderCircle(object_pos.x, object_pos.y, object->GetName() == "cube" ? 15.0f : 10.0f, object->GetName() == "cube" ? cubeColor : gooseColor);
+		// the reason why the rectangle is rotating , is because we ignored that the cube also has a
+		// facing direction , and rotate just the center of it ,
+		// but the decisive points are all required lp;p;p;p;p;p;to be rotated (top left , bottom right)
+		RenderRectangle(tl_pos, br_pos, cubeColor, windowSize);
 	}
 
-	//std::cout << "near item count: " << near_objects.size() << std::endl;
+	// std::cout << "near item count: " << near_objects.size() << std::endl;
 
-	//std::cout << "player"<< ": " << player->GetPhysicsObject()->getTransform().getPosition() << std::endl;
+	// std::cout << "player"<< ": " << player->GetPhysicsObject()->getTransform().getPosition() << std::endl;
 
-	//std::cout << "camera"
+	// std::cout << "camera"
 	///	<< ": "
 	//	<< " pos:" << camera->GetPosition()
 	//	<< " pitch:" << camera->GetPitch()
@@ -373,20 +389,41 @@ void NCL::CSC8503::GameTechRenderer::RenderMap()
 	return;
 
 }
-
-void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
+// render a rectangle with 2 points given , top left point  and  the bottom right point
+void NCL::CSC8503::GameTechRenderer::RenderRectangle(Vector2 tl, Vector2 br, Vector4 color, Vector2 windowSize)
 {
-	Vector2 p_triangle1, p_triangle2, p_triangle3;
-	p_triangle1 = Vector2(px, py);
-	p_triangle2 = Vector2(px, py - height);
-	p_triangle3 = Vector2(px + width, py);
-	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
 
-	p_triangle1 = Vector2(px, py - height);
-	p_triangle2 = Vector2(px + width, py - height);
-	p_triangle3 = Vector2(px + width, py);
-	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+	Vector2 point_1 = tl;
+	Vector2 point_2 = br;
+	Vector2 mid = { (tl.x + br.x) / 2, (tl.y + br.y) / 2 };
+	Vector2 diagonal = tl - mid;
+
+	Matrix2 rot_90 = Matrix2::Matrix2().Rotation(90.0);
+	// the other diagonal is the diagonal above rotated by 90 degress
+	auto diag_other = rot_90 * diagonal;
+	// one of the point is diag_other - the mid
+	auto point_3 = diag_other + mid;
+
+	// the other is asymmetric
+	auto point_4 = mid * 2 - point_3;
+
+	RenderTriangle(point_1, point_4, point_2, color, windowSize);
+	RenderTriangle(point_2, point_3, point_1, color, windowSize);
 }
+
+//void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
+//{
+//	Vector2 p_triangle1, p_triangle2, p_triangle3;
+//	p_triangle1 = Vector2(px, py);
+//	p_triangle2 = Vector2(px, py - height);
+//	p_triangle3 = Vector2(px + width, py);
+//	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+//
+//	p_triangle1 = Vector2(px, py - height);
+//	p_triangle2 = Vector2(px + width, py - height);
+//	p_triangle3 = Vector2(px + width, py);
+//	RenderTriangle(p_triangle1, p_triangle2, p_triangle3, color);
+//}
 
 void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
 {
@@ -451,6 +488,13 @@ void GameTechRenderer::RenderFrame( )
 	
 	RenderHUD();
 }
+void NCL::CSC8503::GameTechRenderer::AnimUpdate(MeshAnimation* playerAnim, float dt) {
+	frameTime -= dt;
+	while (frameTime < 0.0f) {
+		currentFrame = (currentFrame + 1) % playerAnim->GetFrameCount();
+		frameTime += 1.0f / playerAnim->GetFrameRate();
+	}
+}
 void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 {
 	glEnable(GL_CULL_FACE);
@@ -468,7 +512,7 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 
 	glEnable(GL_BLEND);
 	RenderCrossHair();
-	RenderMap();
+	RenderMap({ 0, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayer());
 	RenderHealthBar(gameWorld.GetPlayerHealth());
 
 	glDisable(GL_BLEND);
@@ -493,7 +537,7 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 	glEnable(GL_BLEND);
 	RenderCrossHair();
-	RenderMap();
+	RenderMap({ windowWidth * 0.5f, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayerCoop());
 	RenderHealthBar(gameWorld.GetPlayerCoopHealth());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -507,7 +551,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 	RenderTimerQuad();
 	RenderCrossHair();
 	NewRenderText();
-	RenderMap();
+	RenderMap({ 0, 0 }, { (float)windowWidth, (float)windowHeight }, gameWorld.GetPlayer());
 
 	RenderHealthBar(gameWorld.GetPlayerHealth());
 	RenderProgressBar(gameWorld.getColourOneScore() );
@@ -590,6 +634,8 @@ void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height
 
 	glCullFace(GL_BACK);
 }
+
+
 void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
@@ -682,10 +728,10 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			lightPosLocation = glGetUniformLocation(shader->GetProgramID(), "lightPos");
 			lightColourLocation = glGetUniformLocation(shader->GetProgramID(), "lightColour");
 			lightRadiusLocation = glGetUniformLocation(shader->GetProgramID(), "lightRadius");
-
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
-
+			int j = glGetUniformLocation(shader->GetProgramID(), "joints");
+			glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
 			Vector3 camPos = camera.GetPosition();
 	
 			
@@ -705,7 +751,6 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			glUniform3fv(lightPosLocation	, 1, (float*)&lightPosition);
 			glUniform4fv(lightColourLocation, 1, (float*)&lightColour);
 			glUniform1f(lightRadiusLocation , lightRadius);
-
 			int shadowTexLocation = glGetUniformLocation(shader->GetProgramID(), "shadowTex");
 			glUniform1i(shadowTexLocation, 1);
 

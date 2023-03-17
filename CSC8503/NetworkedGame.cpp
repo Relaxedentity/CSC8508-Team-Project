@@ -4,6 +4,7 @@
 #include "NetworkObject.h"
 #include "GameServer.h"
 #include "GameClient.h"
+#include "RenderObject.h"
 #include "Debug.h"
 #include <iostream>
 #include <fstream>
@@ -31,6 +32,9 @@ NetworkedGame::NetworkedGame() {
 	timeToNextPacket = 0.0f;
 	packetsToSnapshot = 0;
 	lastID = 0;
+	animatedShaderB = new OGLShader("skinningVertex.glsl", "charFrag.frag");
+	animatedShaderC = new OGLShader("skinningVertex.glsl", "charFrag.frag");
+	animatedShaderD = new OGLShader("skinningVertex.glsl", "charFrag.frag");
 }
 
 NetworkedGame::~NetworkedGame() {
@@ -40,9 +44,9 @@ NetworkedGame::~NetworkedGame() {
 
 void NetworkedGame::StartAsServer() {
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 4);
-	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), 2, 2);
-	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), 3, 3);
-	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), 4, 4);
+	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderB, 2, 2);
+	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderC, 3, 3);
+	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderD, 4, 4);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	//goose->setTarget2(player2);
 	
@@ -52,9 +56,9 @@ void NetworkedGame::StartAsServer() {
 void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient = new GameClient();
 	thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
-	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), 2, 2);
-	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), 3, 3);
-	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), 4, 4);
+	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderB, 2, 2);
+	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderC, 3, 3);
+	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderD, 4, 4);
 
 	thisClient->RegisterPacketHandler(Delta_State, this);
 	thisClient->RegisterPacketHandler(Full_State, this);
@@ -80,22 +84,20 @@ void NetworkedGame::UpdateGame(float dt) {
 
 	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9) && !initSplitScreen) {
 		StartAsServer();
-		coopMode = false;
-		
 	}
 	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10) && !initSplitScreen) {
 		StartAsClient(127, 0, 0, 1);
-		coopMode = false;
 	}
-
 	TutorialGame::UpdateGame(dt);
 }
 
 void NetworkedGame::UpdateAsServer(float dt) {
+	UpdateNetworkAnimations(dt);
 	MovePlayer(player, dt);
 	thisServer->UpdateServer();
-
-
+	ResetMovementFrame(player2);
+	ResetMovementFrame(player3);
+	ResetMovementFrame(player4);
 	packetsToSnapshot--;
 	if (packetsToSnapshot < 0) {
 		BroadcastSnapshot(false);
@@ -109,23 +111,32 @@ void NetworkedGame::UpdateAsServer(float dt) {
 void NetworkedGame::UpdateAsClient(float dt) {
 	reactphysics3d::Quaternion yaw;
 	bool grounded = false;
+	UpdateNetworkAnimations(dt);
 	switch (thisClient->clientID) {
 	case 1:
 		MovePlayer(player2, dt);
 		yaw = player2->GetYaw();
 		grounded = player2->IsGrounded();
+		ResetMovementFrame(player3);
+		ResetMovementFrame(player4);
 		break;
 	case 2:
 		MovePlayer(player3, dt); 
 		yaw = player3->GetYaw();
 		grounded = player3->IsGrounded();
+		ResetMovementFrame(player2);
+		ResetMovementFrame(player4);
 		break;
 	case 3:
 		MovePlayer(player4, dt);
 		yaw = player4->GetYaw();
 		grounded = player4->IsGrounded();
+		ResetMovementFrame(player2);
+		ResetMovementFrame(player3);
 		break;
 	}
+	ResetMovementFrame(player);
+
 	thisClient->UpdateClient();
 
 	ClientPacket newPacket;
@@ -265,30 +276,27 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 		}
 		if (type == Received_State) {
 			if (o->getGameObject().GetWorldID() == ((ClientPacket*)payload)->myID + 1) {
+				o->getGameObject().directionInput = false;
 				//std::cout << "client" << source << std::endl;
 				// o->GameObjectRotate(reactphysics3d::Quaternion(((ClientPacket*)payload)->orientation[0],
 				//((ClientPacket*)payload)->orientation[1], ((ClientPacket*)payload)->orientation[2], ((ClientPacket*)payload)->orientation[3]));
 				//std::cout << ((ClientPacket*)payload)->orientation[0] << ((ClientPacket*)payload)->orientation[1] << ((ClientPacket*)payload)->orientation[2] << ((ClientPacket*)payload)->orientation[3];
 				Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
 				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
+				o->getGameObject().GetPhysicsObject()->resetTorque();
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
-					std::cout << "poop 1\n";
 					o->GameobjectMove(1, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 2) {
-					std::cout << "poop 2\n";
 					o->GameobjectMove(2, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 3) {
-					std::cout << "poop 3\n";
 					o->GameobjectMove(3, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 4) {
-					std::cout << "poop 4\n";
 					o->GameobjectMove(4, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 5) {
-					std::cout << "poop 5\n";
 					o->GameobjectMove(5, yaw, grounded);
 				}	
 				o->GameObjectRotate(yaw);
@@ -310,3 +318,36 @@ void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b) {
 		thisClient->SendPacket(newPacket);
 	}
 }
+
+void  NetworkedGame::UpdateNetworkAnimations(float dt) {
+	player2->GetRenderObject()->frameTime -= dt;
+	player3->GetRenderObject()->frameTime -= dt;
+	player4->GetRenderObject()->frameTime -= dt;
+
+	if (player2->directionInput) {
+		UpdateAnim(player2, playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player2, playerIdleAnim);
+	}
+	if (player3->directionInput) {
+		UpdateAnim(player3, playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player3, playerIdleAnim);
+	}
+	if (player4->directionInput) {
+		UpdateAnim(player4, playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player4, playerIdleAnim);
+	}
+}
+void  NetworkedGame::ResetMovementFrame(GameObject* p) {
+	if (!p->directionInput) {
+		p->GetPhysicsObject()->resetForce();
+		p->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
+	}
+	
+}
+

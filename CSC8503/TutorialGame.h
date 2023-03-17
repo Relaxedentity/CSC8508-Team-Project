@@ -6,8 +6,9 @@
 #include "NavigationGrid.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
-
+#include "MeshMaterial.h"
 #include "PlayerObject.h"
+#include "MeshAnimation.h"
 
 #include "Sound.h"
 
@@ -55,6 +56,10 @@ namespace NCL {
 				return physicsWorld;
 			}
 			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+
+			float redScore = 0.0f;
+			float blueScore = 0.0f;
+		    
 		protected:
 			void InitialiseAssets();
 			void InitSound();
@@ -83,8 +88,7 @@ namespace NCL {
 
 			//test
 			void MovePlayerCoop(PlayerObject* player, float dt);
-			void FirstController(GameObject& player);
-			void SecondController(GameObject& player);
+
 
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
@@ -93,6 +97,10 @@ namespace NCL {
 			StateGameObject* testStateObject;
 			BTreeObject* goose;
 
+			// animation 
+			void DrawAnim(PlayerObject* p, MeshAnimation* anim);
+			void UpdateAnim(PlayerObject* p, MeshAnimation* anim);
+
 			GameObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
@@ -100,15 +108,13 @@ namespace NCL {
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			GameObject* AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass = 0.1f);
 			void buildGameworld();
-			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, int netID, int worldID);
+			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
-			PlayerObject* AddPlayerForCoop(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			
 			void AddHedgeMazeToWorld();
-
-
+			
 			// Making Rebellion mesh-based objects
 			GameObject* AddRebWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
 			GameObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
@@ -145,6 +151,12 @@ namespace NCL {
 			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
 			void SecScreenJumpMapping(Vector3 sphereintipos);
 
+			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			void ShootProjectile(PlayerObject* p, Camera* c);
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
@@ -157,10 +169,10 @@ namespace NCL {
 			
 			GameObject* button;
 			GameObject* door;
-			GameObject* floor;
 
 			bool initSplitScreen;
 			bool coopMode;
+			bool gpConnected;
 
 			bool useGravity;
 			bool inSelectionMode;
@@ -168,6 +180,7 @@ namespace NCL {
 			bool mouseLock;
 			bool debug;
 
+			float renderTime = 0;
 			float accumulator = 0;
 			const float timeStep = 1.0f / 60.0f;
 
@@ -187,25 +200,29 @@ namespace NCL {
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
 			MeshGeometry*   gooseMesh   = nullptr;
-
+			MeshGeometry* playerMesh = nullptr;
+			MeshAnimation* playerWalkAnim = nullptr;
+			MeshAnimation* playerIdleAnim = nullptr;
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
+			OGLShader* animatedShader = nullptr;
+			OGLShader* animatedShaderA = nullptr;
 			ShaderBase*		charShader	= nullptr;
-
+			MeshMaterial* playerMat = nullptr;
+			vector <GLuint > playerTextures;
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
 			MeshGeometry*	enemyMesh	= nullptr;
 			MeshGeometry*	bonusMesh	= nullptr;
-
 			// Rebellion Assets
 			TextureBase*	chairTex	= nullptr;
 			MeshGeometry*	chairMesh	= nullptr;
-
+			TextureBase* playerTex = nullptr;
 			TextureBase*	corridorTexture			= nullptr;
 			MeshGeometry*	corridorStraightMesh	= nullptr;
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
-
+			
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
 
@@ -233,13 +250,13 @@ namespace NCL {
 			float thirdPersonYScalar = 1;
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
-
 			Projectile* projectiles[100];
 			int currentProjectile = 0;
 
 			bool thirdPerson = true;
 
 			Vector3 orbitCameraProcess(Vector3 objPos, Camera& camera, GameObject* ignorePlayer);
+		
 			Vector3 thirdPersonCameraProcess(Vector3 objPos, Camera& camera, GameObject* currPlayer);
 			void cameraInterpolation(Vector3 target, float dt, Camera& camera);
 			float cameraInterpBaseSpeed = 0.5f;
