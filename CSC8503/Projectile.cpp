@@ -63,7 +63,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 
 
 	reactphysics3d::Vector3 tempCollision = reactphysics3d::Vector3(collisionPoint.x, collisionPoint.y, collisionPoint.z);
-	tempParticles.push_back( tgame->AddEmitterToWorld(tempCollision, reactphysics3d::Quaternion::identity()));
+	tempParticles.push_back( tgame->AddEmitterToWorld(tempCollision, reactphysics3d::Quaternion::identity(),paintColour));
 	particleTime = 0.3f;
 
 }

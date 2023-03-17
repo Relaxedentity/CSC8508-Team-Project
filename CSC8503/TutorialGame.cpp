@@ -1249,7 +1249,7 @@ void TutorialGame::DrawAnim(PlayerObject* p, MeshAnimation* anim) {
 }
 	
 
-GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
+GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation,char colour) {
 	GameObject* emitter = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
@@ -1276,7 +1276,10 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
 
 	emitter->SetPhysicsObject(body);
-	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader));
+	Vector4 paintColour;
+	if (colour == 'r')paintColour = Vector4(1, 0.2, 0, 0.8);
+	else paintColour = Vector4(0, 0.2, 1, 0.8);
+	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader,paintColour));
 	world->AddGameObject(emitter);
 	return emitter;
 }

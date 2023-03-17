@@ -55,8 +55,9 @@ void main(void)
 	
 	fragColor.rgb += lightColour.rgb * sFactor * shadow; //specular light
 	
-	/*
+	
 	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / 2.2f));
+	/*
 	for(int i = 0; i< 1000;i++){
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
 		if(circledist < 2.0f)

@@ -17,7 +17,7 @@ namespace NCL {
 		class RenderObject
 		{
 		public:
-			RenderObject(reactphysics3d::RigidBody* rigidBody, const Vector3& scale, MeshGeometry* mesh, TextureBase* tex, ShaderBase* shader);
+			RenderObject(reactphysics3d::RigidBody* rigidBody, const Vector3& scale, MeshGeometry* mesh, TextureBase* tex, ShaderBase* shader,Vector4 colour= Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 			~RenderObject();
 
 			void SetDefaultTexture(TextureBase* t) {

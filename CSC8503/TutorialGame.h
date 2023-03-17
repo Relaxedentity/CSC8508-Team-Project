@@ -56,7 +56,7 @@ namespace NCL {
 			reactphysics3d::PhysicsWorld* GetPhysicsWorld() {
 				return physicsWorld;
 			}
-			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation,char colour);
 
 			float redScore = 0.0f;
 			float blueScore = 0.0f;
