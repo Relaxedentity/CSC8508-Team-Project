@@ -25,6 +25,7 @@
 #include "MeshMaterial.h"
 #include "MeshAnimation.h"
 #include "Gamepad.h"
+#include "PlayerObject.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -111,7 +112,7 @@ void TutorialGame::InitialiseAssets() {
 	InitCamera();
 	InitCameraSec();
 	InitWorld();
-	InitProjectiles();
+	InitProjectiles(basicShader);
 	InitPaintOrb();
 
 	GameObjectListener* listener = new GameObjectListener(world);
@@ -319,6 +320,7 @@ void TutorialGame::UpdateGame(float dt) {
 void TutorialGame::moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos) {
 	if (lockedObject == p && !GameLock::Player1lock) {//player movelock!
 		MovePlayer(p, dt, camPos);
+		//ShootProjectile(p, p->GetPitch());
 		shootPaint(p, dt, world->GetMainCamera());
 	}
 }
@@ -720,12 +722,16 @@ void TutorialGame::ShootProjectile(PlayerObject* p, Quaternion Pitch) {
 	case 'b':
 		colourVector = Vector4(0, 0, 1, 1);
 		break;
+	default:
+		colourVector = Vector4(0, 1, 0, 1);
+		break;
 	}
 	projectile->GetRenderObject()->SetColour(colourVector);
 	projectile->setPaintColour(p->getPaintColour());
 	projectile->Reset();
 	projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(p->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + p->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
-	std::cout<< projectile->GetPhysicsObject()->getTransform().getPosition().x<<"," << projectile->GetPhysicsObject()->getTransform().getPosition().y << "," << projectile->GetPhysicsObject()->getTransform().getPosition().z << std::endl;
+	//std::cout<< projectile->GetPhysicsObject()->getTransform().getPosition().x<<"," << projectile->GetPhysicsObject()->getTransform().getPosition().y << "," << projectile->GetPhysicsObject()->getTransform().getPosition().z << std::endl;
+	//std::cout << projectile->GetNetworkObject()->GetNetworkID()<<std::endl;
 	projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 	projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(p->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
 }
@@ -942,9 +948,9 @@ void TutorialGame::InitWorld() {
 	//InitDefaultFloor();
 }
 
-void TutorialGame::InitProjectiles() {
+void TutorialGame::InitProjectiles(ShaderBase* shader) {
 	for (int i = 0; i < 100; ++i) {
-		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.75, 1, i +5);
+		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.75, 1, i +5,shader);
 	}
 }
 
@@ -1105,7 +1111,7 @@ rigid body representation. This and the cube function will let you build a lot o
 physics worlds. You'll probably need another function for the creation of OBB cubes too.
 
 */
-Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, int netId, float mass) {
+Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, int netId, ShaderBase* shader,float mass) {
 	Projectile* sphere = new Projectile(world, 3.0f);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
@@ -1118,7 +1124,7 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	
 	collider->setMaterial(material);
 	sphere->SetPhysicsObject(body);
-	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, nullptr, charShader));
+	sphere->SetRenderObject(new RenderObject(body, Vector3(radius, radius, radius), sphereMesh, nullptr, basicShader));
 
 	Vector4 colourVector;
 	switch (colour) {
