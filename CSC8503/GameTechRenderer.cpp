@@ -557,10 +557,16 @@ void NCL::CSC8503::GameTechRenderer::RenderRectangle(Vector2 tl, Vector2 br, Vec
 	// one of the point is diag_other - the mid
 	auto point_3 = diag_other + mid;
 
-void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
-{
-	
+	// the other is asymmetric
+	auto point_4 = mid * 2 - point_3;
+
+	RenderTriangle(point_1, point_4, point_2, color, windowSize);
+	RenderTriangle(point_2, point_3, point_1, color, windowSize);
 }
+//void NCL::CSC8503::GameTechRenderer::RenderRectangle(float px, float py, float width, float height, Vector4& color)
+//{
+//	
+//}
 
 void NCL::CSC8503::GameTechRenderer::RenderMainMenu() {
 	BindShader(uiShader);
@@ -729,14 +735,11 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopEndExitScreen() {
 	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 	BindMesh(endexitBtnMesh);
 	DrawBoundMesh();
-	delete endexitBtnTex;
-	RenderTriangle(point_1, point_4, point_2, color, windowSize);
-	RenderTriangle(point_2, point_3, point_1, color, windowSize);
-	BindMesh(endexitBtnMesh);
-	DrawBoundMesh();
-
-
-
+	//delete endexitBtnTex;
+	//RenderTriangle(point_1, point_4, point_2, color, windowSize);
+	//RenderTriangle(point_2, point_3, point_1, color, windowSize);
+	//BindMesh(endexitBtnMesh);
+	//DrawBoundMesh();
 	delete endexitBtnTex;
 }
 
@@ -889,10 +892,12 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glEnable(GL_BLEND);
 	if (GameLock::gamestart) {
 		RenderCrossHair();
-		RenderMap();
+		RenderMap({ 0, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayer());
 		RenderHealthBar(gameWorld.GetPlayerHealth());
 	}
 
@@ -902,14 +907,6 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 		RendererCooScore2();
 		RenderCoopEndExitScreen();
 	}
-
-	
-	RenderCrossHair();
-	RenderMap({ 0, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayer());
-	RenderHealthBar(gameWorld.GetPlayerHealth());
-	//RenderCrossHair();
-	//RenderMap();
-	//RenderHealthBar(gameWorld.GetPlayerHealth());
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -929,7 +926,9 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glEnable(GL_BLEND);
 	if (GameLock::gamestart) {
 		//RenderCrossHair();
 		//RenderMap();
@@ -940,36 +939,32 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 		RenderHealthBar(gameWorld.GetPlayerCoopHealth());
 	}
 
-	
 
-	//RenderCrossHair();
-	//RenderMap();
-	//RenderHealthBar(gameWorld.GetPlayerCoopHealth());
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 }
-	NewRenderText();
+
+void NCL::CSC8503::GameTechRenderer::RenderHUD()
+{
+	NewRenderLines();
+
 	if (GameLock::gamestart) {
 		RenderTimerQuad();
 		RenderCrossHair();
+		NewRenderText();
 		RenderMap({ 0, 0 }, { (float)windowWidth, (float)windowHeight }, gameWorld.GetPlayer());
 		RenderHealthBar(gameWorld.GetPlayerHealth());
 		RenderProgressBar(gameWorld.getColourOneScore());
-		NewRenderLines();
-
 	}
 	
-
-	RenderCrossHair();
-	NewRenderText();
-	RenderMap();
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
 void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
 {
 

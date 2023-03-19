@@ -10,7 +10,6 @@ namespace NCL {
 			static float redScore;
 			static float blueScore;
 			static bool gamestart;
-			static bool gamePause;
 			static int gamemod;
 			static const int gamelength = 200;
 			static ISoundEngine* hitsound;
@@ -36,6 +35,9 @@ namespace NCL {
 			static bool isloading1;
 			static bool isloading2;
 			static int loadingdone;
+
+			static float p1ModeTime;
+			static float p2ModeTime;
 		};
 	}
 }

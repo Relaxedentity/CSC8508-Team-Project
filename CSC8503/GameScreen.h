@@ -37,7 +37,6 @@ namespace NCL {
 					if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F1) || player1menuAwake) {
 
 						GameLock::Player1lock = true;
-						GameLock::gamePause = true;
 						player1menuAwake = false;
 						*newState = new PauseScreen();
 						return PushdownResult::Push;
@@ -168,7 +167,6 @@ namespace NCL {
 				bool player1menuAwake = false;
 				bool player2menuAwake = false;
 
-				GameLock::gamePause = false;
 			}
 		protected:
 			int coinsMined = 0;

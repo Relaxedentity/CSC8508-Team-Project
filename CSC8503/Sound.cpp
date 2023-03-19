@@ -13,9 +13,49 @@ using namespace Assets;
 
 
 
+void SoundObject::capsule(ISoundEngine* shootvoice)
+{
+	const std::string a = "capsule.WAV";
+	const std::string s = SOUNDSDIR + a;
+	const char* HitVoicefilepos = s.c_str();
+	ISound* HitV = shootvoice->play3D(HitVoicefilepos, vec3df(0, 0, 0), false, false, true);
+	HitV->setMinDistance(2.0f);
+	HitV->drop();
+}
+
+void SoundObject::cat(ISoundEngine* shootvoice)
+{
+	const std::string a = "cat.WAV";
+	const std::string s = SOUNDSDIR + a;
+	const char* HitVoicefilepos = s.c_str();
+	ISound* HitV = shootvoice->play3D(HitVoicefilepos, vec3df(0, 0, 0), false, false, true);
+	HitV->setMinDistance(20.0f);
+	HitV->drop();
+}
+void SoundObject::coin(ISoundEngine* shootvoice)
+{
+	const std::string a = "coin.WAV";
+	const std::string s = SOUNDSDIR + a;
+	const char* HitVoicefilepos = s.c_str();
+	ISound* HitV = shootvoice->play3D(HitVoicefilepos, vec3df(0, 0, 0), false, false, true);
+	HitV->setMinDistance(2.0f);
+	HitV->drop();
+}
+
+
 void SoundObject::ShootVoice(ISoundEngine* shootvoice, Vector3 ShootPosition)
 {
 	const std::string a = "bell.WAV";
+	const std::string s = SOUNDSDIR + a;
+	const char* HitVoicefilepos = s.c_str();
+	ISound* HitV = shootvoice->play3D(HitVoicefilepos, vec3df(ShootPosition.x, ShootPosition.y, ShootPosition.z), false, false, true);
+	HitV->setMinDistance(2.0f);
+	HitV->drop();
+}
+
+void SoundObject::ShotGunShootVoice(ISoundEngine* shootvoice, Vector3 ShootPosition)
+{
+	const std::string a = "ShotGun.WAV";
 	const std::string s = SOUNDSDIR + a;
 	const char* HitVoicefilepos = s.c_str();
 	ISound* HitV = shootvoice->play3D(HitVoicefilepos, vec3df(ShootPosition.x, ShootPosition.y, ShootPosition.z), false, false, true);
@@ -68,6 +108,12 @@ void SoundObject::fireSoundMapping(ISoundEngine* fire, Vector3 MainCameraPostito
 	ShootVoice(fire, SecCameraPosition);
 }
 
+void SoundObject::ShotGunfireSoundMapping(ISoundEngine* fire, Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
+{
+	ShotGunShootVoice(fire, MainCameraPostiton);
+	ShotGunShootVoice(fire, SecCameraPosition);
+}
+
 void SoundObject::moveSoundMapping(ISoundEngine* move, Vector3 MainCameraPostiton, Vector3 SecCameraPosition)
 {
 	MoveVoice(move, MainCameraPostiton);
@@ -79,3 +125,4 @@ void SoundObject::jumpSoundMapping(ISoundEngine* jump, Vector3 MainCameraPostito
 	JumpVoice(jump, MainCameraPostiton);
 	JumpVoice(jump, SecCameraPosition);
 }
+
