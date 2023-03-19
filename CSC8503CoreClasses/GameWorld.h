@@ -34,7 +34,12 @@ namespace NCL {
 		public:
 
 			RaycastManager(){ ignoreBody = nullptr; }
-			~RaycastManager(){}
+			~RaycastManager(){ 
+				for (auto p : hitPoints)
+				{
+					delete p;
+				}
+			}
 
 			virtual rp3d::decimal notifyRaycastHit(const rp3d::RaycastInfo& raycastInfo) override;
 
