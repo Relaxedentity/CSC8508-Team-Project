@@ -153,7 +153,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	exitBtnTex = new OGLTexture();
 	exitBtnTex = (OGLTexture*)exitBtnTex->SRGBTextureFromFilename("exit.png");
 	exitBtnMesh = new OGLMesh();
-	exitBtnMesh->SetVertexPositions({ Vector3(0.1, -0.6,0), Vector3(0.1, -0.75,0) , Vector3(-0.1, -0.75, 0) , Vector3(-0.1, -0.6, 0) });
+	exitBtnMesh->SetVertexPositions({ Vector3(0.1, -0.6,0), Vector3(0.1, -0.77,0) , Vector3(-0.1, -0.77, 0) , Vector3(-0.1, -0.6, 0) });
 	exitBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	exitBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	exitBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -169,9 +169,9 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	endMesh->UploadToGPU();
 
 	sinscoreTex = new OGLTexture();
-	sinscoreTex = (OGLTexture*)sinscoreTex->SRGBTextureFromFilename("Score_4.png");
+	sinscoreTex = (OGLTexture*)sinscoreTex->SRGBTextureFromFilename("Score_3.png");
 	sinscoreMesh = new OGLMesh();
-	sinscoreMesh->SetVertexPositions({ Vector3(0.2, 0.65,0), Vector3(0.2, 0.4,0) , Vector3(-0.4, 0.4, 0) , Vector3(-0.4, 0.65, 0) });
+	sinscoreMesh->SetVertexPositions({ Vector3(0.15, 0.6,0), Vector3(0.15, 0.4,0) , Vector3(-0.4, 0.4, 0) , Vector3(-0.4, 0.6, 0) });
 	sinscoreMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	sinscoreMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	sinscoreMesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -235,7 +235,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	backBtnTex = new OGLTexture();
 	backBtnTex = (OGLTexture*)backBtnTex->SRGBTextureFromFilename("back.png");
 	backBtnMesh = new OGLMesh();
-	backBtnMesh->SetVertexPositions({ Vector3(0.1, -0.6,0), Vector3(0.1, -0.75,0) , Vector3(-0.1, -0.75, 0) , Vector3(-0.1, -0.6, 0) });
+	backBtnMesh->SetVertexPositions({ Vector3(0.1, -0.59,0), Vector3(0.1, -0.77,0) , Vector3(-0.11, -0.77, 0) , Vector3(-0.11, -0.59, 0) });
 	backBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	backBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	backBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -817,12 +817,12 @@ void GameTechRenderer::RenderFrame( )
 
 
 	if (GameLock::isloading1){
-		RenderMainMenu();
+		RenderLoadingScreen();
 		GameLock::loadingdone = 1;
 		RenderloadingBar(progress);
 	}
 	else if (GameLock::isloading2) {
-		RenderMainMenu();
+		RenderLoadingScreen();
 		GameLock::loadingdone = 2;
 		RenderloadingBar(progress);
 	}
