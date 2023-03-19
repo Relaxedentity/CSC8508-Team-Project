@@ -49,7 +49,12 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	//if (otherObject)otherObject->GetRenderObject()->PaintSpray(collisionPoint, paintColour);
 
 	world->paintSphereTest(this, collisionPoint, paintColour);
-
+	if (otherObject == world->GetPlayerCoop() && world->GetPlayerCoopHealth() >= 0.0f){
+		world->SetPlayerCoopHealth(world->GetPlayerCoopHealth() - 0.05f);
+	}
+	else if (otherObject == world->GetPlayer() && world->GetPlayerHealth() >= 0.0f) {
+		world->SetPlayerHealth(world->GetPlayerHealth() - 0.05f); 
+	}
 
 	//world->painted.push_back(paintCollision);
 

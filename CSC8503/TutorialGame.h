@@ -9,7 +9,6 @@
 #include "MeshMaterial.h"
 #include "PlayerObject.h"
 #include "MeshAnimation.h"
-
 #include "Sound.h"
 
 namespace reactphysics3d {
@@ -112,7 +111,10 @@ namespace NCL {
 			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
+			//Power-up items
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddCapsuleToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+			GameObject* AddCatToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			
 			void AddHedgeMazeToWorld();
 			
@@ -142,6 +144,9 @@ namespace NCL {
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
 			void RenderDebug(float dt);
+
+			void FreezingPlayers(float dt);
+			void RegeneratePowerupProps(float dt);
 
 			/*sound functions*/
 			void MainScreenFireMapping(Vector3 sphereintipos);
@@ -192,8 +197,18 @@ namespace NCL {
 			float		health =0.8f;
 			float		secHealth = 0.2f;
 			float		timeLimit;
-			float       invokeTime=0.1f;
-			float       invokeTime2 = 0.1f;
+
+			float       normalRate = 0.1f;
+			float       shotGunRate = 0.5f;
+			float       invokeTime = normalRate;
+			float       invokeTime2 = normalRate;
+
+			float     p1pauseTime = 3.0f;
+			float     p2pauseTime = 3.0f;
+
+			float    shotGunModeTime = 10.0f;
+			float    p1ModeTime = shotGunModeTime;
+			float    p2ModeTime = shotGunModeTime;
 
 			GameObject* selectionObject = nullptr;
 			GameObject* selectionObjectSec = nullptr;
@@ -205,6 +220,7 @@ namespace NCL {
 			MeshAnimation* playerWalkAnim = nullptr;
 			MeshAnimation* playerIdleAnim = nullptr;
 			TextureBase*	basicTex	= nullptr;
+			TextureBase* terrainTex = nullptr;////////////
 			ShaderBase*		basicShader = nullptr;
 			OGLShader* animatedShader = nullptr;
 			OGLShader* animatedShaderA = nullptr;
@@ -223,6 +239,18 @@ namespace NCL {
 			MeshGeometry*	corridorStraightMesh	= nullptr;
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
+
+			//Power-up Items
+			ShaderBase* itemShader = nullptr;
+			TextureBase* capsuleTex = nullptr;
+			MeshGeometry* catMesh = nullptr;
+			TextureBase* catTex = nullptr;
+
+			GameObject* cat = nullptr;
+			GameObject* coin = nullptr;
+			GameObject* coin2 = nullptr;
+			GameObject* capsule = nullptr;
+			GameObject* capsule2 = nullptr;
 			
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
@@ -252,6 +280,7 @@ namespace NCL {
 			float thirdPersonXScalar = 1.25;
 			float thirdPersonZScalar = 4;
 			Projectile* projectiles[100];
+			Projectile* oneShot[5];
 			int currentProjectile = 0;
 
 			bool thirdPerson = true;
@@ -264,7 +293,7 @@ namespace NCL {
 
 			Quaternion thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos);
 
-			
+			vector<reactphysics3d::Vector3> itemPos;
 
 			void addMapNodeToWorld(Vector3 location);
 			// Rendering the character's paint track

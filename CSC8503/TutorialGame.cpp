@@ -79,11 +79,16 @@ void TutorialGame::InitialiseAssets() {
 	sphereMesh	= renderer->LoadMesh("sphere.msh");
 	charMesh	= renderer->LoadMesh("goat.msh");
 	enemyMesh	= renderer->LoadMesh("Keeper.msh");
-	bonusMesh	= renderer->LoadMesh("apple.msh");
+	bonusMesh	= renderer->LoadMesh("coin.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
 	gooseMesh = renderer->LoadMesh("goose.msh");
 	playerMesh = renderer->LoadMesh("splatPlayer.msh");
-	
+
+	itemShader = renderer->LoadShader("item.vert", "item.frag");
+	catMesh = renderer->LoadMesh("SanctumCat.msh");
+	catTex = renderer->LoadTexture("InSanct_Max_Cat_Colour.tga");
+	capsuleTex = renderer->LoadTexture("capsule.png");
+	terrainTex = renderer->LoadTexture("201215j07c4qx88ax8.thumb.png");
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
@@ -127,8 +132,14 @@ TutorialGame::~TutorialGame()	{
 	delete capsuleMesh;
 	delete gooseMesh;
 
+	delete playerTex;
+
 	delete basicTex;
 	delete basicShader;
+
+	delete animatedShader;
+	delete animatedShaderA;
+	delete charShader;
 
 	delete chairTex;
 	delete chairMesh;
@@ -138,10 +149,19 @@ TutorialGame::~TutorialGame()	{
 	delete corridorCornerRightSideMesh;
 	delete corridorCornerLeftSideMesh;
 
+	delete playerMat;
+	delete playerWalkAnim;
+	delete playerIdleAnim;
 	delete testMesh;
 
-	delete[] projectiles;
+	delete itemShader;
+	delete catMesh;
+	delete catTex;
+	delete capsuleTex;
+	delete terrainTex;
 
+	delete[] projectiles;
+	delete[] oneShot;
 	delete renderer;
 	delete world;
 	physics.destroyPhysicsWorld(physicsWorld);
@@ -190,10 +210,10 @@ void TutorialGame::UpdateGame(float dt) {
 		}
 	}
 
-	world->SetPlayerHealth(health);
+	/*world->SetPlayerHealth(health);
 	if (coopMode) {
 		world->SetPlayerCoopHealth(secHealth);
-	}
+	}*/
 
 	if (GameLock::gamestart && !GameLock::gamePause) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
@@ -311,7 +331,10 @@ void TutorialGame::UpdateGame(float dt) {
 	auto end = std::chrono::high_resolution_clock::now();
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
-	Debug::UpdateRenderables(dt);
+	Debug::UpdateRenderables(dt); 
+
+	FreezingPlayers(dt);
+	RegeneratePowerupProps(dt);
 }
 void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim) {
 	while (p->GetRenderObject()->frameTime < 0.0f) {
@@ -490,16 +513,17 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	//
 	//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-
+	invokeTime -= dt;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
-		invokeTime -= dt;
+		
 		if (invokeTime <= 0) {
 			ShootProjectile(player, world->GetMainCamera());
 			
 			/*sound mod is here! If you don't want to use it , just comment them out*/
 			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			MainScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
-			invokeTime = 0.1f;
+			player->getFireMode() ? invokeTime = 0.5f : invokeTime = 0.1f;
+		
 		}
 		
 	}
@@ -636,15 +660,14 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		//
 		//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
-		
+		invokeTime2 -= dt;
 		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-			invokeTime2 -= dt;
 			if (invokeTime2 <= 0) {
 				ShootProjectile(player, world->GetSecCamera());
 				/*sound mod is here! If you don't want to use it , just comment them out*/
 				Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 				SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
-				invokeTime2 = 0.1f;
+				player->getFireMode() ? invokeTime2 = 0.5f: invokeTime2 = 0.1f;
 			}
 		}
 
@@ -693,27 +716,44 @@ Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelo
 }
 
 void TutorialGame::ShootProjectile(PlayerObject* p, Camera* c) {
-	Projectile* projectile = projectiles[currentProjectile];
-	currentProjectile = (currentProjectile + 1) % 100;
-
 	Quaternion Pitch = Quaternion(c->GetRotationPitch());
 	reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-
-	Vector4 colourVector;
-	switch (player->getPaintColour()) {
-	case 'r':
-		colourVector = Vector4(1, 0, 0, 1);
-		break;
-	case 'b':
-		colourVector = Vector4(0, 0, 1, 1);
-		break;
+	std::cout << p->getFireMode() << std::endl;
+	if (p->getFireMode()) {
+		for (int i = 0; i < sizeof(oneShot)/sizeof(oneShot[0]); i++)
+		{
+			Projectile* projectile = projectiles[currentProjectile];
+			currentProjectile = (currentProjectile + 1) % 100;
+			projectile->setPaintColour(p->getPaintColour());
+			projectile->Reset();
+			projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(p->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 2, 0) + p->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+			projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+			projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(p->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(i*8, i, -500));
+			//std::cout << "iiiiiiii:" << i << std::endl;
+		}
 	}
-	projectile->GetRenderObject()->SetColour(colourVector);
-	projectile->setPaintColour(p->getPaintColour());
-	projectile->Reset();
-	projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(p->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 1.4, 0) + p->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
-	projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
-	projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(p->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+	else {
+		Projectile* projectile = projectiles[currentProjectile];
+		currentProjectile = (currentProjectile + 1) % 100;
+	/*	Quaternion Pitch = Quaternion(c->GetRotationPitch());
+		reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);*/
+		//Vector4 colourVector;
+		//switch (player->getPaintColour()) {
+		//case 'r':
+		//	colourVector = Vector4(1, 0, 0, 1);
+		//	break;
+		//case 'b':
+		//	colourVector = Vector4(0, 0, 1, 1);
+		//	break;
+		//}
+		//projectile->GetRenderObject()->SetColour(colourVector);
+		projectile->setPaintColour(p->getPaintColour());
+		projectile->Reset();
+		projectile->GetPhysicsObject()->setTransform(reactphysics3d::Transform(p->GetPhysicsObject()->getTransform().getPosition() + reactphysics3d::Vector3(0, 2, 0) + p->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -3), reactphysics3d::Quaternion(0, 0, 0, 1)));
+		projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+		projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(p->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+	}
+	
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
@@ -915,7 +955,7 @@ void NCL::CSC8503::TutorialGame::InitCameraSec()
 
 void TutorialGame::InitWorld() {
 	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
-	InitGameExamples();
+
 	
 	Vector3 startPos(70, 0, -10);
 	
@@ -924,7 +964,7 @@ void TutorialGame::InitWorld() {
 	
 	//button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
 	buildGameworld();
-	
+	InitGameExamples();
 	//InitDefaultFloor();
 }
 
@@ -975,6 +1015,7 @@ void TutorialGame::buildGameworld() {
 			switch (n.type) {
 			case '.':
 				AddFloorToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y, Nposition.z), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 2, 5), Node);
+				itemPos.push_back(reactphysics3d::Vector3(Nposition.x, Nposition.y+3.5, Nposition.z));
 				break;
 			case 'x':
 				AddRebWallSquareToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y - 1, Nposition.z), Node);
@@ -1059,7 +1100,7 @@ A single function to add a large immoveable cube to the bottom of our world
 
 */
 TerrainObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, MapNode* node) {
-	TerrainObject* floor = new TerrainObject(world);
+	TerrainObject* floor = new TerrainObject(world,"ground");
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setType(reactphysics3d::BodyType::STATIC);
@@ -1067,7 +1108,7 @@ TerrainObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::BoxShape* shape = physics.createBoxShape(halfextents);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	floor->SetPhysicsObject(body);
-	floor->SetRenderObject(new RenderObject(body, Vector3(halfextents) * 2, cubeMesh, basicTex, basicShader));
+	floor->SetRenderObject(new RenderObject(body, Vector3(halfextents) * 2, cubeMesh, terrainTex, basicShader));
 
 	world->AddGameObject(floor);
 
@@ -1086,7 +1127,7 @@ TerrainObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& posi
 	world->addToNodeCount(9);
 
 	node->addObject(floor);
-	
+
 	return floor;
 }
 
@@ -1285,18 +1326,52 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 }
 
 GameObject* TutorialGame::AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
-	GameObject* apple = new GameObject(world);
+	GameObject* coin = new GameObject(world,"coin");
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
-	body->setMass(1.0f);
-	reactphysics3d::SphereShape* shape = physics.createSphereShape(0.5f);
+	body->setType(reactphysics3d::BodyType::KINEMATIC);
+	body->setMass(0.0f);
+	reactphysics3d::SphereShape* shape = physics.createSphereShape(0.2f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
-	apple->SetPhysicsObject(body);
-	apple->SetRenderObject(new RenderObject(body, Vector3(2, 2, 2), bonusMesh, nullptr, basicShader));
 
-	world->AddGameObject(apple);
+	coin->SetPhysicsObject(body);
+	coin->SetRenderObject(new RenderObject(body, Vector3(0.1, 0.1, 0.1), bonusMesh, nullptr, itemShader,Vector4(1,0.6,0,0.8)));
 
-	return apple;
+	world->AddGameObject(coin);
+
+	return coin;
+}
+
+GameObject* TutorialGame::AddCapsuleToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
+	GameObject* capsule = new GameObject(world,"capsule");
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::KINEMATIC);
+	body->setMass(0.0f);
+	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f,0.2f);
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	capsule->SetPhysicsObject(body);
+	capsule->SetRenderObject(new RenderObject(body, Vector3(0.6, 0.8, 0.6), capsuleMesh, capsuleTex, itemShader));
+
+	world->AddGameObject(capsule);
+
+	return capsule;
+}
+
+GameObject* TutorialGame::AddCatToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
+	GameObject* cat = new GameObject(world,"cat");
+	reactphysics3d::Transform transform(reactphysics3d::Vector3(position.x,position.y+0.5f,position.z), orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::KINEMATIC);
+	body->setMass(0.0f);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.1,0.1,0.1));
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	cat->SetPhysicsObject(body);
+	cat->SetRenderObject(new RenderObject(body, Vector3(2.0f, 2.0f, 2.0f), catMesh, catTex, itemShader));
+
+	world->AddGameObject(cat);
+
+	return cat;
 }
 StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes) {
 	StateGameObject* apple = new StateGameObject(world,testNodes);
@@ -1384,6 +1459,11 @@ void TutorialGame::InitGameExamples() {
 		world->SetPlayerCoop(playerCoop);
 	}
 
+	if(!coin)coin = AddBonusToWorld(itemPos[1], reactphysics3d::Quaternion::identity());
+	if(!coin2)coin2 = AddBonusToWorld(itemPos[13], reactphysics3d::Quaternion::identity());
+	if(!capsule)capsule = AddCapsuleToWorld(itemPos[3], reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0.5f, 0, 0)));
+	if(!capsule2)capsule2 = AddCapsuleToWorld(itemPos[9], reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0, 0, 0.4f)));
+	if(!cat)cat = AddCatToWorld(itemPos[15], reactphysics3d::Quaternion::identity());
 	//patrol = AddEnemyToWorld(reactphysics3d::Vector3(-20, 5, 20), reactphysics3d::Quaternion::identity());
 }
 
@@ -1863,3 +1943,90 @@ void TutorialGame::SecScreenJumpMapping(Vector3 playerjumpos) {
 		voice->JumpVoice(initV, jumpposition);
 	}
 }
+
+void TutorialGame::FreezingPlayers(float dt) {
+
+	if (world->GetPlayerHealth() <= 0) {
+		GameLock::Player1lock = true;
+		p1pauseTime -= dt;
+		if (p1pauseTime <= 0) {
+			GameLock::Player1lock = false;
+			world->SetPlayerHealth(1.0f);
+			p1pauseTime = 3.0f;
+		}
+	}
+	if (world->GetPlayerCoopHealth() <= 0) {
+		GameLock::Player2lock = true;
+		p2pauseTime -= dt;
+		if (p2pauseTime <= 0) {
+			GameLock::Player2lock = false;
+			world->SetPlayerCoopHealth(1.0f);
+			p2pauseTime = 3.0f;
+		}
+	}
+}
+
+void TutorialGame::RegeneratePowerupProps(float dt) {
+	srand((unsigned)time(NULL));
+	if (!coin->IsActive()) {
+		int coinPos = rand() % itemPos.size();
+		coin->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coinPos], reactphysics3d::Quaternion::identity()));
+		coin->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+		coin->setActive(true);
+	}
+	if (!coin2->IsActive()) {
+		int coin2Pos = rand() % itemPos.size();
+		coin2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coin2Pos], reactphysics3d::Quaternion::identity()));
+		coin2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+		coin2->setActive(true);
+		
+	}
+	if (!capsule->IsActive()) {
+		int capsulePos = rand() % itemPos.size();
+		capsule->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[capsulePos],
+			reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0.5f, 0, 0))));
+		capsule->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+		capsule->setActive(true);
+	}
+	if (!capsule2->IsActive()) {
+		int capsule2Pos = rand() % itemPos.size();
+		capsule2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[capsule2Pos],
+			reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0, 0, 0.4f))));
+		capsule2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+		capsule2->setActive(true);
+		
+	}
+	if (!cat->IsActive()) {
+		int catPos = rand() % itemPos.size();
+		cat->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[catPos], reactphysics3d::Quaternion::identity()));
+		cat->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+		cat->setActive(true);
+	}	
+
+	/// Game props rotation ///
+	coin->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+	coin2->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+	capsule->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+	capsule2->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+	cat->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+
+	/// Shotgun Mode Countdown	/// 
+	if (player->getFireMode()) {
+		p1ModeTime -= dt;
+		if (p1ModeTime <= 0) {
+			p1ModeTime = shotGunModeTime;
+			player->setFireMode(false);
+		}
+	}
+	if (playerCoop->getFireMode()) {
+		p2ModeTime -= dt;
+		if (p2ModeTime <= 0) {
+			p2ModeTime = shotGunModeTime;
+			playerCoop->setFireMode(false);
+		}
+	}
+
+
+
+}
+
