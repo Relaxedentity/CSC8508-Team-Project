@@ -8,6 +8,7 @@
 #include "GameIntroduction.h"
 #include "PauseScreen.h"
 #include "GameEnd.h"
+#include "GameLoad.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -23,69 +24,92 @@ namespace NCL {
 
 			PushdownResult OnUpdate(float dt,PushdownState** newState) override {
 				
-				//lock.SetLock(false);
-				Debug::Print("Use Up and Down to select game mode", Vector2(10, 25), Vector4(1, 1, 1, 1));
-				Debug::Print("Game Menu", Vector2(10, 45), Vector4(1, 1, 1, 1));
+		/*		Debug::Print("Use Up and Down to select game mode", Vector2(20, 22), Debug::BLACK);
+				Debug::Print("Game Menu", Vector2(60, 40), Debug::BLACK);*/
 
 				GameLock::Player1lock = true;
 				 
-				//lock.iflock = true;
+				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
+				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
 
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
-				{
-					state = state - 1 >0?state-1:4;
+				if (GameLock::IntroButtonPos.size() > 0) {
+					for (int i = 1; i <= GameLock::IntroButtonPos.size(); i++) {
+						vector<Vector2> MappingPos = GameLock::IntroButtonPos[i-1];
+						if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
+							state = i;
+							if (state == 1) {
+								GameLock::normalBtnChange = true;
+								break;
+							} 
+							else if (state == 2) {
+								GameLock::coopBtnChange = true;
+								break;
+							}
+							else if (state == 3) {
+								GameLock::introBtnChange = true;
+								break;
+							}
+							else if (state == 4) {
+								GameLock::exitBtnChange = true;
+							}
+						
+						}
+						else {
+							state = 0;
+							GameLock::normalBtnChange = false;
+							GameLock::coopBtnChange = false;
+							GameLock::introBtnChange = false;
+							GameLock::exitBtnChange = false;
+						}
+					}
 				}
 
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN))
-				{
-					state = state +1 <= 4 ? state + 1 : 1;
-				}
 
-				switch (state)
+				/*switch (state)
 				{
 				case 1:
-					Debug::Print("Start Single Game", Vector2(10, 50),Vector4(1,0,0,1));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50),Vector4(1,0,0,1));
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				case 2:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55), Vector4(1, 0, 0, 1));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Vector4(1, 0, 0, 1));
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65),Debug::BLACK);
 					break;
 				case 3:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60),Vector4(1, 0, 0, 1));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60),Vector4(1, 0, 0, 1));
+					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
 				case 4:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65), Vector4(1, 0, 0, 1));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65), Vector4(1, 0, 0, 1));
 					break;
 				case 0:
-					Debug::Print("Start Single Game", Vector2(10, 50));
-					Debug::Print("Start Multiple Game", Vector2(10, 55));
-					Debug::Print("Game Introduction", Vector2(10, 60));
-					Debug::Print("Exit Game", Vector2(10, 65));
+					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
+					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
+					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
+					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
 					break;
-				}
+				}*/
 
- 				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RETURN))
+
+ 				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1)
 					{
 						//iflock = false;
-						GameLock::gamemod = 1;
-						GameLock::gamestart = true;
-						GameLock::Player1lock = false;
+						GameLock::isloading1 = true;
+						GameLock::Mainmenuawake = false;
+						*newState = new GameLoad();
 						GameLock::redScore = 0.0f;
 						GameLock::blueScore = 0.0f;
-						*newState = new GameScreen();
 						//t->InitWorld();
 						//g->InitWorld();
 						return PushdownResult::Push;
@@ -96,17 +120,19 @@ namespace NCL {
 						//return PushdownResult::Push;
 					}
 					if (state == 2) {
-						GameLock::gamemod = 2;
-						GameLock::gamestart = true;
-						GameLock::Player1lock = false;
-						GameLock::Player2lock = false;
+						GameLock::isloading2 = true;
+						GameLock::Mainmenuawake = false;
+						*newState = new GameLoad();
+
 						GameLock::redScore = 0.0f;
 						GameLock::blueScore = 0.0f;
-						*newState = new GameScreen();
+
 						return PushdownResult::Push;
 					}
 					if (state == 3)
 					{
+						GameLock::IntroMenuawake = true;
+						GameLock::Mainmenuawake = false;
 						*newState = new GameIntroduction();
 						return PushdownResult::Push;
 					}
@@ -122,6 +148,20 @@ namespace NCL {
 			void OnAwake() override 
 			{
 				state = 0;
+			}
+			bool buttonmapping(Vector2 leftT, Vector2 rightB, Vector2 screenMouse,Vector2 screenSize) {
+				float yMinMapping = (1 - leftT.y) / 2;
+				float yMaxMapping = (1 - rightB.y) / 2;
+				float xMaxMapping = (1 + rightB.x) / 2;
+				float xMinMapping = (1 + leftT.x) / 2;
+				if (screenMouse.y <= yMaxMapping * screenSize.y
+					&& screenMouse.y >= yMinMapping * screenSize.y
+					&& screenMouse.x <= xMaxMapping * screenSize.x
+					&& screenMouse.x >= xMinMapping * screenSize.x)
+					return true;
+				else
+					return false;
+				
 			}
 		};
 	}

@@ -203,8 +203,14 @@ void TutorialGame::UpdateGame(float dt) {
 		world->GetSecCamera()->UpdateCameraController(dt, gamepad.leftStickX, gamepad.rightStickY);
 	}
 	else {
-		Window::GetWindow()->ShowOSPointer(false);
-		Window::GetWindow()->LockMouseToWindow(mouseLock);
+		if (GameLock::gamestart) {
+			Window::GetWindow()->ShowOSPointer(false);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
+		}
+		if (!GameLock::gamestart) {
+			Window::GetWindow()->ShowOSPointer(true);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
 		if (lockedObject == player && !GameLock::Player1lock) {//player movelock!
 			MovePlayer(player, dt);
 		}
@@ -218,13 +224,14 @@ void TutorialGame::UpdateGame(float dt) {
 	if (GameLock::gamestart && !GameLock::gamePause) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
 		GameLock::gametime = timeLimit;
+		Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	}
 	else {
 		timeLimit = GameLock::gametime;
 	}
 
 
-	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
+	
 	
 	GameLock::redScore = world->getColourOneScore();
 	GameLock::blueScore = world->getColourTwoScore();

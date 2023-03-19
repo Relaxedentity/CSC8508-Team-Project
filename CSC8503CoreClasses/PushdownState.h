@@ -7,7 +7,7 @@ namespace NCL {
 		{
 		public:
 			enum PushdownResult {
-				Push, Pop, NoChange, Endgame, ExitoMainMenu
+				Push, Pop, NoChange, Endgame, ExitoMainMenu, GotoMainMenu
 			};
 			PushdownState() {};
 			virtual ~PushdownState() {}

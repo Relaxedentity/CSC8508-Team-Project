@@ -30,6 +30,7 @@ set(Menu_Files
     "PauseScreen.h"
     "Gamelock.h"
     "Gamelock.cpp"
+    "GameLoad.h"
 )
 
 source_group("Menu_Files" FILES ${Menu_Files})
