@@ -718,7 +718,6 @@ Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelo
 void TutorialGame::ShootProjectile(PlayerObject* p, Camera* c) {
 	Quaternion Pitch = Quaternion(c->GetRotationPitch());
 	reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
-	std::cout << p->getFireMode() << std::endl;
 	if (p->getFireMode()) {
 		for (int i = 0; i < sizeof(oneShot)/sizeof(oneShot[0]); i++)
 		{
