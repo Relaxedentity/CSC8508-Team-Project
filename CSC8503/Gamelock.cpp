@@ -33,3 +33,6 @@ bool GameLock::isloading2;
 int GameLock::loadingdone;
 float GameLock::redScore;
 float GameLock::blueScore;
+
+float GameLock::p1ModeTime = 0.0f;
+float GameLock::p2ModeTime = 0.0f;
