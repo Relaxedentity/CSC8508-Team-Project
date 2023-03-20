@@ -1140,7 +1140,7 @@ Projectile* TutorialGame::AddProjectileToWorld(const reactphysics3d::Vector3& po
 	sphere->GetRenderObject()->SetColour(colourVector);
 
 	world->AddGameObject(sphere);
-	NetworkObject* n = new NetworkObject(*sphere, netId);
+	//NetworkObject* n = new NetworkObject(*sphere, netId);
 	world->AddPaintBall();
 
 	return sphere;

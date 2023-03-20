@@ -123,8 +123,8 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	case 1:
 		//moveDesignatedPlayer(player2, dt);
 		updateCamera(player2, dt);
-		//MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
-		//shootPaint(player2, dt, world->GetMainCamera());
+		MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
+		shootPaint(player2, dt, world->GetMainCamera());
 		yaw = player2->GetYaw();
 		pitch = player2->GetPitch();
 		grounded = player2->IsGrounded();
@@ -134,8 +134,8 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	case 2:
 		//moveDesignatedPlayer(player3, dt);
 		updateCamera(player3, dt);
-		//MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
-		//shootPaint(player3, dt, world->GetMainCamera());
+		MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
+		shootPaint(player3, dt, world->GetMainCamera());
 		yaw = player3->GetYaw();
 		pitch = player3->GetPitch();
 		grounded = player3->IsGrounded();
@@ -145,8 +145,8 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	case 3:
 		//moveDesignatedPlayer(player4, dt);
 		updateCamera(player4, dt);
-		//MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
-		//shootPaint(player4, dt, world->GetMainCamera());
+		MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
+		shootPaint(player4, dt, world->GetMainCamera());
 		yaw = player4->GetYaw();
 		pitch = player4->GetPitch();
 		grounded = player4->IsGrounded();
@@ -185,7 +185,7 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		newPacket.buttonstates[0] = 5;
 		newPacket.lastID = lastID;
 	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
 		newPacket.buttonstates[0] = 6;
 		newPacket.lastID = lastID;
 	}
