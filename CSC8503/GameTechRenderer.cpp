@@ -373,6 +373,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 
 		// I'm working out a colour to depict each rectangle as here, based upon its constituent objects and their paint nodes.
 		float ratio = object->getColourRatio();
+		//std::cout << ratio << "\n";
 		// 1.0f is all red, -1.0f is all blue.
 		Vector4 colourTint = (ratio > 0) ? Vector4(1.0f, 0.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f);
 		ratio = abs(ratio);

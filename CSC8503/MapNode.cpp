@@ -33,5 +33,5 @@ float MapNode::getColourRatio() {
 		redCount += i->redTally;
 		blueCount += i->blueTally;
 	}
-	return (redCount - blueCount) / nodeTally;
+	return (float)(redCount - blueCount) / nodeTally;
 }
