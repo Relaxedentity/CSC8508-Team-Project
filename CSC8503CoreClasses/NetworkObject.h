@@ -8,6 +8,7 @@ namespace NCL::CSC8503 {
 
 	struct FullPacket : public GamePacket {
 		int		objectID = -1;
+		int projectileID;
 		NetworkState fullState;
 
 		FullPacket() {
@@ -15,12 +16,25 @@ namespace NCL::CSC8503 {
 			size = sizeof(FullPacket) - sizeof(GamePacket);
 		}
 	};
+	struct ProjectilePacket : public GamePacket {
+		int		lastID;
+		int		myID;
+		float	yaw[9];
+		Vector3 projPos;
+
+		ProjectilePacket() {
+			type = Projectile_Fired;
+			size = sizeof(ProjectilePacket);
+		}
+	};
+
 
 	struct DeltaPacket : public GamePacket {
 		int		fullID		= -1;
 		int		objectID	= -1;
 		char	pos[3];
 		char	orientation[4];
+		//int projectileID;
 
 		DeltaPacket() {
 			type = Delta_State;
@@ -32,7 +46,8 @@ namespace NCL::CSC8503 {
 		int		lastID;
 		char	buttonstates[8];
 		int		myID;
-		float	yaw[5];
+		float	yaw[9];
+		Vector3 projPos;
 
 		ClientPacket() {
 			type = Received_State;
@@ -47,16 +62,6 @@ namespace NCL::CSC8503 {
 			size = sizeof(InitialPacket);
 		}
 	};
-
-	//struct InitialPacket : public GamePacket {
-	//	int count;
-	//	//int myID;
-
-	//	InitialPacket() {
-	//		type = Player_Connected;
-	//		size = sizeof(InitialPacket);
-	//	}
-	//};
 
 	class NetworkObject		{
 	public:
@@ -77,6 +82,7 @@ namespace NCL::CSC8503 {
 		}
 		void GameobjectMove(int i, Quaternion yaw, bool grounded);
 		void GameObjectRotate(Quaternion yaw);
+		
 
 	protected:
 

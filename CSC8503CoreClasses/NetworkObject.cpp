@@ -65,7 +65,7 @@ bool NetworkObject::ReadFullPacket(FullPacket &p) {
 	lastFullState = p.fullState;
 
 	object.GetPhysicsObject()->setTransform(reactphysics3d::Transform(reactphysics3d::Vector3(lastFullState.position.x, lastFullState.position.y, lastFullState.position.z), reactphysics3d::Quaternion(lastFullState.orientation.x, lastFullState.orientation.y, lastFullState.orientation.z, lastFullState.orientation.w)));
-
+	//object.GetPhysicsObject()->setLinearVelocity(p.fullState.projVelocity);
 	stateHistory.emplace_back(lastFullState);
 
 	return true;
@@ -75,8 +75,10 @@ bool NetworkObject::WriteDeltaPacket(GamePacket**p, int stateID) {
 	DeltaPacket* dp = new DeltaPacket();
 	NetworkState state;
 	if (!GetNetworkState(stateID, state)) {
+		//std::cout << "hi" << std::endl;
 		return false; // cant delta!
 	}
+	std::cout << "bye" << std::endl;
 	dp->fullID = stateID;
 	dp->objectID = networkID;
 
@@ -96,7 +98,7 @@ bool NetworkObject::WriteDeltaPacket(GamePacket**p, int stateID) {
 	dp->orientation[3] = (char)(currentOrientation.x * 127.0f);
 
 	*p = dp;
-
+	
 	return true;
 }
 
@@ -106,6 +108,7 @@ bool NetworkObject::WriteFullPacket(GamePacket**p) {
 	fp->objectID = networkID;
 	fp->fullState.position = object.GetPhysicsObject()->getTransform().getPosition();
 	fp->fullState.orientation = object.GetPhysicsObject()->getTransform().getOrientation();
+	//fp->fullState.projVelocity = object.GetPhysicsObject()->getLinearVelocity();
 	fp->fullState.stateID = lastFullState.stateID++;
 	*p = fp;
 	return true;
@@ -144,7 +147,9 @@ void NetworkObject::GameobjectMove(int i, Quaternion yaw, bool grounded) {
 	case 1:
 		trajectory = grounded ? yaw * Vector3(0, 0, -25) : yaw * Vector3(0, 0, -12);
 		g.GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+		std::cout << g.GetPhysicsObject()->getForce().x << ", " << g.GetPhysicsObject()->getForce().y << ", " << g.GetPhysicsObject()->getForce().z << std::endl;
 		//g.GetPhysicsObject()->applyLocalForceAtCenterOfMass(g.GetPhysicsObject()->getTransform() * reactphysics3d::Vector3(0, 0, -5)); // forward
+		//std::cout << "poop" << std::endl;
 		g.directionInput = true;
 		break;
 

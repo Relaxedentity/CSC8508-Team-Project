@@ -14,6 +14,7 @@ namespace NCL::CSC8503 {
 	class PlayerObject : public PaintClass {
 	public:
 		SoundObject* voice;
+		int playerState;
 		PlayerObject(GameWorld* world, std::string name = "");
 		~PlayerObject();
 		Vector3 currentPos = Vector3(0, 0, 0);
@@ -29,6 +30,7 @@ namespace NCL::CSC8503 {
 	protected:
 		bool isShotGun = false;
 		bool isACARMode = false;
+		
 	};
 
 }

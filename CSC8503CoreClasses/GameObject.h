@@ -32,6 +32,14 @@ namespace NCL::CSC8503 {
 		virtual void Update(float dt){};
 		void setActive(bool active){
 			isActive = active;
+			if (!active) {
+				physicsObject->setType(rp3d::BodyType::STATIC);
+				physicsObject->setTransform(rp3d::Transform(rp3d::Vector3(0, -100, 0), rp3d::Quaternion::identity()));
+			}
+			else {
+				physicsObject->setType(rp3d::BodyType::DYNAMIC);
+				physicsObject->setTransform(rp3d::Transform(rp3d::Vector3(40, 3, 20), rp3d::Quaternion::identity()));
+			}
 		}
 		bool IsActive() const {
 			return isActive;
@@ -98,6 +106,12 @@ namespace NCL::CSC8503 {
 		reactphysics3d::Quaternion GetYaw() {
 			return yaw;
 		}
+		reactphysics3d::Quaternion GetPitch() {
+			return pitch;
+		}
+		void SetPitch(reactphysics3d::Quaternion pitch) {
+			this->pitch = pitch;
+		}
 		void setGrounded(bool groundedness) {
 			isGrounded = groundedness;
 		}
@@ -120,6 +134,7 @@ namespace NCL::CSC8503 {
 		int			objectTag;
 		std::string	name;
 		reactphysics3d::Quaternion yaw;
+		reactphysics3d::Quaternion pitch;
 		bool isGrounded = false;
 		GameWorld* world;
 

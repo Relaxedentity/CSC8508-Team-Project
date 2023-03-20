@@ -59,7 +59,7 @@ namespace NCL {
 
 			float redScore = 0.0f;
 			float blueScore = 0.0f;
-		    
+			
 		protected:
 			void InitialiseAssets();
 			void InitSound();
@@ -76,7 +76,7 @@ namespace NCL {
 			void InitGameExamples();
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const reactphysics3d::Vector3& cubeHalfextents);
 			void InitDefaultFloor();
-			void InitProjectiles();
+			void InitProjectiles(ShaderBase* shader);
 			void InitPaintOrb();
 			
 			bool SelectObject();
@@ -84,7 +84,7 @@ namespace NCL {
 			void MoveSelectedObject();
 			void DebugObjectMovement();
 			void LockedObjectMovement();
-			void MovePlayer(PlayerObject* player, float dt);
+			void MovePlayer(PlayerObject* player, float dt, Vector3 camPos);
 
 			//test
 			void MovePlayerCoop(PlayerObject* player, float dt);
@@ -108,7 +108,7 @@ namespace NCL {
 			GameObject* AddGWBlocksToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
 			GameObject* AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass = 0.1f);
 			void buildGameworld();
-			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, int netID, int worldID);
+			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, char paintColour, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
 			//Power-up items
@@ -156,12 +156,14 @@ namespace NCL {
 			void SecScreenFireMapping(Vector3 sphereintipos);
 			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
 			void SecScreenJumpMapping(Vector3 sphereintipos);
-
+			void shootPaint(PlayerObject* p, float dt, Camera* c);
 			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
 			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			void ShootProjectile(PlayerObject* p, Camera* c);
+			void updateCamera(PlayerObject* player, float dt);
+			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
+			void moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos);
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
@@ -185,7 +187,7 @@ namespace NCL {
 			bool freeCamera;
 			bool mouseLock;
 			bool debug;
-
+			bool isMultiplayer;
 			float renderTime = 0;
 			float accumulator = 0;
 			const float timeStep = 1.0f / 60.0f;
