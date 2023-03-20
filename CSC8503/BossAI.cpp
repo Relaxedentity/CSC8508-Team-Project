@@ -58,79 +58,101 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 
+			// choose between four points on the map to patrol 
+			
+			int patrolPoints = rand() % 3;
 
-			WalkPath(dest);
+			switch (patrolPoints)
+			{
+				case 0:
+					WalkPath(Vector3(-10, 0, 30));
+					break;
+				case 1:
+					WalkPath(Vector3(-20, 0, 30));
+					break;
+				case 2: 
+					WalkPath(Vector3(-70, 0, 30));
+					break;
+				case 3:
+					WalkPath(Vector3(-50, 0, 30));
+					break;
+			default:
+				break;
+			}
 
 			// if the player is within the maze return true.
 
-			if (seenPlayer) {
-				std::cout << " Found Player !\n";
+			if (SeenPlayer()) {
+				std::cout << " Player in View!\n";
 				state = Success;
 			}
 		}
 	return state; // will be ’ongoing ’ until success
 		});
 
-	BehaviourAction* setRangeToTargetAct = new BehaviourAction("Chase player", [&](float dt, BehaviourState state) -> BehaviourState {
+	BehaviourAction* setRangeToTargetAct = new BehaviourAction("Set Range To player", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			//std::cout << " Going to the loot room !\n";
+		
 			state = Ongoing;
-			GetRenderObject()->SetColour(Vector4(1, 0, 0, 1));
-			nodeIndex = 0;
-			pathNodes.clear();
-			destNotArrived = true;
-
-			walkToPlayer = true;
 		}
 		else if (state == Ongoing) {
 
-			// Get player position
-			float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
+			// Get the distance value betwen the player and AI
+			float currentDistance = (Vector3( GetPhysicsObject()->getTransform().getPosition()) - getTarget1()->GetPhysicsObject()->getTransform().getPosition()).Length();
 
-			//move towards the plajyer with using the player's position as the end goal for pathfinding.
-
-			// while ongoing creates a new path
-
-			//std::cout << newNodes.size() << std::endl;
-			//WalkingPath(lockedObject->GetTransform().GetPosition());
-
-			// if the idstance to the palyer is within striking zone return success
-			if (currentDist < 5.0f ) {
-				std::cout << " Caught the Player !\n";
-				state = Success;
-			}
+			//set appropriate attack range
+			currentDistance < 50 ? currentDistance < 10 ? range = closeRange : range = midRange : range = farRange;
+			std::cout << " Set Attack Range";
+			state = Success;
+			
 		}
-		return state; // will be ’ongoing ’ until success
+		return state; 
 		});
 
-	BehaviourAction* stopAgentMovementAct = new BehaviourAction("Caught Player", [&](float dt, BehaviourState state) -> BehaviourState {
+	BehaviourAction* stopAgentMovementAct = new BehaviourAction("Stop AI Movement", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			std::cout << " Attacking the player !\n";
+		
+			// stop walk animation and get the direction vector to player 
+			Vector3 dirVec = getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition();
+			float distance = VectorMagnitude(dirVec.x, dirVec.y, dirVec.z);
+			 //normalised dir vector to player
+			Vector3 normDirVec = dirVec / distance;
+
 			state = Success;
 		}
 		return state;
 		});
 
-	BehaviourAction* moveTowardPlayerAct = new BehaviourAction("Atacking player", [&](float dt, BehaviourState state) -> BehaviourState {
+	BehaviourAction* moveTowardPlayerAct = new BehaviourAction("Running To player", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			//std::cout << " Looking for treasure !\n";
+			// stop walk animation and get the direction vector to player 
+			Vector3 dirVec = getTarget1()->GetPhysicsObject()->getTransform().getPosition() - GetPhysicsObject()->getTransform().getPosition();
+			float distance = VectorMagnitude(dirVec.x, dirVec.y, dirVec.z);
+
+			// normalised dir vector to player
+			Vector3 normDirVec = dirVec / distance;
+
+			/*nodeIndex = 0;
+			newNodes.clear();
+			destNotArrived = true;
+
+			walkToPlayer = true;*/
+			// set timer 
+
+			timeLimit = 5;
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
-			// there is a chance that player can have their coins stolen and teleported outside the maze 
-			bool steal = rand() % 2;
+			
+			timeLimit -= dt;
+			
+			// run to player for a limited time
+			WalkPath(getTarget1()->GetPhysicsObject()->getTransform().getPosition());
 
-			if (steal) {
-				//lockedObject->SetPlayerScore(0);
-				//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
-				std::cout << "Stole coins!\n";
+			if (timeLimit < 0) {
 
 				state = Success;
-				return state;
 			}
-
-			std::cout << "no coins stolen\n";
-			state = Failure;
 		}
 		return state;
 		});
@@ -141,7 +163,8 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 			// move the player outside the maze 
-			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			StrafeAroundPlayer(getTarget1()->GetPhysicsObject()->getTransform().getPosition());
+
 			state = Success;
 		}
 		return state;
@@ -149,12 +172,25 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 
 	BehaviourAction* setAttackAnimAct = new BehaviourAction("Get out of here!", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
+
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
-			// move the player outside the maze 
-			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
-			state = Success;
+			
+			switch (range) {
+			case 0:
+				
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			}
+			if ()
+			{
+				state = Success;
+			}
+		
 		}
 		return state;
 		});
@@ -164,8 +200,9 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
-			// move the player outside the maze 
-			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			
+
+
 			state = Success;
 		}
 		return state;
@@ -176,8 +213,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
-			// move the player outside the maze 
-			//lockedObject->GetTransform().SetPosition(Vector3(-10, 0, -10));
+			
 			state = Success;
 		}
 		return state;
@@ -185,17 +221,14 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 
 
 	//root layer
-
 	rootSequence = new BehaviourSequence("Root Sequence");
 	rootSequence->AddChild(patrolSequence);
 	rootSequence->AddChild(attackSequence);
 
 	//first layer 
-
 	patrolSequence = new BehaviourSequence("Patrol Sequence");
 	patrolSequence->AddChild(walkAct);
 	patrolSequence->AddChild(seenPlayerSequence);
-
 
 	attackSequence = new BehaviourSequence("Attack Sequence");
 	attackSequence->AddChild(setRangeToTargetAct);
@@ -203,10 +236,8 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	attackSequence->AddChild(inRangeToTargetSequence);
 
 	//second layer 
-
 	seenPlayerSequence = new BehaviourSequence("Seen Player Sequence");
 	seenPlayerSequence->AddChild(stopAgentMovementAct);
-	seenPlayerSequence->AddChild(moveTowardPlayerAct);
 	seenPlayerSequence->AddChild(moveSelector);
 
 	rangeForAttackSelector = new BehaviourSelector("Select Attack On Range");
@@ -219,11 +250,9 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 
 
 	//third layer
-
 	moveSelector = new BehaviourSelector("Select Move");
 	moveSelector->AddChild(moveTimerSequence);
 	moveSelector->AddChild(strafeAroundPlayerAct);
-
 
 	midRangeSequence = new BehaviourSequence("Medium Range Sequence");
 	midRangeSequence->AddChild(setAttackAnimAct);
@@ -262,6 +291,32 @@ void BossAI::UpdateBoss(float dt, Vector3& playerPos) {
 	if (rootSequence->Execute(dt) == Success) {
 		rootSequence->Reset();
 	}
+
+}
+
+void NCL::CSC8503::BossAI::WalkPath(NCL::Maths::Vector3 position)
+{
+
+}
+
+
+bool NCL::CSC8503::BossAI::SeenPlayer() // create a wedge volume from the perspective of boss. Only Check if the player is within it
+{
+
+
+
+	return false;
+}
+
+void NCL::CSC8503::BossAI::StrafeAroundPlayer(NCL::Maths::Vector3 position)
+{
+	// strafe around player 
+	// if it encounters an obstacle on the strafe path i.e. radius, move back until it meets another obstacle. repeat 
+
+	
+
+
+}
 
 }
 
@@ -334,4 +389,13 @@ void NCL::CSC8503::BossAI::WalkPath(Vector3& destination)
 	{
 		nodeIndex += 1;
 	}
+}
+float VectorMagnitude(int x, int y, int z)
+{
+	// Stores the sum of squares
+	  // of coordinates of a vector
+	int sum = x * x + y * y + z * z;
+
+	// Return the magnitude
+	return sqrt(sum);
 }
