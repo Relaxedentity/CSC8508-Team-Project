@@ -3,36 +3,70 @@
 #include "PushdownState.h"
 #include "Window.h"
 
+#include "Gamelock.h"
+
+
 using namespace NCL;
 using namespace CSC8503;
 using namespace NCL::CSC8503;
-
 namespace NCL {
 	namespace CSC8503 {
 		class GameIntroduction : public PushdownState
 		{
 		private:
+			int state;
 		public:
 			PushdownResult OnUpdate(float dt, PushdownState** newState) override {
+				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
+				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
+					if (GameLock::BackButtonPos.size() > 0) {
+						for (int i = 1; i <= GameLock::BackButtonPos.size(); i++) {
+							vector<Vector2> MappingPos = GameLock::BackButtonPos[i - 1];
+							if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
+								state = i;
+								if (state == 1) {
+									GameLock::introBtnChange = true;
+									break;
+								}
+							}
+							else {
+								state = 0;
+								GameLock::introBtnChange = false;
+							}
+						}
+					}
 
-				Debug::Print("1.Use WASD to controll the goat.", Vector2(0, 25), Vector4(1, 1, 1, 1));
-				Debug::Print("2.*****************************,", Vector2(0, 30), Vector4(1, 1, 1, 1));
-				Debug::Print("********************************", Vector2(0, 35), Vector4(1, 1, 1, 1));
-				Debug::Print("3.******************************", Vector2(0, 40), Vector4(1, 1, 1, 1));
-				Debug::Print("Back", Vector2(0, 55), Vector4(1, 0, 0, 1));
 
-				if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT))
+				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
-					return PushdownResult::Pop;
+					if (state == 1) {
+						GameLock::Mainmenuawake = true;
+						GameLock::IntroMenuawake = false;
+						return PushdownState::Pop;
+					}
 				}
-
-				return PushdownResult::NoChange;
+				return PushdownState::NoChange;
 			};
-
 			void OnAwake() override
 			{
+				state = 0;
+			}
+			bool buttonmapping(Vector2 leftT, Vector2 rightB, Vector2 screenMouse, Vector2 screenSize) {
+				float yMinMapping = (1 - leftT.y) / 2;
+				float yMaxMapping = (1 - rightB.y) / 2;
+				float xMaxMapping = (1 + rightB.x) / 2;
+				float xMinMapping = (1 + leftT.x) / 2;
+				if (screenMouse.y <= yMaxMapping * screenSize.y
+					&& screenMouse.y >= yMinMapping * screenSize.y
+					&& screenMouse.x <= xMaxMapping * screenSize.x
+					&& screenMouse.x >= xMinMapping * screenSize.x)
+					return true;
+				else
+					return false;
 
 			}
+		protected:
+			int coinsMined = 0;
 		};
 	}
 }

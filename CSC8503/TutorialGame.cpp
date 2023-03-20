@@ -203,8 +203,14 @@ void TutorialGame::UpdateGame(float dt) {
 		world->GetSecCamera()->UpdateCameraController(dt, gamepad.leftStickX, gamepad.rightStickY);
 	}
 	else {
-		Window::GetWindow()->ShowOSPointer(false);
-		Window::GetWindow()->LockMouseToWindow(mouseLock);
+		if (GameLock::gamestart) {
+			Window::GetWindow()->ShowOSPointer(false);
+			Window::GetWindow()->LockMouseToWindow(mouseLock);
+		}
+		if (!GameLock::gamestart) {
+			Window::GetWindow()->ShowOSPointer(true);
+			Window::GetWindow()->LockMouseToWindow(true);
+		}
 		if (lockedObject == player && !GameLock::Player1lock) {//player movelock!
 			MovePlayer(player, dt);
 		}
@@ -215,16 +221,17 @@ void TutorialGame::UpdateGame(float dt) {
 		world->SetPlayerCoopHealth(secHealth);
 	}*/
 
-	if (GameLock::gamestart && !GameLock::gamePause) {//gametime//////////////////////////////////////
+	if (GameLock::gamestart) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
 		GameLock::gametime = timeLimit;
+		Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 	}
 	else {
 		timeLimit = GameLock::gametime;
 	}
 
 
-	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
+	
 	
 	GameLock::redScore = world->getColourOneScore();
 	GameLock::blueScore = world->getColourTwoScore();
@@ -1868,11 +1875,18 @@ void TutorialGame::MainScreenFireMapping(Vector3 sphereintipos) {
 	if (initSplitScreen) {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
 		Vector3 fireposition2 = sphereintipos - world->GetSecCamera()->GetPosition();
+		if(player->getFireMode())
+		voice->ShotGunfireSoundMapping(initV, fireposition, fireposition2);
+		else if(!player->getFireMode())
 		voice->fireSoundMapping(initV, fireposition, fireposition2);
 	}
 	else {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
+		if(player->getFireMode())
+		voice->ShotGunShootVoice(initV, fireposition);
+		else if(!player->getFireMode())
 		voice->ShootVoice(initV, fireposition);
+
 	}
 
 }
@@ -1906,16 +1920,12 @@ void TutorialGame::MainScreenJumpMapping(Vector3 playerjumpos) {
 }
 
 void TutorialGame::SecScreenFireMapping(Vector3 sphereintipos) {
-	if (initSplitScreen) {
 		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
 		Vector3 fireposition2 = sphereintipos - world->GetSecCamera()->GetPosition();
-		voice->fireSoundMapping(initV, fireposition2, fireposition);
-	}
-	else {
-		Vector3 fireposition = sphereintipos - world->GetMainCamera()->GetPosition();
-		voice->ShootVoice(initV, fireposition);
-	}
-
+		if (playerCoop->getFireMode())
+			voice->ShotGunfireSoundMapping(initV, fireposition2, fireposition);
+		else if (!playerCoop->getFireMode())
+			voice->fireSoundMapping(initV, fireposition2, fireposition);
 }
 
 void TutorialGame::SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput) {
@@ -2014,16 +2024,16 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 
 	/// Shotgun Mode Countdown	/// 
 	if (player->getFireMode()) {
-		p1ModeTime -= dt;
-		if (p1ModeTime <= 0) {
-			p1ModeTime = shotGunModeTime;
+		GameLock::p1ModeTime -= dt;
+		if (GameLock::p1ModeTime <= 0) {
+			GameLock::p1ModeTime = shotGunModeTime;
 			player->setFireMode(false);
 		}
 	}
 	if (playerCoop->getFireMode()) {
-		p2ModeTime -= dt;
-		if (p2ModeTime <= 0) {
-			p2ModeTime = shotGunModeTime;
+		GameLock::p2ModeTime -= dt;
+		if (GameLock::p2ModeTime <= 0) {
+			GameLock::p2ModeTime = shotGunModeTime;
 			playerCoop->setFireMode(false);
 		}
 	}

@@ -7,6 +7,9 @@
 #include "GameWorld.h"
 #include "PlayerObject.h"
 #include "Vector3.h"
+#include "Sound.h"
+#include "Gamelock.h"
+
 
 using namespace reactphysics3d;
 using namespace NCL::CSC8503;
@@ -21,6 +24,7 @@ PlayerObject::~PlayerObject() {
 
 void PlayerObject::OnCollisionBegin(GameObject* otherObject) {
    if (otherObject && otherObject->GetName() == "coin") {
+	   voice->coin(GameLock::hitsound);
 	   //std::cout << "Hit the coin£¡£¡" << std::endl;
 
 	   //.....Player Attribute Enhancement//
@@ -32,6 +36,7 @@ void PlayerObject::OnCollisionBegin(GameObject* otherObject) {
 
    }
    if (otherObject && otherObject->GetName() == "capsule") {
+	   voice->capsule(GameLock::hitsound);
 	   //std::cout << "Hit the capsule£¡£¡" << std::endl;
 	   if (this == world->GetPlayer()&&world->GetPlayerHealth()<1) {
 		   world->SetPlayerHealth(world->GetPlayerHealth() + 0.2f);
@@ -45,9 +50,15 @@ void PlayerObject::OnCollisionBegin(GameObject* otherObject) {
 	   otherObject->GetPhysicsObject()->setType(BodyType::STATIC);
    }
    if (otherObject && otherObject->GetName() == "cat") {
+	   voice->cat(GameLock::hitsound);
 	   //std::cout << "Hit the cat£¡£¡" << std::endl;
-	   if (this == world->GetPlayer()||this == world->GetPlayerCoop()) {
+	   if (this == world->GetPlayer()) {
 		   setFireMode(true);
+		   GameLock::p1ModeTime = 10.0f;
+	   }
+	   if (this == world->GetPlayerCoop()) {
+		   setFireMode(true);
+		   GameLock::p2ModeTime = 10.0f;
 	   }
 	   otherObject->setActive(false);
 	   otherObject->GetPhysicsObject()->setType(BodyType::STATIC);

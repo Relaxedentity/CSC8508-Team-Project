@@ -27,6 +27,7 @@ namespace NCL {
 			void AnimUpdate(MeshAnimation* playerAnim, float dt);
 			void RenderHealthBar(float health);
 			void RenderProgressBar(float score);
+			void RenderloadingBar(float progress);
 			void RenderTimerQuad();
 			void RenderCrossHair();
 			
@@ -63,6 +64,25 @@ namespace NCL {
 			void RenderTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector4& color, Vector2 windowSize);
 			void RenderMap(Vector2 window_pos, Vector2 window_size, GameObject* player);
 			void RenderRectangle(float px, float py, float width, float height , Vector4& color);
+			void RenderMainMenu();
+			void RenderNormalButton();
+			void RenderCoopButton();
+			void RenderIntroButton();
+			void RenderExitButton();
+
+			void RenderIntroPage();
+			void RenderBackButton();
+
+			void RenderEndScreen();
+			void RendererSinScore();
+			void RendererCooScore1();
+			void RendererCooScore2();
+			void RenderEndExitScreen();
+			void RenderCoopEndExitScreen();
+
+			void RenderLoadingScreen();
+	
+
 			void RenderRectangle(Vector2 tl, Vector2 br, Vector4 color, Vector2 windowSize);
 			
 			void SetDebugStringBufferSizes(size_t newVertCount);
@@ -88,6 +108,11 @@ namespace NCL {
 			OGLShader* progressShader;
 			OGLMesh* progressBar;
 
+			OGLTexture* loadingTex;////////////修改
+			OGLMesh* loadingMesh;////////////修改
+			OGLShader* loadingBarShader;
+			OGLMesh* loadingBar;
+
 			//timer background
 			OGLShader* simpleShader;
 			OGLMesh* quad;
@@ -96,6 +121,62 @@ namespace NCL {
 			OGLShader*aimShader;
 			OGLMesh* aimQuad;
 			OGLTexture* aimTex;
+
+			/// <summary>
+			/// MenuBG
+			/// </summary>
+			OGLShader* uiShader;//////////修改
+			OGLTexture* menuTex;////////////修改
+			OGLMesh* menuMesh;////////////修改
+
+			/// <summary>
+			/// normalButton
+			/// </summary>
+			OGLTexture* normalBtnTex;///////修改
+			OGLMesh* normalBtnMesh;///////修改
+			/// <summary>
+			/// coopButton
+			/// </summary>
+			OGLTexture* coopBtnTex;
+			OGLMesh* coopBtnMesh;
+			/// <summary>
+			/// IntroductionButton
+			/// </summary>
+			OGLTexture* introBtnTex;
+			OGLMesh* introBtnMesh;
+			/// <summary>
+			/// exitButton
+			/// </summary>
+			OGLTexture* exitBtnTex;
+			OGLMesh* exitBtnMesh;
+
+			/// introscreen 
+            /// </summary>
+			OGLTexture* intropageTex;////////////修改
+			OGLMesh* intropageMesh;////////////修改
+			/// normalButton
+			/// </summary>
+			OGLTexture* backBtnTex;///////修改
+			OGLMesh* backBtnMesh;///////修改 
+
+
+			/// EndBG//------------
+			OGLTexture* endTex;
+			OGLMesh* endMesh;
+
+			OGLTexture* sinscoreTex;
+			OGLMesh* sinscoreMesh;
+
+			OGLTexture* cooscore1Tex;
+			OGLMesh* cooscore1Mesh;
+
+			OGLTexture* cooscore2Tex;
+			OGLMesh* cooscore2Mesh;
+
+			OGLTexture* endexitBtnTex;
+			OGLMesh* endexitBtnMesh;
+
+
 
 			//shadow mapping things
 			OGLShader*	shadowShader;
@@ -109,6 +190,7 @@ namespace NCL {
 			Vector3		lightPosition;
 
 			//Debug data storage things
+			float progress = 0;
 			vector<Vector3> debugLineData;
 
 			vector<Vector3> debugTextPos;
