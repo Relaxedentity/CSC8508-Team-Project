@@ -54,7 +54,7 @@ TutorialGame::TutorialGame()	{
 	freeCamera		= false;
 	mouseLock		= true;
 	debug = false;
-	coopMode = false;
+	coopMode = true;
 	isMultiplayer = false;
 	world->SetPlayerHealth(1.0f);
 	if (coopMode) {
@@ -740,8 +740,7 @@ Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelo
 	return endVelocity + Yaw * Vector3(1, 0, 0);
 }
 
-void TutorialGame::ShootProjectile(PlayerObject* p, Camera* c) {
-	Quaternion Pitch = Quaternion(c->GetRotationPitch());
+void TutorialGame::ShootProjectile(PlayerObject* p,  Quaternion Pitch) {
 	reactphysics3d::Quaternion reactPitch = reactphysics3d::Quaternion(Pitch.x, Pitch.y, Pitch.z, Pitch.w);
 	if (p->getFireMode()) {
 		for (int i = 0; i < sizeof(oneShot)/sizeof(oneShot[0]); i++)
@@ -769,6 +768,7 @@ void TutorialGame::ShootProjectile(PlayerObject* p, Camera* c) {
 	
 }
 
+Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
 	Vector2 screenSize = Window::GetWindow()->GetScreenSize();
 	Vector3 nearPos = Vector3(screenSize.x / 2,
 		screenSize.y / 2,
@@ -986,7 +986,7 @@ void TutorialGame::InitWorld() {
 
 void TutorialGame::InitProjectiles(ShaderBase* shader) {
 	for (int i = 0; i < 100; ++i) {
-		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.75, 1, i +5,shader);
+		projectiles[i] = AddProjectileToWorld(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity(), 0.75, 1);
 	}
 }
 
@@ -1483,7 +1483,7 @@ void TutorialGame::InitGameExamples() {
 	world->SetPlayer(player);
 
 	if (coopMode) {
-		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', 1, 2);
+		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', -1, -1);
 		LockCameraToObject2(playerCoop);
 		world->SetPlayerCoop(playerCoop);
 	}
@@ -2046,7 +2046,7 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 			player->setFireMode(false);
 		}
 	}
-	if (playerCoop->getFireMode()) {
+	if (coopMode && playerCoop->getFireMode()) {
 		GameLock::p2ModeTime -= dt;
 		if (GameLock::p2ModeTime <= 0) {
 			GameLock::p2ModeTime = shotGunModeTime;
