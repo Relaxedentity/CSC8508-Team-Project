@@ -110,7 +110,25 @@ void TutorialGame::InitialiseAssets() {
 	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
+	
+	/// Particle /// 
+	pointSprites = new OGLMesh();
+	particleShader = new OGLShader("scene.vert", "scene.frag", "pointGeom.glsl");
+	particleTex = OGLTexture::RGBATextureFromFilename("particle.tga");
+	std::vector <Vector3 > verts;
+    for (int i = 0; i < 50; ++i) {
+		float x = (float)(rand() % 100 - 50);
+		float y = (float)(rand() % 100 - 50);
+		float z = (float)(rand() % 100 - 50);
+        verts.push_back(Vector3(x, y, z));
+	}
+	pointSprites->SetVertexPositions(verts);
+	pointSprites->SetPrimitiveType(GeometryPrimitive::Points);
+	pointSprites->AddSubMesh(0, 100, 0);
+	pointSprites->UploadToGPU();
+	///     /// 
 
+	
 	timeLimit;
 
 	InitSound();
@@ -160,6 +178,10 @@ TutorialGame::~TutorialGame()	{
 	delete catTex;
 	delete capsuleTex;
 	delete terrainTex;
+
+	delete pointSprites;
+	delete particleShader;
+	delete particleTex;
 
 	delete[] projectiles;
 	delete[] oneShot;
@@ -1328,30 +1350,12 @@ GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& posit
 	body->setType(reactphysics3d::BodyType::KINEMATIC);
 	body->setMass(0.0f);
 	reactphysics3d::SphereShape* shape = physics.createSphereShape(0.5f);
-
-	std::vector <Vector3 > verts;
-
-	for (int i = 0; i < 50; ++i) {
-		float x = (float)(rand() % 100 - 50);
-		float y = (float)(rand() % 100 - 50);
-		float z = (float)(rand() % 100 - 50);
-
-		verts.push_back(Vector3(x, y, z));
-	}
-
-	OGLMesh* pointSprites = new OGLMesh();
-	pointSprites->SetVertexPositions(verts);
-	pointSprites->SetPrimitiveType(GeometryPrimitive::Points);
-	pointSprites->AddSubMesh(0, 100, 0);
-	pointSprites->UploadToGPU();
-	OGLShader* newShader = new OGLShader("scene.vert", "scene.frag", "pointGeom.glsl");
-	Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
-
+	//Matrix4 modelMat = Matrix4::Translation(Vector3(0, 0, -30));
 	emitter->SetPhysicsObject(body);
 	Vector4 paintColour;
 	if (colour == 'r')paintColour = Vector4(1, 0.2, 0, 0.8);
 	else paintColour = Vector4(0, 0.2, 1, 0.8);
-	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, OGLTexture::RGBATextureFromFilename("particle.tga"), newShader,paintColour));
+	emitter->SetRenderObject(new RenderObject(body, Vector3(1, 1, 1), pointSprites, particleTex, particleShader,paintColour));
 	world->AddGameObject(emitter);
 	return emitter;
 }

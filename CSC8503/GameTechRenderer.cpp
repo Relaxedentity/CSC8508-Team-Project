@@ -386,6 +386,9 @@ void NCL::CSC8503::GameTechRenderer::RenderCircle(float cx, float cy, float r, c
 
 	// perform draw call
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector4& color, Vector2 windowSize)
@@ -430,6 +433,9 @@ void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2 v1, Vector2 v2, Vect
 
 	// perform draw call
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+	
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windowSize, GameObject* player)

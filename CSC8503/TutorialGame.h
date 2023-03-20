@@ -241,6 +241,10 @@ namespace NCL {
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
 
+			///Particle
+			OGLMesh* pointSprites = nullptr;
+			OGLShader* particleShader = nullptr;
+			TextureBase* particleTex = nullptr;
 			//Power-up Items
 			ShaderBase* itemShader = nullptr;
 			TextureBase* capsuleTex = nullptr;
