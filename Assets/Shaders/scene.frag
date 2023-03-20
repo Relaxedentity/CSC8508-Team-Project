@@ -46,7 +46,7 @@ void main(void)
 	 albedo *= texture(mainTex, IN.texCoord);
 	}
 
-
+	fragColor.a = texture(mainTex, IN.texCoord).a;
 	albedo.rgb = pow(albedo.rgb, vec3(2.2));
 	
 	fragColor.rgb = albedo.rgb * 0.05f; //ambient
@@ -55,8 +55,9 @@ void main(void)
 	
 	fragColor.rgb += lightColour.rgb * sFactor * shadow; //specular light
 	
-	/*
+	
 	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / 2.2f));
+	/*
 	for(int i = 0; i< 1000;i++){
 		float circledist = distance(paintedPos[i].xyz, IN.worldPos);
 		if(circledist < 2.0f)
@@ -65,11 +66,11 @@ void main(void)
 		}
 	}
 	*/
-	fragColor.a = 1;
+	//fragColor.a = 1;
 	
-	//if(fragColor.a<0.00001f){
-	//	discard;
-	//}
+	if(fragColor.a<0.0001f){
+		discard;
+	}
 
 //fragColor.rgb = IN.normal;
 

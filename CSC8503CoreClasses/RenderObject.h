@@ -17,7 +17,7 @@ namespace NCL {
 		class RenderObject
 		{
 		public:
-			RenderObject(reactphysics3d::RigidBody* rigidBody, const Vector3& scale, MeshGeometry* mesh, TextureBase* tex, ShaderBase* shader);
+			RenderObject(reactphysics3d::RigidBody* rigidBody, const Vector3& scale, MeshGeometry* mesh, TextureBase* tex, ShaderBase* shader,Vector4 colour= Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 			~RenderObject();
 
 			void SetDefaultTexture(TextureBase* t) {
@@ -64,10 +64,27 @@ namespace NCL {
 				paints[index] = Vector4(pos,colour);
 			}
 
+			void ClearPaintPos() {
+				if (paints.size() >= 0) {
+					paints.clear();
+				}
+			}
+
 			void PaintSpray(Vector3 explosionPos,char paintColour) {
-				int colourInt = (paintColour == 'r') ? 1 : 2;
-				if (GetPaintedPos().size() <= paintMax - 1) {
-					AddPaintPos(explosionPos,colourInt);
+				int colourInt;
+				if (paintColour == 'r')
+					colourInt = 1;
+				else if (paintColour == 'O')
+					colourInt = 0;
+				else
+					colourInt = 2;
+
+
+				if (paintColour == 'O') {
+					ClearPaintPos();
+				}
+				else if (GetPaintedPos().size() <= paintMax - 1) {
+					AddPaintPos(explosionPos, colourInt);
 				}
 				else {
 					if (paintCount < GetPaintedPos().size() - 1) {

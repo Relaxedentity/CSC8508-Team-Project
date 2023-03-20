@@ -40,7 +40,7 @@ TextureBase* OGLTexture::RGBATextureFromData(char* data, int width, int height, 
 
 		case 2: sourceType = GL_RG	; break;
 		case 3: sourceType = GL_RGB	; break;
-		case 4: sourceType = GL_RGBA; break;
+		case 4: sourceType = GL_RGBA; break; 
 		//default:
 	}
 

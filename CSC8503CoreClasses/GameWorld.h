@@ -16,8 +16,10 @@ namespace NCL {
 		class GameObject;
 		class PaintNode;
 		class MapNode;
+		class TerrainObject;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
+		typedef std::function<void(MapNode*)> MapNodeFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
 
 		struct SceneContactPoint {
@@ -33,7 +35,12 @@ namespace NCL {
 		public:
 
 			RaycastManager(){ ignoreBody = nullptr; }
-			~RaycastManager(){}
+			~RaycastManager(){ 
+				for (auto p : hitPoints)
+				{
+					delete p;
+				}
+			}
 
 			virtual rp3d::decimal notifyRaycastHit(const rp3d::RaycastInfo& raycastInfo) override;
 
@@ -46,19 +53,38 @@ namespace NCL {
 			}
 
 			SceneContactPoint* getHit() {
-				SceneContactPoint* nearest = new SceneContactPoint();
-				nearest->hitFraction = 1.1f;
-
-				for (auto i : hitPoints) {
-					if (i->hitFraction < nearest->hitFraction) {
-						nearest = i;
+				float fraction = hitPoints[0]->hitFraction;
+				int counter = 0;
+				for (int i = 0; i < hitPoints.size() - 1; i++) {
+					float challengerFraction = hitPoints[i]->hitFraction;
+					if (challengerFraction < fraction) {
+						fraction = challengerFraction;
+						counter = i;
 					}
 				}
 
-				return nearest;
+				return hitPoints[counter];
 			}
 
+			//SceneContactPoint* getHit() {
+			//	SceneContactPoint* nearest = new SceneContactPoint();
+			//	nearest->hitFraction = 1.1f;
+			//
+			//	for (auto i : hitPoints) {
+			//		if (i->hitFraction < nearest->hitFraction) {
+			//			
+			//			nearest = i;
+			//		}
+			//	}
+			//
+			//	return nearest;
+			//}
+
 			void clear() {
+				for (auto p : hitPoints) {
+					delete p;
+					p = NULL;
+				}
 				hitPoints.clear();
 				ignoreBody = nullptr;
 			}
@@ -137,6 +163,8 @@ namespace NCL {
 
 			void OperateOnContents(GameObjectFunc f);
 
+			void OperateOnMapNodes(MapNodeFunc f);
+
 			void GetObjectIterators(
 				GameObjectIterator& first,
 				GameObjectIterator& last) const;
@@ -147,12 +175,9 @@ namespace NCL {
 			vector<Vector4> painted;
 			vector <Matrix4 > frameMatrices;
 			vector <Matrix4 > frameMatricesA;
-			void paintTally();
-			void testPaintNodes(Vector3 inPos, char iChar);
+			void paintTally(int redCounter, int blueCounter);
+			void addToNodeCount(int i);
 			void drawPaintNodes();
-
-			void AddPaintNode(PaintNode* o);
-			void RemovePaintNode(PaintNode* o, bool andDelete);
 
 			void AddMapNode(MapNode* o);
 			void RemoveMapNode(MapNode* o, bool andDelete);
@@ -191,7 +216,9 @@ namespace NCL {
 			GameObject* playerCoop;
 			float playerCoopHealth;
 
-			std::vector<PaintNode*> paintNodes;
+			int totalNodes = 0;
+			int colourOneNodes = 0;
+			int colourTwoNodes = 0;
 			float colourOneScore = 0;
 			float colourTwoScore = 0;
 

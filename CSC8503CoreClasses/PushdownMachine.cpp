@@ -32,6 +32,20 @@ bool PushdownMachine::Update(float dt) {
 				}
 			}
 		}break;
+		case PushdownState::GotoMainMenu: {
+			for (int i = 0; i < 3; i++) {
+				activeState->OnSleep();
+				delete activeState;
+				stateStack.pop();
+				if (stateStack.empty()) {
+					return false;
+				}
+				else {
+					activeState = stateStack.top();
+					activeState->OnAwake();
+				}
+			}
+		}break;
 		case PushdownState::Pop: {
 			activeState->OnSleep();
 			delete activeState;

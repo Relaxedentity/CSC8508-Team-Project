@@ -2,7 +2,6 @@
 #include "PushdownMachine.h"
 #include "PushdownState.h"
 #include "Window.h"
-#include "TutorialGame.h"
 
 #include "Gamelock.h"
 
@@ -10,8 +9,6 @@
 using namespace NCL;
 using namespace CSC8503;
 using namespace NCL::CSC8503;
-
-TutorialGame* t;
 namespace NCL {
 	namespace CSC8503 {
 		class GameEnd : public PushdownState
@@ -21,76 +18,82 @@ namespace NCL {
 		public:
 			PushdownResult OnUpdate(float dt, PushdownState** newState) override {
 				GameLock::gametime = 0;
-				Debug::Print("Game Over:\n", Vector2(40, 40), Vector4(1, 1, 1, 1));
-
-				if (GameLock::redScore > GameLock::blueScore)
-				{
-					Debug::Print("Red has Won!\n", Vector2(40, 45), Vector4(1, 0, 0, 1));
-				}
-				else
-				{
-					Debug::Print("Blue has Won!\n", Vector2(40, 45), Vector4(0, 0, 1, 1));
-				}
-
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::UP))
-				{
-					state = state - 1 > 0 ? state - 1 : 1;
-				}
-
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::DOWN))
-				{
-					state = state + 1 <= 1 ? state + 1 : 1;
-				}
-
-				switch (state)
-				{
-				case 1:
-					Debug::Print("Exit to main menu", Vector2(40, 55), Vector4(1, 0, 0, 1));
-					break;
-				case 0:
-					Debug::Print("Exit to main menu", Vector2(40, 55));
-					break;
-					/*if (t->GetGameWorld()->GetObjectCount() == 0 && t->getPlayer2() == NULL) {
-						Debug::Print("You have won. And player scored: " + t->player->getScore(), Vector2(30, 60), Vector4(1.0, 0.0, 0.0, 0.0));
-						if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1))
-						{
-							return PushdownResult::Pop;
+				Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
+				Vector2 screenSize = Window::GetWindow()->GetScreenSize();
+				if (GameLock::gamemod == 1) {
+					GameLock::SingleEndMenuawake = true;
+					if (GameLock::EndButtonPos.size() > 0) {
+						for (int i = 1; i <= GameLock::EndButtonPos.size(); i++) {
+							vector<Vector2> MappingPos = GameLock::EndButtonPos[i - 1];
+							if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
+								state = i;
+								if (state == 1) {
+									GameLock::SingleExitBtnChange = true;
+									break;
+								}
+							}
+							else {
+								state = 0;
+								GameLock::SingleExitBtnChange = false;
+							}
 						}
 					}
-					if (t->GetGameWorld()->GetObjectCount() == 0 && t->getPlayer2() != NULL) {
-						//if (t->getPlayer()->getScore() > t->getPlayer2()->getScore()) {
-						if (false) {
-							Debug::Print("Player 1 has won.\n", Vector2(40, 50), Vector4(1.0, 0.0, 0.0, 0.0));
-							if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1))
-							{
-								return PushdownResult::Pop;
-							}
-						}
-						else {
-							Debug::Print("Player 2 has won.\n", Vector2(40, 50), Vector4(1.0, 0.0, 0.0, 0.0));
-							if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F1))
-							{
-								return PushdownResult::Pop;
-							}
-						}
-					}*/
 				}
-				if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::RIGHT))
+				if (GameLock::gamemod == 2) {
+					GameLock::CoopEndMenuawake = true;
+					if (GameLock::CoopButtonPos.size() > 0) {
+						for (int i = 1; i <= GameLock::CoopButtonPos.size(); i++) {
+							vector<Vector2> MappingPos = GameLock::CoopButtonPos[i - 1];
+							if (buttonmapping(MappingPos[0], MappingPos[1], screenMouse, screenSize)) {
+								state = i;
+								if (state == 1) {
+									GameLock::CoopExitBtnChange = true;
+									//std::cout << "yes£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡" << std::endl;
+									break;
+								}
+							}
+							else {
+								state = 0;
+								GameLock::CoopExitBtnChange = false;
+								//std::cout << "no£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡" << std::endl;
+							}
+						}
+					}
+				}
+
+
+				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1) {
-						GameLock::gametime = GameLock::gamelength;
+						GameLock::gametime = 10;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;
-						return PushdownState::ExitoMainMenu;
+						GameLock::Mainmenuawake = true;
+						GameLock::SingleEndMenuawake = false;
+						GameLock::CoopEndMenuawake = false;
+						return PushdownState::GotoMainMenu;
 					}
 				}
-
 				return PushdownState::NoChange;
 			};
 			void OnAwake() override
 			{
 				state = 0;
+			}
+			bool buttonmapping(Vector2 leftT, Vector2 rightB, Vector2 screenMouse, Vector2 screenSize) {
+				float yMinMapping = (1 - leftT.y) / 2;
+				float yMaxMapping = (1 - rightB.y) / 2;
+				float xMaxMapping = (1 + rightB.x) / 2;
+				float xMinMapping = (1 + leftT.x) / 2;
+				if (screenMouse.y <= yMaxMapping * screenSize.y
+					&& screenMouse.y >= yMinMapping * screenSize.y
+					&& screenMouse.x <= xMaxMapping * screenSize.x
+					&& screenMouse.x >= xMinMapping * screenSize.x)
+					return true;
+				else
+					return false;
+
 			}
 		protected:
 			int coinsMined = 0;

@@ -13,6 +13,7 @@ set(Header_Files
     "HierarchicalState.h"
     "Projectile.h"
     "IKSystem.h"
+    "TerrainObject.h"
     "MapNode.h"
     "PaintClass.h"
     "PlayerObject.h"
@@ -29,6 +30,7 @@ set(Menu_Files
     "PauseScreen.h"
     "Gamelock.h"
     "Gamelock.cpp"
+    "GameLoad.h"
 )
 
 source_group("Menu_Files" FILES ${Menu_Files})
@@ -43,6 +45,7 @@ set(Source_Files
     "BTreeObject.cpp"
     "Projectile.cpp"
     "IKSystem.cpp"
+    "TerrainObject.cpp"
     "MapNode.cpp"
     "PaintClass.cpp"
     "PlayerObject.cpp"
