@@ -78,7 +78,7 @@ bool NetworkObject::WriteDeltaPacket(GamePacket**p, int stateID) {
 		//std::cout << "hi" << std::endl;
 		return false; // cant delta!
 	}
-	//std::cout << "bye" << std::endl;
+	std::cout << "bye" << std::endl;
 	dp->fullID = stateID;
 	dp->objectID = networkID;
 

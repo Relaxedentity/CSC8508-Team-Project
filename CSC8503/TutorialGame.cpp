@@ -734,6 +734,7 @@ void TutorialGame::ShootProjectile(PlayerObject* p, Quaternion Pitch) {
 	//std::cout << projectile->GetNetworkObject()->GetNetworkID()<<std::endl;
 	projectile->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 	projectile->GetPhysicsObject()->applyWorldForceAtCenterOfMass(p->GetPhysicsObject()->getTransform().getOrientation() * reactPitch * reactphysics3d::Vector3(0, 0, -500));
+	std::cout << projectile->GetPhysicsObject()->getForce().x << "," << projectile->GetPhysicsObject()->getForce().y << "," << projectile->GetPhysicsObject()->getForce().z<<std::endl;
 }
 
 Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* object, Camera* cam, Vector3 camPos) {
@@ -1215,7 +1216,7 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 	return floor;
 }
 
-PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, int netID, int worldID) {
+PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, char paintColour, int netID, int worldID) {
 	PlayerObject* character = new PlayerObject(world);
 	character->SetTag(1);
 	reactphysics3d::Transform transform(position, orientation);
@@ -1226,7 +1227,20 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0),reactphysics3d::Quaternion::identity()));
 	character->SetPhysicsObject(body);
 	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, shader));
-	character->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
+	Vector4 colourVector;
+	switch (paintColour) {
+	case 'r':
+		colourVector = Vector4(1, 0, 0, 1);
+		break;
+	case 'b':
+		colourVector = Vector4(0, 0, 1, 1);
+		break;
+	default:
+		colourVector = Vector4(0, 1, 0, 1);
+		break;
+	}
+	character->GetRenderObject()->SetColour(colourVector);
+	character->setPaintColour(paintColour);
 	world->AddGameObject(character);
 	character->SetWorldID(worldID);
 	NetworkObject* n = new NetworkObject(*character, netID);
@@ -1385,14 +1399,12 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 1, 1);
-	player->setPaintColour('r');
+	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 'r', 1, 1);
 	LockCameraToObject(player);
 	world->SetPlayer(player);
 
 	if (coopMode) {
-		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 1, 2);
-		playerCoop->setPaintColour('b');
+		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', 1, 2);
 		LockCameraToObject2(playerCoop);
 		world->SetPlayerCoop(playerCoop);
 	}

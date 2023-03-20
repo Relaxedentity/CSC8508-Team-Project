@@ -16,6 +16,18 @@ namespace NCL::CSC8503 {
 			size = sizeof(FullPacket) - sizeof(GamePacket);
 		}
 	};
+	struct ProjectilePacket : public GamePacket {
+		int		lastID;
+		int		myID;
+		float	yaw[9];
+		Vector3 projPos;
+
+		ProjectilePacket() {
+			type = Projectile_Fired;
+			size = sizeof(ProjectilePacket);
+		}
+	};
+
 
 	struct DeltaPacket : public GamePacket {
 		int		fullID		= -1;
@@ -50,16 +62,6 @@ namespace NCL::CSC8503 {
 			size = sizeof(InitialPacket);
 		}
 	};
-
-	//struct InitialPacket : public GamePacket {
-	//	int count;
-	//	//int myID;
-
-	//	InitialPacket() {
-	//		type = Player_Connected;
-	//		size = sizeof(InitialPacket);
-	//	}
-	//};
 
 	class NetworkObject		{
 	public:

@@ -39,6 +39,7 @@ namespace NCL {
 			void UpdateAsClient(float dt);
 			void UpdateNetworkAnimations(float dt);
 			void BroadcastSnapshot(bool deltaFrame);
+			void BroadcastProjectile(PlayerObject* p);
 			void UpdateMinimumState();
 			void ResetMovementFrame(GameObject* p);
 			std::map<int, int> stateIDs;
