@@ -113,6 +113,8 @@ SceneContactPoint* GameWorld::Raycast(reactphysics3d::Ray& r, GameObject* ignore
 	SceneContactPoint* dummy = new SceneContactPoint();
 	dummy->isHit = false;
 	if (!raycastManager->isHit()) { return dummy; }
+	delete dummy;
+	dummy = NULL;
 
 	SceneContactPoint* closestHit = raycastManager->getHit();
 	rp3d::Vector3 n = closestHit->normal;

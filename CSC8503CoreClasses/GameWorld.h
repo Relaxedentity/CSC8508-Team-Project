@@ -53,19 +53,38 @@ namespace NCL {
 			}
 
 			SceneContactPoint* getHit() {
-				SceneContactPoint* nearest = new SceneContactPoint();
-				nearest->hitFraction = 1.1f;
-
-				for (auto i : hitPoints) {
-					if (i->hitFraction < nearest->hitFraction) {
-						nearest = i;
+				float fraction = hitPoints[0]->hitFraction;
+				int counter = 0;
+				for (int i = 0; i < hitPoints.size() - 1; i++) {
+					float challengerFraction = hitPoints[i]->hitFraction;
+					if (challengerFraction < fraction) {
+						fraction = challengerFraction;
+						counter = i;
 					}
 				}
 
-				return nearest;
+				return hitPoints[counter];
 			}
 
+			//SceneContactPoint* getHit() {
+			//	SceneContactPoint* nearest = new SceneContactPoint();
+			//	nearest->hitFraction = 1.1f;
+			//
+			//	for (auto i : hitPoints) {
+			//		if (i->hitFraction < nearest->hitFraction) {
+			//			
+			//			nearest = i;
+			//		}
+			//	}
+			//
+			//	return nearest;
+			//}
+
 			void clear() {
+				for (auto p : hitPoints) {
+					delete p;
+					p = NULL;
+				}
 				hitPoints.clear();
 				ignoreBody = nullptr;
 			}

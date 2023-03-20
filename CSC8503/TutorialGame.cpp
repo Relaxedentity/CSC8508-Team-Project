@@ -256,7 +256,7 @@ void TutorialGame::UpdateGame(float dt) {
 
 			objClosest->GetRenderObject()->SetColour(Vector4(1, 0, 1, 1));
 		}
-		delete closestCollision;
+		else delete closestCollision;
 	}
 
 	if (testStateObject) {
@@ -455,6 +455,7 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	//Debug::DrawLine(Vector3(playerTransform.getPosition()) + Vector3(0, 0.1, 0), Vector3(playerTransform.getPosition()) - Vector3(0, 2.9, 0), Vector4(1, 0.5f, 0.5f, 1), 100);
 	SceneContactPoint* ground = world->Raycast(ray, player);
 	player->setGrounded(ground->isHit);
+	if (!ground->isHit) delete ground;
 
 	player->directionInput = false;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
@@ -602,6 +603,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		reactphysics3d::Ray ray = reactphysics3d::Ray(playerTransform.getPosition(), playerTransform.getPosition() + reactphysics3d::Vector3(0, -5, 0));
 		SceneContactPoint* ground = world->Raycast(ray, player);
 		player->setGrounded(ground->isHit);
+		if (!ground->isHit) delete ground;
 
 		player->directionInput = false;
 
@@ -790,8 +792,8 @@ Quaternion TutorialGame::thirdPersonRotationCalc(GameWorld* world, GameObject* o
 		Quaternion goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
 		return goatRealRotation;
 	}
+	else delete aimCollision;
 	Matrix4 Yaw = cam->GetRotationYaw();
-	delete aimCollision;
 	return Quaternion(Yaw);
 }
 
@@ -823,7 +825,7 @@ Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos, Camera& camera, GameObj
 			camPos = objPos + rotationAmount * Vector3(0, 0, distance);
 		}
 	}
-	delete cameraCollision;
+	else delete cameraCollision;
 	return camPos;
 }
 
@@ -844,6 +846,7 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos, Camera& camera, G
 			endVector.x = distance;
 		}
 	}
+	else delete cameraCollision;
 
 	Vector3 startPos = (objPos + rotationAmount * Vector3(endVector.x, 0, 0));
 	Vector3 direction2 = rotationAmount * Vector3(0, 0, thirdPersonZScalar);
@@ -855,9 +858,7 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos, Camera& camera, G
 			endVector.z = distance;
 		}
 	}
-
-	delete cameraCollision;
-	delete cameraCollision2;
+	else delete cameraCollision2;
 	return objPos + rotationAmount * endVector;
 }
 
@@ -1796,7 +1797,6 @@ bool TutorialGame::SelectObject() {
 					//std::cout << x<<"\n";
 				}
 				//std::cout << world->painted[0];
-				delete closestCollision;
 				return true;
 			}
 			else {
@@ -1849,7 +1849,7 @@ void TutorialGame::MoveSelectedObject() {
 				selectionObject->GetPhysicsObject()->applyWorldForceAtWorldPosition(reactphysics3d::Vector3(force.x, force.y, force.z), closestCollision->hitPos);
 			}
 		}
-		delete closestCollision;
+		else delete closestCollision;
 	}
 }
 
