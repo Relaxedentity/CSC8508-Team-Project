@@ -19,6 +19,7 @@ namespace NCL {
 		class TerrainObject;
 
 		typedef std::function<void(GameObject*)> GameObjectFunc;
+		typedef std::function<void(MapNode*)> MapNodeFunc;
 		typedef std::vector<GameObject*>::const_iterator GameObjectIterator;
 
 		struct SceneContactPoint {
@@ -142,6 +143,8 @@ namespace NCL {
 			virtual void UpdateWorld(float dt);
 
 			void OperateOnContents(GameObjectFunc f);
+
+			void OperateOnMapNodes(MapNodeFunc f);
 
 			void GetObjectIterators(
 				GameObjectIterator& first,

@@ -294,7 +294,6 @@ namespace NCL {
 
 			vector<reactphysics3d::Vector3> itemPos;
 
-			void addMapNodeToWorld(Vector3 location);
 			// Rendering the character's paint track
 			void PlayerPaintTracks(PlayerObject* player, char paintColour);
 		};

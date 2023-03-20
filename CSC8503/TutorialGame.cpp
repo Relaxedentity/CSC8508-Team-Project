@@ -1021,7 +1021,8 @@ void TutorialGame::buildGameworld() {
 			Vector3 Nposition = n.position;
 			GameObject* object;
 			if (n.type == 'N') continue;
-			MapNode* Node = new MapNode(Nposition);
+			bool floorIn = (n.type == '.') ? true : false;
+			MapNode* Node = new MapNode(Nposition, floorIn);
 			world->AddMapNode(Node);
 			switch (n.type) {
 			case '.':
@@ -1868,12 +1869,6 @@ void TutorialGame::PlayerPaintTracks(PlayerObject* player, char paintColour) {
 }
 
 // Paint Node Functions
-
-
-void TutorialGame::addMapNodeToWorld(Vector3 location) {
-	MapNode* node = new MapNode(location);
-	world->AddMapNode(node);
-}
 
 //SOUND MOD Functions
 void TutorialGame::MainScreenFireMapping(Vector3 sphereintipos) {

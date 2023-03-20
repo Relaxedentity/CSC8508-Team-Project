@@ -13,6 +13,10 @@ namespace NCL::CSC8503 {
 		void paintHit(NCL::Maths::Vector3 position, char paintColour) override;
 
 		void drawPaintNodes();
+
+		int nodeTally() { return paintNodes.size(); }
+		int redTally = 0;
+		int blueTally = 0;
 	protected:
 		std::vector<PaintNode*> paintNodes;
 	};
