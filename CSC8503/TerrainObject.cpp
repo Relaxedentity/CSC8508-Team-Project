@@ -22,9 +22,11 @@ void TerrainObject::addPaintNode(NCL::Vector3 location) {
 void TerrainObject::paintHit(NCL::Maths::Vector3 position, char paintColour) {
 	int redCounter = 0;
 	int blueCounter = 0;
+	bool hasChanged = false;
 	for (auto& i : paintNodes) {
 		char iColour = i->getColour();
 		if ((position - i->getPos()).Length() < 2.5 && iColour != paintColour) {
+			hasChanged = true;
 			//std::cout << "we got a hit!\n";
 			i->setColour(paintColour);
 			//std::cout << "node colour: " << i->getColour() << "\n";
@@ -38,8 +40,10 @@ void TerrainObject::paintHit(NCL::Maths::Vector3 position, char paintColour) {
 			}
 		}
 	}
-	if (redCounter != 0) {
+	if (hasChanged) {
 		world->paintTally(redCounter, blueCounter);
+		redTally += redCounter;
+		blueTally += blueCounter;
 	}
 }
 

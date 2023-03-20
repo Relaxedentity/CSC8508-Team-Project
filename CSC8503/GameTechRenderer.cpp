@@ -6,6 +6,7 @@
 #include "TextureLoader.h"
 #include "Debug.h"
 #include "Gamelock.h"
+#include "MapNode.h"
 using namespace NCL;
 using namespace Rendering;
 using namespace CSC8503;
@@ -301,15 +302,13 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 	const auto& camera = gameWorld.GetMainCamera();
 
 	// objects that is near the player
-	vector<GameObject*> near_objects;
+	vector<MapNode*> near_objects;
 
-	gameWorld.OperateOnContents(
-		[&](GameObject* o)
+	gameWorld.OperateOnMapNodes(
+		[&](MapNode* o)
 		{
-			if (o->GetName() != "cube" && o->GetName() != "goose")
-			return;
 	        Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
-        	Vector2 o_pos(o->GetPhysicsObject()->getTransform().getPosition().x, o->GetPhysicsObject()->getTransform().getPosition().z);
+        	Vector2 o_pos(o->location.x, o->location.z);
 	        float dis = (p_pos - o_pos).Length();
 	        if (dis < draw_distance)
 	        {
@@ -333,12 +332,15 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 		.SetColumn(1, Vector2(-rot_array[1][0], rot_array[1][1]) * coe);
 
 	Vector4 cubeColor(0.3f, 0.3f, 0.3f, 1.0f);
+	Vector4 redColor(1.0f, 0.3f, 0.3f, 1.0f);
+	Vector4 blueColor(0.3f, 0.3f, 1.0f, 1.0f);
+
 	Vector4 gooseColor(0.0f, 0.0f, 0.3f, 0.7f);
 
 	for (const auto& object : near_objects)
 	{
 		Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
-		Vector2 o_pos(object->GetPhysicsObject()->getTransform().getPosition().x, object->GetPhysicsObject()->getTransform().getPosition().z);
+		Vector2 o_pos(object->location.x, object->location.z);
 
 		int rect_width = 10;
 		int rect_height = 10;
@@ -369,10 +371,18 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
+		// I'm working out a colour to depict each rectangle as here, based upon its constituent objects and their paint nodes.
+		float ratio = object->getColourRatio();
+		// 1.0f is all red, -1.0f is all blue.
+		Vector4 colourTint = (ratio > 0) ? Vector4(1.0f, 0.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+		ratio = abs(ratio);
+		Vector4 finalColour = (Vector4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - ratio)) + (colourTint * ratio);
+		//Vector4 finalColour = (object->isFloor) ? Vector4(ratio, 0.0f, 1 - ratio, 1.0f) : Vector4(ratio, 0.0f, 1 - ratio, 0.0f);
+
 		// the reason why the rectangle is rotating , is because we ignored that the cube also has a
 		// facing direction , and rotate just the center of it ,
 		// but the decisive points are all required lp;p;p;p;p;p;to be rotated (top left , bottom right)
-		RenderRectangle(tl_pos, br_pos, cubeColor, windowSize);
+		RenderRectangle(tl_pos, br_pos, finalColour, windowSize);
 	}
 
 	// std::cout << "near item count: " << near_objects.size() << std::endl;

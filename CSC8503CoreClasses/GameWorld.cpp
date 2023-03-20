@@ -88,6 +88,12 @@ void GameWorld::OperateOnContents(GameObjectFunc f) {
 	}
 }
 
+void GameWorld::OperateOnMapNodes(MapNodeFunc f) {
+	for (MapNode* n : mapNodes) {
+		f(n);
+	}
+}
+
 void GameWorld::UpdateWorld(float dt) {
 	auto rng = std::default_random_engine{};
 
