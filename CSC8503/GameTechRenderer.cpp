@@ -331,10 +331,6 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 		.SetColumn(0, Vector2(rot_array[0][0], -rot_array[0][1]) * coe)
 		.SetColumn(1, Vector2(-rot_array[1][0], rot_array[1][1]) * coe);
 
-	Vector4 cubeColor(0.3f, 0.3f, 0.3f, 1.0f);
-	Vector4 redColor(1.0f, 0.3f, 0.3f, 1.0f);
-	Vector4 blueColor(0.3f, 0.3f, 1.0f, 1.0f);
-
 	Vector4 gooseColor(0.0f, 0.0f, 0.3f, 0.7f);
 
 	for (const auto& object : near_objects)
@@ -372,13 +368,8 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		// I'm working out a colour to depict each rectangle as here, based upon its constituent objects and their paint nodes.
-		float ratio = object->getColourRatio();
-		//std::cout << ratio << "\n";
-		// 1.0f is all red, -1.0f is all blue.
-		Vector4 colourTint = (ratio > 0) ? Vector4(1.0f, 0.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-		ratio = abs(ratio);
-		Vector4 finalColour = (Vector4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - ratio)) + (colourTint * ratio);
-		//Vector4 finalColour = (object->isFloor) ? Vector4(ratio, 0.0f, 1 - ratio, 1.0f) : Vector4(ratio, 0.0f, 1 - ratio, 0.0f);
+
+		Vector4 finalColour = object->getMapColour();
 
 		// the reason why the rectangle is rotating , is because we ignored that the cube also has a
 		// facing direction , and rotate just the center of it ,

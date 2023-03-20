@@ -12,6 +12,7 @@ namespace NCL::CSC8503 {
 		void addObject(TerrainObject* i);
 		void drawNodes();
 		float getColourRatio();
+		Vector4 getMapColour();
 		bool isFloor;
 	protected:
 		std::vector<TerrainObject*> objects;
