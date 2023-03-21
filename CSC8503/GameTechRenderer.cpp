@@ -516,7 +516,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 	float map_x = windowSize.x - 100.0f;
 	float map_y = 100;
 	float map_size = 80.0f;
-	float draw_distance = 25.0f;
+	float draw_distance = 50.0f;
 	Vector4 map_color(0.8f, 0.8f, 0.8f, 0.7f);
 	RenderCircle(window_pos.x + map_x, window_pos.y + map_y, map_size, map_color);
 

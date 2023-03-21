@@ -47,5 +47,8 @@ Vector4 MapNode::getMapColour() {
 	}
 	float fill = 1 - ((float)(redCount + blueCount) / nodeTally);
 	float ratio = (((float)(redCount - blueCount) / nodeTally)+1)/2;
-	return (Vector4(1.0f, 1.0f, 1.0f, 1.0f) * fill) + (Vector4(ratio, 0.0f, 1 - ratio, 1.0f) * (1 - fill));
+	Vector4 baseline = (isFloor) ? Vector4(1.0f, 1.0f, 1.0f, 1.0f) : Vector4(0.3f, 0.3f, 0.3f, 1.0f);
+	Vector4 finalOut = (baseline * fill) + (Vector4(ratio, 0.0f, 1 - ratio, 1.0f) * (1 - fill));
+	finalOut = (isFloor) ? finalOut : finalOut*0.75;
+	return finalOut;
 }
