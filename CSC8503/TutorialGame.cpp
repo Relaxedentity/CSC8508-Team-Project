@@ -56,10 +56,6 @@ TutorialGame::TutorialGame()	{
 	debug = false;
 	coopMode = true;
 	isMultiplayer = false;
-	world->SetPlayerHealth(1.0f);
-	if (coopMode) {
-		world->SetPlayerCoopHealth(1.0f);
-	}
 
 	gpConnected = true;
 
@@ -220,7 +216,7 @@ void TutorialGame::UpdateGame(float dt) {
 			moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
 		}
 	}
-
+	
 	/*world->SetPlayerHealth(health);
 	if (coopMode) {
 		world->SetPlayerCoopHealth(secHealth);
@@ -240,7 +236,9 @@ void TutorialGame::UpdateGame(float dt) {
 	
 	GameLock::redScore = world->getColourOneScore();
 	GameLock::blueScore = world->getColourTwoScore();
-
+	if (!isMultiplayer) {
+		world->playerHealth = player->GetPlayerHealth();
+	}
 	//Debug::Print(std::to_string((float)GameLock::redScore), Vector2(80, 45), Debug::WHITE);
 	//Debug::Print(std::to_string((float)GameLock::blueScore), Vector2(80, 47), Debug::WHITE);
 
@@ -344,7 +342,6 @@ void TutorialGame::UpdateGame(float dt) {
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
 	Debug::UpdateRenderables(dt); 
-
 	FreezingPlayers(dt);
 	RegeneratePowerupProps(dt);
 }
@@ -563,7 +560,7 @@ void NCL::CSC8503::TutorialGame::shootPaint(PlayerObject* p, float dt, Camera* c
 
 void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 {
-	if (!gamepad.UpdateController())
+	if (!gamepad.UpdateController() && false)
 	{
 		if (gpConnected)
 		{
@@ -686,7 +683,7 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 		//player->GetPhysicsObject()->applyWorldTorque(reactphysics3d::Vector3(torqueVector.x*15, torqueVector.y * 15, torqueVector.z * 15));
 
 		invokeTime2 -= dt;
-		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+		if (gamepad.IsPressed(XINPUT_GAMEPAD_RIGHT_SHOULDER) || Window::GetKeyboard()->KeyDown(KeyboardKeys::N)) {
 			if (invokeTime2 <= 0) {
 				ShootProjectile(player, world->GetSecCamera()->GetRotationPitch());
 				/*sound mod is here! If you don't want to use it , just comment them out*/
@@ -1487,6 +1484,10 @@ void TutorialGame::InitGameExamples() {
 		LockCameraToObject2(playerCoop);
 		world->SetPlayerCoop(playerCoop);
 	}
+	player->SetPlayerHealth(1.0f);
+	if (coopMode) {
+		playerCoop->SetPlayerHealth(1.0f);
+	}
 
 	if(!coin)coin = AddBonusToWorld(itemPos[1], reactphysics3d::Quaternion::identity());
 	if(!coin2)coin2 = AddBonusToWorld(itemPos[13], reactphysics3d::Quaternion::identity());
@@ -1974,21 +1975,21 @@ void TutorialGame::SecScreenJumpMapping(Vector3 playerjumpos) {
 
 void TutorialGame::FreezingPlayers(float dt) {
 
-	if (world->GetPlayerHealth() <= 0) {
+	if (player->GetPlayerHealth() <= 0) {
 		GameLock::Player1lock = true;
 		p1pauseTime -= dt;
 		if (p1pauseTime <= 0) {
 			GameLock::Player1lock = false;
-			world->SetPlayerHealth(1.0f);
+			player->SetPlayerHealth(1.0f);
 			p1pauseTime = 3.0f;
 		}
 	}
-	if (world->GetPlayerCoopHealth() <= 0) {
+	if (playerCoop->GetPlayerHealth() <= 0) {
 		GameLock::Player2lock = true;
 		p2pauseTime -= dt;
 		if (p2pauseTime <= 0) {
 			GameLock::Player2lock = false;
-			world->SetPlayerCoopHealth(1.0f);
+			playerCoop->SetPlayerHealth(1.0f);
 			p2pauseTime = 3.0f;
 		}
 	}

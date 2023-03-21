@@ -15,6 +15,7 @@ enum BasicNetworkMessages {
 	Player_Connected,
 	Player_Disconnected,
 	Projectile_Fired,
+	Health,
 	Shutdown
 };
 

@@ -48,6 +48,9 @@ void NetworkedGame::StartAsServer() {
 	player2 = AddPlayerToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderB, 'b', 2, 2);
 	player3 = AddPlayerToWorld(reactphysics3d::Vector3(60, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderC, 'r', 3, 3);
 	player4 = AddPlayerToWorld(reactphysics3d::Vector3(65, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderD, 'b', 4, 4);
+	player2->SetPlayerHealth(1.0f);
+	player3->SetPlayerHealth(1.0f);
+	player4->SetPlayerHealth(1.0f);
 	thisServer->RegisterPacketHandler(Received_State, this);
 	isMultiplayer = true;
 	//goose->setTarget2(player2);
@@ -67,6 +70,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient->RegisterPacketHandler(Player_Connected, this);
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
 	thisClient->RegisterPacketHandler(Projectile_Fired, this);
+	thisClient->RegisterPacketHandler(Health, this);
 	//goose->setTarget2(thisPlayer);
 
 
@@ -99,6 +103,7 @@ void NetworkedGame::UpdateGame(float dt) {
 void NetworkedGame::UpdateAsServer(float dt) {
 	UpdateNetworkAnimations(dt);
 	updateCamera(player, dt);
+	world->playerHealth = player->GetPlayerHealth();
 	moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
 		BroadcastProjectile(player);
@@ -110,6 +115,10 @@ void NetworkedGame::UpdateAsServer(float dt) {
 	ResetMovementFrame(player4);
 	packetsToSnapshot--;
 	if (packetsToSnapshot < 0) {
+		BroadcastPlayerHealth(player2);
+		BroadcastPlayerHealth(player3);
+		BroadcastPlayerHealth(player4);
+		std::cout <<"phealth : " << player2->GetPlayerHealth() << std::endl;
 		BroadcastSnapshot(false);
 		packetsToSnapshot = 5;
 	}
@@ -127,6 +136,7 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	case 1:
 		//moveDesignatedPlayer(player2, dt,world->GetMainCamera()->GetPosition());
 		updateCamera(player2, dt);
+		world->playerHealth = player2->GetPlayerHealth();
 		MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
 		//shootPaint(player2, dt, world->GetMainCamera());
 		yaw = player2->GetYaw();
@@ -138,6 +148,7 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	case 2:
 		//moveDesignatedPlayer(player3, dt, world->GetMainCamera()->GetPosition());
 		updateCamera(player3, dt);
+		world->playerHealth = player3->GetPlayerHealth();
 		MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
 		//shootPaint(player3, dt, world->GetMainCamera());
 		yaw = player3->GetYaw();
@@ -149,6 +160,7 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	case 3:
 		//moveDesignatedPlayer(player4, dt, world->GetMainCamera()->GetPosition());
 		updateCamera(player4, dt);
+		world->playerHealth = player4->GetPlayerHealth();
 		MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
 		//shootPaint(player4, dt, world->GetMainCamera());
 		yaw = player4->GetYaw();
@@ -219,6 +231,16 @@ void NetworkedGame::BroadcastProjectile(PlayerObject* p) {
 	newPacket.yaw[6] = pitch.y;
 	newPacket.yaw[7] = pitch.z;
 	newPacket.yaw[8] = pitch.w;
+	lastID++;
+
+	thisServer->SendGlobalPacket(newPacket);
+}
+
+void NetworkedGame::BroadcastPlayerHealth(PlayerObject* p) {
+	HealthPacket newPacket;
+	newPacket.lastID = lastID;
+	newPacket.myID = p->GetWorldID();
+	newPacket.health = p->GetPlayerHealth();
 	lastID++;
 
 	thisServer->SendGlobalPacket(newPacket);
@@ -306,10 +328,12 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 		if (type == Delta_State) {
 			std::cout << "Delta_poop";
 		}
-		if (type == Full_State) {
-			//std::cout << "Full_poop";
-			//std::cout << ((FullPacket*)payload)->objectID << std::endl;
-			//std::cout << ((FullPacket*)payload)->fullState.position << std::endl;
+		if (type == Health) {
+			if (o->getGameObject().GetWorldID() == ((HealthPacket*)payload)->myID) {
+				((PlayerObject*)(&(o->getGameObject())))->SetPlayerHealth(((HealthPacket*)payload)->health);
+				std::cout<< "ID: " << ((HealthPacket*)payload)->myID << "  hpacket : " << ((HealthPacket*)payload)->health << std::endl;
+
+			}
 		}
 		if (type == Projectile_Fired) {
 			if (o->getGameObject().GetWorldID() == ((ProjectilePacket*)payload)->myID) {

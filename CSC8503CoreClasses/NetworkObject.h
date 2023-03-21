@@ -8,7 +8,7 @@ namespace NCL::CSC8503 {
 
 	struct FullPacket : public GamePacket {
 		int		objectID = -1;
-		int projectileID;
+
 		NetworkState fullState;
 
 		FullPacket() {
@@ -27,7 +27,16 @@ namespace NCL::CSC8503 {
 			size = sizeof(ProjectilePacket);
 		}
 	};
+	struct HealthPacket : public GamePacket {
+		int		myID;
+		int		lastID;
+		float		health;
 
+		HealthPacket() {
+			type = Health;
+			size = sizeof(ProjectilePacket);
+		}
+	};
 
 	struct DeltaPacket : public GamePacket {
 		int		fullID		= -1;

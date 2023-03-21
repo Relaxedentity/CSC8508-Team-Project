@@ -3,6 +3,8 @@
 #include "Window.h"
 #include <reactphysics3d/reactphysics3d.h>
 #include "Maths.h"
+
+
 using namespace NCL;
 using namespace CSC8503;
 
@@ -108,7 +110,6 @@ bool NetworkObject::WriteFullPacket(GamePacket**p) {
 	fp->objectID = networkID;
 	fp->fullState.position = object.GetPhysicsObject()->getTransform().getPosition();
 	fp->fullState.orientation = object.GetPhysicsObject()->getTransform().getOrientation();
-	//fp->fullState.projVelocity = object.GetPhysicsObject()->getLinearVelocity();
 	fp->fullState.stateID = lastFullState.stateID++;
 	*p = fp;
 	return true;

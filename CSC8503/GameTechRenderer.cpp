@@ -7,6 +7,7 @@
 #include "Debug.h"
 #include "Gamelock.h"
 #include "MapNode.h"
+#include "PlayerObject.h"
 using namespace NCL;
 using namespace Rendering;
 using namespace CSC8503;
@@ -900,7 +901,7 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 	if (GameLock::gamestart) {
 		RenderCrossHair();
 		RenderMap({ 0, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayer());
-		RenderHealthBar(gameWorld.GetPlayerHealth());
+		RenderHealthBar(gameWorld.playerHealth);
 	}
 
 	if (GameLock::CoopEndMenuawake) {
@@ -938,7 +939,7 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 		RenderCrossHair();
 		RenderMap({ windowWidth * 0.5f, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayerCoop());
-		RenderHealthBar(gameWorld.GetPlayerCoopHealth());
+		RenderHealthBar(((PlayerObject*)(gameWorld.GetPlayerCoop()))->GetPlayerHealth());
 	}
 
 
@@ -957,7 +958,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 		NewRenderLines();
 		NewRenderText();
 		RenderMap({ 0, 0 }, { (float)windowWidth, (float)windowHeight }, gameWorld.GetPlayer());
-		RenderHealthBar(gameWorld.GetPlayerHealth());
+		RenderHealthBar(gameWorld.playerHealth);
 		RenderProgressBar(gameWorld.getColourOneScore());
 	}
 	

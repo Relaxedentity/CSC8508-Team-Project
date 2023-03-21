@@ -117,15 +117,6 @@ namespace NCL {
 			void SetPlayer(GameObject* p) {
 				player = p;
 			}
-			
-			float GetPlayerHealth() {
-				return playerHealth;
-			}
-
-			float GetPlayerCoopHealth()
-			{
-				return playerCoopHealth;
-			}
 
 			void SetPlayerCoop(GameObject* p) {
 				playerCoop = p;
@@ -133,14 +124,6 @@ namespace NCL {
 
 			GameObject* GetPlayerCoop() {
 				return playerCoop;
-			}
-
-			void SetPlayerCoopHealth(float health) {
-				playerCoopHealth = health;
-			}
-
-			void SetPlayerHealth(float health) {
-				playerHealth = health;
 			}
 
 			void SetCollisionListener(GameObjectListener* listener) {
@@ -194,7 +177,7 @@ namespace NCL {
 			void setPaintOrb(GameObject* i) {
 				paintOrb = i;
 			}
-
+			float playerHealth;
 		protected:
 			std::vector<GameObject*> gameObjects;
 
@@ -211,10 +194,8 @@ namespace NCL {
 			RaycastManager* raycastManager;
 			GameObjectListener* collisionManager;
 			GameObject* player;
-			float playerHealth;
 
 			GameObject* playerCoop;
-			float playerCoopHealth;
 
 			int totalNodes = 0;
 			int colourOneNodes = 0;
