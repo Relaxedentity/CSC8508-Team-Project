@@ -42,6 +42,8 @@ namespace NCL {
 			static bool istoString;
 			static bool isto2String;
 
+			static bool isNetwork;
+
 			static int RedS;
 			static int BlueS;
 		};

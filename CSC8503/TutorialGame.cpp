@@ -575,8 +575,8 @@ void NCL::CSC8503::TutorialGame::updateCamera(PlayerObject* player, float dt) {
 }
 
 void NCL::CSC8503::TutorialGame::shootPaint(PlayerObject* p, float dt, Camera* c) {
+	invokeTime -= dt;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::F)) {
-		invokeTime -= dt;
 		if (invokeTime <= 0) {
 			ShootProjectile(p, c->GetRotationPitch());
 			/*sound mod is here! If you don't want to use it , just comment them out*/
@@ -2004,64 +2004,73 @@ void TutorialGame::FreezingPlayers(float dt) {
 }
 
 void TutorialGame::RegeneratePowerupProps(float dt) {
-	srand((unsigned int)time(NULL));
-	if (!coin->IsActive()) {
-		int coinPos = rand() % itemPos.size();
-		coin->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coinPos], reactphysics3d::Quaternion::identity()));
-		coin->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
-		coin->setActive(true);
-	}
-	if (!coin2->IsActive()) {
-		int coin2Pos = rand() % itemPos.size();
-		coin2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coin2Pos], reactphysics3d::Quaternion::identity()));
-		coin2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
-		coin2->setActive(true);
-	}
-	if (!capsule->IsActive()) {
-		int capsulePos = rand() % itemPos.size();
-		capsule->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[capsulePos],
-			reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0.5f, 0, 0))));
-		capsule->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
-		capsule->setActive(true);
-	}
-	if (!capsule2->IsActive()) {
-		int capsule2Pos = rand() % itemPos.size();
-		capsule2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[capsule2Pos],
-			reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0, 0, 0.4f))));
-		capsule2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
-		capsule2->setActive(true);
-	}
-	if (!cat->IsActive()) {
-		int catPos = rand() % itemPos.size();
-		cat->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[catPos], reactphysics3d::Quaternion::identity()));
-		cat->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
-		cat->setActive(true);
-	}	
 
-	/// Game props rotation ///
-	coin->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
-	coin2->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
-	capsule->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
-	capsule2->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
-	cat->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+	if (GameLock::isNetwork) {
+		world->RemoveGameObject(coin);
+		world->RemoveGameObject(coin2);
+		world->RemoveGameObject(capsule);
+		world->RemoveGameObject(capsule2);
+		world->RemoveGameObject(cat);
+	}
+	else {
+		srand((unsigned int)time(NULL));
+		if (!coin->IsActive()) {
+			int coinPos = rand() % itemPos.size();
+			coin->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coinPos], reactphysics3d::Quaternion::identity()));
+			coin->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+			coin->setActive(true);
+		}
+		if (!coin2->IsActive()) {
+			int coin2Pos = rand() % itemPos.size();
+			coin2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coin2Pos], reactphysics3d::Quaternion::identity()));
+			coin2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+			coin2->setActive(true);
+		}
+		if (!capsule->IsActive()) {
+			int capsulePos = rand() % itemPos.size();
+			capsule->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[capsulePos],
+				reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0.5f, 0, 0))));
+			capsule->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+			capsule->setActive(true);
+		}
+		if (!capsule2->IsActive()) {
+			int capsule2Pos = rand() % itemPos.size();
+			capsule2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[capsule2Pos],
+				reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0, 0, 0.4f))));
+			capsule2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+			capsule2->setActive(true);
+		}
+		if (!cat->IsActive()) {
+			int catPos = rand() % itemPos.size();
+			cat->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[catPos], reactphysics3d::Quaternion::identity()));
+			cat->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
+			cat->setActive(true);
+		}
 
-	/// Shotgun Mode Countdown	/// 
-	if (player->getFireMode()) {
-		GameLock::p1ModeTime -= dt;
-		if (GameLock::p1ModeTime <= 0) {
-			GameLock::p1ModeTime = shotGunModeTime;
-			player->setFireMode(false);
+		/// Game props rotation ///
+		coin->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+		coin2->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+		capsule->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+		capsule2->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+		cat->GetPhysicsObject()->setAngularVelocity(reactphysics3d::Vector3(0, 200, 0) * dt);
+
+		/// Shotgun Mode Countdown	/// 
+		if (player->getFireMode()) {
+			GameLock::p1ModeTime -= dt;
+			if (GameLock::p1ModeTime <= 0) {
+				GameLock::p1ModeTime = shotGunModeTime;
+				player->setFireMode(false);
+			}
+		}
+		if (coopMode && playerCoop->getFireMode()) {
+			GameLock::p2ModeTime -= dt;
+			if (GameLock::p2ModeTime <= 0) {
+				GameLock::p2ModeTime = shotGunModeTime;
+				playerCoop->setFireMode(false);
+			}
 		}
 	}
-	if (coopMode && playerCoop->getFireMode()) {
-		GameLock::p2ModeTime -= dt;
-		if (GameLock::p2ModeTime <= 0) {
-			GameLock::p2ModeTime = shotGunModeTime;
-			playerCoop->setFireMode(false);
-		}
-	}
-
-
+	
 
 }
 

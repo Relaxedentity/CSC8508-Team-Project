@@ -41,3 +41,5 @@ float GameLock::p2ModeTime;
 
 bool GameLock::istoString;
 bool GameLock::isto2String;
+
+bool GameLock::isNetwork = false;

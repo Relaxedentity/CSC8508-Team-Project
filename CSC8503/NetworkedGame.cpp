@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include "Projectile.h"
+#include "Gamelock.h"
 
 #define COLLISION_MSG 30
 
@@ -88,9 +89,11 @@ void NetworkedGame::UpdateGame(float dt) {
 	}
 
 	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F9) && !initSplitScreen) {
+		GameLock::isNetwork = true;
 		StartAsServer();
 	}
 	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyboardKeys::F10) && !initSplitScreen) {
+		GameLock::isNetwork = true;
 		StartAsClient(127, 0, 0, 1);
 	}
 	TutorialGame::UpdateGame(dt);
