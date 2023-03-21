@@ -54,6 +54,12 @@ int main() {
 	GameLock::introBtnChange = false;
 	GameLock::exitBtnChange = false;
 
+	GameLock::p1ModeTime = 0.0f;
+	GameLock::p2ModeTime = 0.0f;
+
+	GameLock::istoString = false;
+	GameLock::isto2String = false;
+
 	GameLock::isloading1 = false;
 	GameLock::isloading2 = false;
 
@@ -67,7 +73,7 @@ int main() {
 	GameLock::gamestart = false;////////////////
 	GameLock::redScore = 0.0f;////////////////////////////
 	GameLock::blueScore = 0.0f;////////////////////////////
-	GameLock::gametime = 300;////////////////////////////
+	GameLock::gametime = 5;////////////////////////////
 	bool NotConfirmExit = true;///////////////////////////
 	PushdownMachine* machine = new PushdownMachine(new IntroScreen());//menuinit
 
