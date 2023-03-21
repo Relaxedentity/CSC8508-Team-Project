@@ -73,7 +73,7 @@ int main() {
 	GameLock::gamestart = false;////////////////
 	GameLock::redScore = 0.0f;////////////////////////////
 	GameLock::blueScore = 0.0f;////////////////////////////
-	GameLock::gametime = 5;////////////////////////////
+	GameLock::gametime = GameLock::gamelength;////////////////////////////
 	bool NotConfirmExit = true;///////////////////////////
 	PushdownMachine* machine = new PushdownMachine(new IntroScreen());//menuinit
 

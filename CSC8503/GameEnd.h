@@ -65,7 +65,7 @@ namespace NCL {
 					if (state == 1) {
 						GameLock::istoString = false;
 						GameLock::isto2String = false;
-						GameLock::gametime = 10;
+						GameLock::gametime = GameLock::gamelength;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;
