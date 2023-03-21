@@ -282,8 +282,8 @@ namespace NCL {
 			float orbitScalarMin = 2.0f;
 
 			float thirdPersonYScalar = 1;
-			float thirdPersonXScalar = 1.25;
-			float thirdPersonZScalar = 4;
+			float thirdPersonXScalar = 1.5;
+			float thirdPersonZScalar = 5;
 			Projectile* projectiles[100];
 			Projectile* oneShot[5];
 			int currentProjectile = 0;

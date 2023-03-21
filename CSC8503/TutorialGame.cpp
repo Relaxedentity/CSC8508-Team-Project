@@ -514,16 +514,15 @@ void TutorialGame::MovePlayer(PlayerObject* player, float dt, Vector3 camPos) {
 		player->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(0, 1000, 0));
 	}
 
+	goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 	if (!thirdPerson) {
 		Vector3 currentVelocity = Vector3(lockedObject->GetPhysicsObject()->getLinearVelocity());
 		float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
 		Quaternion goatTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
-		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
-		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f);
+		goatRealRotation = (currentVelocity.Length() > 0.5) ? Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.5f) : goatStartRotation;
 	}
 	else {
 		Quaternion goatTargetRotation = thirdPersonRotationCalc(world, player, world->GetMainCamera(), camPos);
-		goatStartRotation = Quaternion(player->GetPhysicsObject()->getTransform().getOrientation());
 		goatRealRotation = Quaternion::Lerp(goatStartRotation, goatTargetRotation, 0.25f);
 	}
 	
@@ -557,7 +556,7 @@ void NCL::CSC8503::TutorialGame::updateCamera(PlayerObject* player, float dt) {
 
 	Vector3 camPos;
 	if (!thirdPerson) {
-		camPos = orbitCameraProcess(objPos, *world->GetMainCamera(), lockedObject);
+		camPos = orbitCameraProcess(objPos + Vector3(0, 2, 0), *world->GetMainCamera(), lockedObject);
 		cameraInterpolation(camPos, dt, *world->GetMainCamera());
 	}
 	else {
@@ -845,20 +844,41 @@ Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos, Camera& camera, GameObj
 	orbitScalar = NCL::Maths::Clamp(orbitScalar, orbitScalarMin, orbitScalarMax);
 
 	Vector3 camPos = objPos + rotationAmount * Vector3(0, 0, orbitScalar);
-	Vector3 startPos = objPos + rotationAmount * Vector3(0, 0, 1.5);
 	Vector3 direction = rotationAmount * Vector3(0, 0, 1);
 	float rayLength = 100.0f;
-	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z) + reactphysics3d::Vector3(direction.x, direction.y, direction.z) * rayLength);
+	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z) + reactphysics3d::Vector3(direction.x, direction.y, direction.z) * rayLength);
 	SceneContactPoint* cameraCollision = world->Raycast(ray, ignorePlayer);
 	if (cameraCollision->isHit) {
 		float distance = cameraCollision->hitFraction * rayLength;
 		if (distance < orbitScalar) {
-			camPos = objPos + rotationAmount * Vector3(0, 0, distance);
+			camPos = objPos + rotationAmount * Vector3(0, 0, distance-0.5);
 		}
 	}
 	else delete cameraCollision;
 	return camPos;
 }
+
+//Vector3 TutorialGame::orbitCameraProcess(Vector3 objPos, Camera& camera, GameObject* ignorePlayer) {
+//	Quaternion rotationAmount = Quaternion(camera.GetRotationYaw()) * Quaternion(camera.GetRotationPitch());
+//
+//	orbitScalar -= Window::GetMouse()->GetWheelMovement();
+//	orbitScalar = NCL::Maths::Clamp(orbitScalar, orbitScalarMin, orbitScalarMax);
+//
+//	Vector3 camPos = objPos + rotationAmount * Vector3(0, 0, orbitScalar);
+//	Vector3 startPos = objPos + rotationAmount * Vector3(0, 0, 1.5);
+//	Vector3 direction = rotationAmount * Vector3(0, 0, 1);
+//	float rayLength = 100.0f;
+//	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z) + reactphysics3d::Vector3(direction.x, direction.y, direction.z) * rayLength);
+//	SceneContactPoint* cameraCollision = world->Raycast(ray, ignorePlayer);
+//	if (cameraCollision->isHit) {
+//		float distance = cameraCollision->hitFraction * rayLength;
+//		if (distance < orbitScalar) {
+//			camPos = objPos + rotationAmount * Vector3(0, 0, distance);
+//		}
+//	}
+//	else delete cameraCollision;
+//	return camPos;
+//}
 
 Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos, Camera& camera, GameObject* currPlayer) {
 
@@ -892,6 +912,39 @@ Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos, Camera& camera, G
 	else delete cameraCollision2;
 	return objPos + rotationAmount * endVector;
 }
+
+//Vector3 TutorialGame::thirdPersonCameraProcess(Vector3 objPos, Camera& camera, GameObject* currPlayer) {
+//
+//	objPos = objPos + Vector3(0, thirdPersonYScalar, 0);
+//	Quaternion rotationAmount = Quaternion(camera.GetRotationYaw()) * Quaternion(camera.GetRotationPitch());
+//
+//	Vector3 endVector = Vector3(thirdPersonXScalar, 0, thirdPersonZScalar);
+//
+//	Vector3 direction = rotationAmount * Vector3(thirdPersonXScalar, 0, 0);
+//	float rayLength = 100.0f;
+//	reactphysics3d::Ray ray = reactphysics3d::Ray(reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z), reactphysics3d::Vector3(objPos.x, objPos.y, objPos.z) + reactphysics3d::Vector3(direction.x, direction.y, direction.z) * rayLength);
+//	SceneContactPoint* cameraCollision = world->Raycast(ray, currPlayer);
+//	if (cameraCollision->isHit) {
+//		float distance = cameraCollision->hitFraction * rayLength;
+//		if (distance < thirdPersonXScalar) {
+//			endVector.x = distance;
+//		}
+//	}
+//	else delete cameraCollision;
+//
+//	Vector3 startPos = (objPos + rotationAmount * Vector3(endVector.x, 0, 0));
+//	Vector3 direction2 = rotationAmount * Vector3(0, 0, thirdPersonZScalar);
+//	reactphysics3d::Ray ray2 = reactphysics3d::Ray(reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z), reactphysics3d::Vector3(startPos.x, startPos.y, startPos.z) + reactphysics3d::Vector3(direction2.x, direction2.y, direction2.z) * rayLength);
+//	SceneContactPoint* cameraCollision2 = world->Raycast(ray2, currPlayer);
+//	if (cameraCollision2->isHit) {
+//		float distance = cameraCollision2->hitFraction * rayLength;
+//		if (distance < thirdPersonZScalar) {
+//			endVector.z = distance;
+//		}
+//	}
+//	else delete cameraCollision2;
+//	return objPos + rotationAmount * endVector;
+//}
 
 void TutorialGame::LockedObjectMovement() {
 	Matrix4 view		= world->GetMainCamera()->BuildViewMatrix();
