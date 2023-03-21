@@ -2057,7 +2057,7 @@ void TutorialGame::FreezingPlayers(float dt) {
 }
 
 void TutorialGame::RegeneratePowerupProps(float dt) {
-	srand((unsigned)time(NULL));
+	srand((unsigned int)time(NULL));
 	if (!coin->IsActive()) {
 		int coinPos = rand() % itemPos.size();
 		coin->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coinPos], reactphysics3d::Quaternion::identity()));
@@ -2069,7 +2069,6 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 		coin2->GetPhysicsObject()->setTransform(reactphysics3d::Transform(itemPos[coin2Pos], reactphysics3d::Quaternion::identity()));
 		coin2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
 		coin2->setActive(true);
-		
 	}
 	if (!capsule->IsActive()) {
 		int capsulePos = rand() % itemPos.size();
@@ -2084,7 +2083,6 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 			reactphysics3d::Quaternion::identity().fromEulerAngles(reactphysics3d::Vector3(0, 0, 0.4f))));
 		capsule2->GetPhysicsObject()->setType(reactphysics3d::BodyType::KINEMATIC);
 		capsule2->setActive(true);
-		
 	}
 	if (!cat->IsActive()) {
 		int catPos = rand() % itemPos.size();
