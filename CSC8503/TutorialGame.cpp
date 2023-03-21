@@ -2064,6 +2064,10 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 		world->RemoveGameObject(capsule);
 		world->RemoveGameObject(capsule2);
 		world->RemoveGameObject(cat);
+		player->setFireMode(false);
+		player->setACARMode(false);
+		playerCoop->setFireMode(false);
+		playerCoop->setACARMode(false);
 	}
 	else {
 		srand((unsigned int)time(NULL));
