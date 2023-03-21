@@ -38,6 +38,12 @@ namespace NCL {
 
 			static float p1ModeTime;
 			static float p2ModeTime;
+
+			static bool istoString;
+			static bool isto2String;
+
+			static int RedS;
+			static int BlueS;
 		};
 	}
 }

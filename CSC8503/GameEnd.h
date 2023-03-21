@@ -48,14 +48,12 @@ namespace NCL {
 								state = i;
 								if (state == 1) {
 									GameLock::CoopExitBtnChange = true;
-									//std::cout << "yes£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡" << std::endl;
 									break;
 								}
 							}
 							else {
 								state = 0;
 								GameLock::CoopExitBtnChange = false;
-								//std::cout << "no£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡" << std::endl;
 							}
 						}
 					}
@@ -65,7 +63,9 @@ namespace NCL {
 				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1) {
-						GameLock::gametime = 10;
+						GameLock::istoString = false;
+						GameLock::isto2String = false;
+						GameLock::gametime = GameLock::gamelength;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;

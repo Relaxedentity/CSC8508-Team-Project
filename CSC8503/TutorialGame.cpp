@@ -327,6 +327,11 @@ void TutorialGame::UpdateGame(float dt) {
 	renderer->Update(dt);
 	
 	player->GetRenderObject()->frameTime -= dt;
+	if (GameLock::CoopEndMenuawake)
+		coopMode = false;
+	if (!GameLock::CoopEndMenuawake)
+		coopMode = true;
+
 	if (coopMode) {
 		playerCoop->GetRenderObject()->frameTime -= dt;
 	}
