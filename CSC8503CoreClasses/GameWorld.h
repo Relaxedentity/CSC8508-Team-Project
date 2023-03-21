@@ -55,7 +55,7 @@ namespace NCL {
 			SceneContactPoint* getHit() {
 				float fraction = hitPoints[0]->hitFraction;
 				int counter = 0;
-				for (int i = 0; i < hitPoints.size() - 1; i++) {
+				for (int i = 1; i < hitPoints.size(); i++) {
 					float challengerFraction = hitPoints[i]->hitFraction;
 					if (challengerFraction < fraction) {
 						fraction = challengerFraction;
