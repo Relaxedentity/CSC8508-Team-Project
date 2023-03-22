@@ -34,9 +34,9 @@ NetworkedGame::NetworkedGame() {
 	timeToNextPacket = 0.0f;
 	packetsToSnapshot = 0;
 	lastID = 0;
-	animatedShaderB = new OGLShader("skinningVertex.glsl", "charFrag.frag");
-	animatedShaderC = new OGLShader("skinningVertex.glsl", "charFrag.frag");
-	animatedShaderD = new OGLShader("skinningVertex.glsl", "charFrag.frag");
+	animatedShaderB = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");
+	animatedShaderC = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");
+	animatedShaderD = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");
 }
 
 NetworkedGame::~NetworkedGame() {

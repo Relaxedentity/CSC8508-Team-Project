@@ -94,8 +94,8 @@ void TutorialGame::InitialiseAssets() {
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
-	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag");
-	animatedShaderA = new OGLShader("skinningVertex.glsl", "charFrag.frag");
+	animatedShader = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");
+	animatedShaderA = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");
 	//Rebellion assets
 	corridorCaveTexture = renderer->LoadTexture("inner_sanctum_max_wall_low_C.tga");
 	corridorCaveStraightMesh = renderer->LoadMesh("inner_sanctum_max_wall_straight_mid.msh");
@@ -104,7 +104,7 @@ void TutorialGame::InitialiseAssets() {
 	corridorStraightMesh	= renderer->LoadMesh("corridor_Wall_Straight_Mid_end_L.msh");
 	corridorCornerRightSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_L.msh");
 	corridorCornerLeftSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_R.msh");
-	playerTex = renderer->LoadTexture("splatPlayer.tga");
+	playerTex = renderer->LoadTexture("Ch03_1001_Diffuse.png");
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
 	playerMat = new MeshMaterial("splatPlayer.mat");
@@ -1372,8 +1372,19 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.2f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0),reactphysics3d::Quaternion::identity()));
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, basicTex, shader));
-	Vector4 colourVector;
+	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, nullptr, shader));
+	character->GetRenderObject()->isAnimation = true;
+
+	for (int i = 0; i < playerMesh->GetSubMeshCount(); ++i) {
+		const MeshMaterialEntry* matEntry = playerMat->GetMaterialForLayer(i);
+		const std::string* filename = nullptr;
+		matEntry->GetEntry("Diffuse", &filename);
+		std::string path = *filename;
+		std::cout << path << std::endl;
+		character->GetRenderObject()->matTextures.emplace_back(renderer->LoadTexture(path));
+	}
+
+	/*Vector4 colourVector;
 	switch (paintColour) {
 	case 'r':
 		colourVector = Vector4(1, 0, 0, 1);
@@ -1385,7 +1396,7 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 		colourVector = Vector4(0, 1, 0, 1);
 		break;
 	}
-	character->GetRenderObject()->SetColour(colourVector);
+	character->GetRenderObject()->SetColour(colourVector);*/
 	character->setPaintColour(paintColour);
 	world->AddGameObject(character);
 	character->SetWorldID(worldID);

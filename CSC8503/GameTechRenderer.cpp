@@ -49,8 +49,8 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	
 	glClearColor(1, 1, 1, 1);
 
-	//Animated Objects
-	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag"); 
+	////Animated Objects
+	//animatedShader = new OGLShader("skinningVertex.vert", "SkinningFrag.frag"); 
 
 	//Set up the light properties
 	lightColour = Vector4(0.8f, 0.8f, 0.5f, 1.0f);
@@ -1518,8 +1518,11 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			lightRadiusLocation = glGetUniformLocation(shader->GetProgramID(), "lightRadius");
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
-			int j = glGetUniformLocation(shader->GetProgramID(), "joints");
-			glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
+			if (i->isAnimation) {
+				int j = glGetUniformLocation(shader->GetProgramID(), "joints");
+				glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
+			}
+			
 			Vector3 camPos = camera.GetPosition();
 	
 			
@@ -1561,8 +1564,13 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 
 		BindMesh((*i).GetMesh());
 		int layerCount = (*i).GetMesh()->GetSubMeshCount();
-		for (int i = 0; i < layerCount; ++i) {
-			DrawBoundMesh(i);
+		for (int x = 0; x < layerCount; ++x) {
+			if (i->isAnimation) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, ((OGLTexture*)i->matTextures[x])->GetObjectID());
+				glUniform1i(glGetUniformLocation(shader->GetProgramID(), "diffuseTex"), 0);
+			}	
+			DrawBoundMesh(x);
 		}
 	}
 }
