@@ -64,12 +64,13 @@ void main(void)
 	}
 	}
 	else if(gamestart == false){
-	for(int i=0;i<paintedPos.length();i++){
-	float circledist = distance(paintedPos[i].xyz, IN.worldPos);
-		if(circledist < 1.5f) {
-			albedo = texture(mainTex, IN.texCoord);
-		}
-	}
+	albedo = texture(mainTex, IN.texCoord);
+//	for(int i=0;i<paintedPos.length();i++){
+//	float circledist = distance(paintedPos[i].xyz, IN.worldPos);
+//		if(circledist < 1.5f) {
+//			
+//		}
+	//}
 	
 	}
 

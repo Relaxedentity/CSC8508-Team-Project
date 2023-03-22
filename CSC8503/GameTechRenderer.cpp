@@ -1460,7 +1460,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 		BindShader(shader);
 
 		BindTextureToShader((OGLTexture*)(*i).GetDefaultTexture(), "mainTex", 0);
-
+		
 	
 
 		if (i->GetPaintedPos().size()) {
@@ -1473,10 +1473,29 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", j);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
-				glUniform4fv(paintedLocation, 1, paintedPos.array);
+				if (!GameLock::gamestart) {
+					glUniform4fv(paintedLocation, 1, Vector4(0,0,0,0).array);
+				}
+				else
+				{
+					glUniform4fv(paintedLocation, 1, paintedPos.array);
+				}
+				
 			}
 		}
-
+		if (GameLock::gamemod==0) {
+			gameWorld.OperateOnContents(
+				[&](GameObject* o) {
+					if (o->IsActive()) {
+						RenderObject* g = o->GetRenderObject();
+						if (g && g->GetPaintedPos().size() > 0) {
+							g->ClearPaintPos();
+						}
+					}
+				}
+			);
+		}
+		
 		/*if (GameLock::gamemod == 0) {
 			gameWorld.OperateOnContents(
 				[&](GameObject* o)
