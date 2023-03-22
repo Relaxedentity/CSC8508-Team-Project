@@ -54,7 +54,7 @@ TutorialGame::TutorialGame()	{
 	freeCamera		= false;
 	mouseLock		= true;
 	debug = false;
-	coopMode = true;
+	coopMode = false;
 	isMultiplayer = false;
 	world->SetPlayerHealth(1.0f);
 	if (coopMode) {
@@ -331,21 +331,20 @@ void TutorialGame::UpdateGame(float dt) {
 	player->GetRenderObject()->frameTime -= dt;
 	if (GameLock::CoopEndMenuawake)
 		coopMode = false;
-	if (!GameLock::CoopEndMenuawake)
+	if (GameLock::gamestart && GameLock::gamemod == 2) {
 		coopMode = true;
-
-	if (coopMode) {
+	}
+	else
+	{
+		coopMode = false;
+	}
+	if (!coopMode && playerCoop) {
+		playerCoop->setActive(false);
+	}
+	else if(coopMode)
+	{
+		playerCoop->setActive(true);
 		playerCoop->GetRenderObject()->frameTime -= dt;
-	}
-
-
-	if (player->directionInput) {
-		UpdateAnim(player,playerWalkAnim);
-	}
-	else {
-		UpdateAnim(player,playerIdleAnim);
-	}
-	if (coopMode) {
 		if (playerCoop->directionInput) {
 			UpdateAnim(playerCoop, playerWalkAnim);
 			//UpdateAnimCoop(playerCoop, playerWalkAnim, frameTime, currentFrameA, dt);
@@ -355,6 +354,15 @@ void TutorialGame::UpdateGame(float dt) {
 			//UpdateAnimCoop(playerCoop, playerIdleAnim, frameTime, currentFrameA, dt );
 		}
 	}
+	
+
+	if (player->directionInput) {
+		UpdateAnim(player,playerWalkAnim);
+	}
+	else {
+		UpdateAnim(player,playerIdleAnim);
+	}
+	
 	
 	/*else {
 		frameTimeA -= dt;
@@ -1569,11 +1577,9 @@ void TutorialGame::InitGameExamples() {
 	LockCameraToObject(player);
 	world->SetPlayer(player);
 
-	if (coopMode) {
-		playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', -1, -1);
-		LockCameraToObject2(playerCoop);
-		world->SetPlayerCoop(playerCoop);
-	}
+	playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', -1, -1);
+	LockCameraToObject2(playerCoop);
+	world->SetPlayerCoop(playerCoop);
 
 	if(!coin)coin = AddBonusToWorld(itemPos[1], reactphysics3d::Quaternion::identity());
 	if(!coin2)coin2 = AddBonusToWorld(itemPos[13], reactphysics3d::Quaternion::identity());
