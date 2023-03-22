@@ -246,10 +246,9 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		});
 
 	BehaviourAction* midAttackAnimAct = new BehaviourAction("Mid Attack", [&](float dt, BehaviourState state) -> BehaviourState {
-		static const float initialSpeed = 50.0f;  // Initial movement speed
-		static const float minSpeed =5.0f;  // Minimum movement speed (when close to the player)
-		static const float stopDist = 10.0f;  // Distance at which the AI stops moving
-
+		static const float initialSpeed = 50.0f;  
+		static const float minSpeed =5.0f;  
+		static const float stopDist = 10.0f;  
 		if (state == Initialise) {
 			state = Ongoing;
 			std::cout << "Mid Attack!\n";
@@ -258,23 +257,25 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		else if (state == Ongoing) {
 			if (range == midRange) {
 				std::cout << "Moving to player!\n";
-				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				//SetRotationToPlayer();
 
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
+
+
 
 				// Calculate the distance to the player
 				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
 				// Interpolate the movement speed based on the current distance to the player
-				movSpeed = initialSpeed * std::max((currentDist - stopDist) / (30 - stopDist), 0.0f);
+				movSpeed = initialSpeed * std::max((currentDist - stopDist) / (initialSpeed - stopDist), 0.0f);
 
 				// Apply the movement force
 				this->GetPhysicsObject()->applyLocalForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * movSpeed);
 
-				////::cout << "Distance to player: " << currentDist << std::endl;
-				//	std::cout << "Movement speed: " << movSpeed << std::endl;
+				std::cout << "Distance to player: " << currentDist << std::endl;
+				std::cout << "Movement speed: " << movSpeed << std::endl;
 
+				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				// Check if the AI has reached the player
 				if (currentDist < stopDist) {
 					UpdateAnim(this, aiMidAttackAnim, frameTime, currentFrame);
@@ -328,9 +329,9 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	});
 
 	BehaviourAction* closeAttackAnimAct = new BehaviourAction("Close Attack", [&](float dt, BehaviourState state) -> BehaviourState {
-		static const float initialSpeed = 20.0f;  // Initial movement speed
-		static const float minSpeed = 5.0f;  // Minimum movement speed (when close to the player)
-		static const float stopDist = 2.0f;  // Distance at which the AI stops moving
+		static const float initialSpeed = 20.0f; 
+		static const float minSpeed = 5.0f; 
+		static const float stopDist = 2.0f;  
 		if (state == Initialise) {
 			state = Ongoing;
 			std::cout << " close Attack !\n";
@@ -371,7 +372,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	strafeBehaviour->AddChild(strafeRightAroundPlayerAct);
 
 	moveSelector = new BehaviourSelector("Select Move");
-	moveSelector->AddChild(moveTowardPlayerAct);
+	//moveSelector->AddChild(moveTowardPlayerAct);
 	moveSelector->AddChild(strafeBehaviour);
 
 	rangeForAttackSelector = new BehaviourSelector("Select Attack Range");
