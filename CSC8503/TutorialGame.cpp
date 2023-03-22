@@ -725,9 +725,8 @@ void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 			Vector3 sphereintipos = player->GetPhysicsObject()->getTransform().getPosition();//////////////////////////////////////////////////
 			SecScreenFireMapping(sphereintipos);///////////////////////////////////////////////////////////////////////
 			invokeTime2 = 0.1f;
+			}
 		}
-	}
-
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::Y)) {
 			world->drawPaintNodes();
 		}

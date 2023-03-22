@@ -41,8 +41,8 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) 
 
 	height = 10;
 	AngThres = 70;
-	outerRadius = 20;
-	innerRadius = 1;
+	outerRadius = 10;
+	innerRadius = 2;
 
 	dest = Vector3(-10, 0, 30);
 	CreateBehaviourTree();
@@ -98,7 +98,6 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		else if (state == Ongoing) {
 
 			UpdateAnim(this,  aiWalkAnim, frameTime, currentFrame);
-			
 			// choose between four points on the map to patrol 
 			int patrolPoints = rand() % 3;
 
@@ -119,7 +118,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 			default:
 				break;
 			}
-
+			SetRotationToPlayer();
 			if (SeenPlayer()) {
 				std::cout << " Player in View!\n";
 				state = Success;
@@ -225,7 +224,6 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, strafeVector.y, strafeVector.z) * 5);
 
 			state = Ongoing;
-
 		}
 		else if (state == Ongoing) {
 
@@ -257,12 +255,10 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		else if (state == Ongoing) {
 			if (range == midRange) {
 				std::cout << "Moving to player!\n";
-				//SetRotationToPlayer();
+				SetRotationToPlayer();
 
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
-
-
-
+				
 				// Calculate the distance to the player
 				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
@@ -272,6 +268,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 				// Apply the movement force
 				this->GetPhysicsObject()->applyLocalForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * movSpeed);
 
+				std::cout << "Dir Vector" << dir << std::endl;
 				std::cout << "Distance to player: " << currentDist << std::endl;
 				std::cout << "Movement speed: " << movSpeed << std::endl;
 
@@ -376,7 +373,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	moveSelector->AddChild(strafeBehaviour);
 
 	rangeForAttackSelector = new BehaviourSelector("Select Attack Range");
-	rangeForAttackSelector->AddChild(midAttackAnimAct);
+	//rangeForAttackSelector->AddChild(midAttackAnimAct);
 	rangeForAttackSelector->AddChild(farAttackAnimAct);
 	rangeForAttackSelector->AddChild(closeAttackAnimAct);
 
@@ -556,15 +553,6 @@ void NCL::CSC8503::BossAI::WalkPath(Vector3& destination)
 		float z = pathNodes[nodeIndex].z > this->GetPhysicsObject()->getTransform().getPosition().z ? 20 : -20;
 		this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(x, 0, z));
 
-		//// Orient the AI to face the next path node
-		//Vector3 aiPos = Vector3(GetPhysicsObject()->getTransform().getPosition());
-		//Vector3 targetPos = pathNodes[nodeIndex];
-		//Quaternion rotation = Quaternion::LookAt(targetPos - aiPos, Vector3(0,1,0));
-		//reactphysics3d::Quaternion rotation2(rotation.x, rotation.y, rotation.z, rotation.w);
-
-		//reactphysics3d::Transform test = this->GetPhysicsObject()->getTransform();
-		//test.setOrientation(rotation2);
-		//this->GetPhysicsObject()->setTransform(test);
 	}
 
 	if (distToNode <= 4.0f && destNotArrived)
@@ -596,11 +584,21 @@ void NCL::CSC8503::BossAI::SetRotationToPlayer()
 	Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 	//std::cout << dir << std::endl;
 
-	Quaternion targetRot = Quaternion::LookAt(dir, Vector3(0, 1, 0));
+	//Vector3 torqueVector = Vector3::Cross();
+
+	//Quaternion targetRot = Quaternion::LookAt(dir, Vector3(0, 1, 0));
+
+
+	Vector3 currentVelocity = Vector3(this->GetPhysicsObject()->getLinearVelocity());
+	float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
+	Quaternion aiTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
+	Quaternion aiStartRotation = Quaternion(this->GetPhysicsObject()->getTransform().getOrientation());
+	Quaternion  aiRealRotation = Quaternion::Lerp(aiStartRotation, aiTargetRotation, 0.5f);
 
 	// Set the orientation of the AI to look at the player
+
 	reactphysics3d::Transform newTransform = reactphysics3d::Transform(reactphysics3d::Vector3(aiPos.x, aiPos.y, aiPos.z),
-		reactphysics3d::Quaternion(targetRot.x, targetRot.y, targetRot.z, targetRot.w));
+		reactphysics3d::Quaternion(aiRealRotation.x, aiRealRotation.y, aiRealRotation.z, aiRealRotation.w));
 	this->GetPhysicsObject()->setTransform(newTransform);
 }
 

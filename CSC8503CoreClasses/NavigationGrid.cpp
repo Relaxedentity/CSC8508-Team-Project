@@ -27,8 +27,6 @@ NavigationGrid::NavigationGrid(const std::string&filename) : NavigationGrid() {
 	//f << "hello!" << std::endl;
 	//f.close();
 
-
-
 	std::ifstream infile(Assets::DATADIR + filename);
 
 	infile >> nodeSize;
@@ -69,7 +67,7 @@ NavigationGrid::NavigationGrid(const std::string&filename) : NavigationGrid() {
 					if (n.connected[i]->type == '.') {
 						n.costs[i]		= 1;
 					}
-					if (n.connected[i]->type == 'x') {
+					if (n.connected[i]->type != '.') {
 						n.connected[i] = nullptr; //actually a wall, disconnect!
 					}
 				}
@@ -84,11 +82,11 @@ NavigationGrid::~NavigationGrid()	{
 
 bool NavigationGrid::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) {
 	//need to work out which node 'from' sits in, and 'to' sits in
-	int fromX = ((int)from.x / nodeSize);
-	int fromZ = ((int)from.z / nodeSize);
+	int fromX = ((float)from.x / nodeSize);
+	int fromZ = ((float)from.z / nodeSize);
 
-	int toX = ((int)to.x / nodeSize);
-	int toZ = ((int)to.z / nodeSize);
+	int toX = ((float)to.x / nodeSize);
+	int toZ = ((float)to.z / nodeSize);
 
 	if (fromX < 0 || fromX > gridWidth - 1 ||
 		fromZ < 0 || fromZ > gridHeight - 1) {
