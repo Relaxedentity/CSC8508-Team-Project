@@ -265,19 +265,28 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	endexitBtnTex = new OGLTexture();
 	endexitBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("endexit.png");
 	endexitBtnMesh = new OGLMesh();
-	endexitBtnMesh->SetVertexPositions({ Vector3(0.11, -0.26, 0), Vector3(0.11, -0.45, 0), Vector3(-0.11, -0.45, 0), Vector3(-0.11, -0.26, 0)});
+	endexitBtnMesh->SetVertexPositions({ Vector3(0.11, -0.36, 0), Vector3(0.11, -0.55, 0), Vector3(-0.11, -0.55, 0), Vector3(-0.11, -0.36, 0)});
 	endexitBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	endexitBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	endexitBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	endexitBtnMesh->UploadToGPU();
 
-	
+	RestartBtnTex = new OGLTexture();
+	RestartBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("restart.png");
+	RestartBtnMesh = new OGLMesh();
+	RestartBtnMesh->SetVertexPositions({ Vector3(0.16, -0.06, 0), Vector3(0.16, -0.25, 0), Vector3(-0.16, -0.25, 0), Vector3(-0.16, -0.06, 0) });
+	RestartBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	RestartBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	RestartBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	RestartBtnMesh->UploadToGPU();
+
 	vector<Vector2> normalBtn = { {  Vector2(-0.2, 0.3) , Vector2(0.2, 0.1) } };
 	vector<Vector2> coopBtn = { {  Vector2(-0.2,0),   Vector2(0.2,-0.2)  } };
 	vector<Vector2> introBtn = { {  Vector2(-0.2,-0.3),  Vector2(0.2,-0.5)} };
 	vector<Vector2> exitBtn = { {  Vector2(-0.1,-0.6),  Vector2(0.1,-0.75)} };
+	vector<Vector2> restartBtn = { {  Vector2(-0.16, -0.06) , Vector2(0.16, -0.25)} };
 	vector<Vector2> endexitBtn = { {  Vector2(-0.11, -0.26) , Vector2(0.11, -0.45)} };
-	vector<Vector2> coopendexitBtn = { {  Vector2(-0.11, -0.26) , Vector2(0.11, -0.45)} };
+	vector<Vector2> coopendexitBtn = { {  Vector2(-0.11, -0.36) , Vector2(0.11, -0.55)} };
 	vector<Vector2> backBtn = { {  Vector2(-0.1, -0.6),   Vector2(0.1, -0.75)  } };
 	
 
@@ -314,6 +323,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	GameLock::IntroButtonPos.push_back(exitBtn);
 	GameLock::EndButtonPos.push_back(endexitBtn);
 	GameLock::CoopButtonPos.push_back(coopendexitBtn);
+	GameLock::CoopButtonPos.push_back(restartBtn);
 	GameLock::BackButtonPos.push_back(backBtn);
 	
 	glGenVertexArrays(1, &lineVAO);
@@ -370,9 +380,6 @@ GameTechRenderer::~GameTechRenderer()	{
 	
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
-
-	//glDeleteTextures(1, &secScreenTex);
-	//glDeleteFramebuffers(1, &secScreenFBO);
 }
 
 void GameTechRenderer::LoadSkybox() {
@@ -601,7 +608,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 
 		// I'm working out a colour to depict each rectangle as here, based upon its constituent objects and their paint nodes.
 
-		Vector4 finalColour = object->getMapColour();
+		Vector4 finalColour = object->getMapColour(GameLock::isloading2);
 
 		// the reason why the rectangle is rotating , is because we ignored that the cube also has a
 		// facing direction , and rotate just the center of it ,
@@ -794,28 +801,28 @@ void NCL::CSC8503::GameTechRenderer::RendererCooScore1() {
 			int s2 = n / 100 % 10;  b = std::to_string(s2);
 			int s3 = n / 10 % 10;   c = std::to_string(s3);
 			int s4 = n % 10;        d = std::to_string(s4);
-			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + ".png");
-			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + ".png");
-			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + ".png");
-			Score4Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(d + ".png");
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
+			Score4Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(d + d + ".png");
 		}
 		else if (n > 99 && n <= 999) {
 			int s1 = n / 100 % 10; a = std::to_string(s1);
 			int s2 = n / 10 % 10;  b = std::to_string(s2);
 			int s3 = n % 10;       c = std::to_string(s3);
-			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + ".png");
-			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + ".png");
-			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + ".png");
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
 		}
 		else if (n > 9 && n <= 99) {
 			int s1 = n / 10 % 10; a = std::to_string(s1);
 			int s2 = n % 10;      b = std::to_string(s2);
-			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + ".png");
-			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b+ ".png");
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + "png");
 		}
 		else {
 			int s1 = n % 10;      a = std::to_string(s1);
-			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + ".png");
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
 		}
 		GameLock::istoString = true;
 	}
@@ -1077,6 +1084,20 @@ void NCL::CSC8503::GameTechRenderer::RenderEndExitScreen() {
 	delete endexitBtnTex;
 }
 
+void NCL::CSC8503::GameTechRenderer::Restart() {
+	BindShader(uiShader);
+	if (GameLock::restartBtnChange) RestartBtnTex = (OGLTexture*)RestartBtnTex->SRGBTextureFromFilename("restart_selected.png");
+	else RestartBtnTex = (OGLTexture*)RestartBtnTex->SRGBTextureFromFilename("restart.png");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, RestartBtnTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(RestartBtnMesh);
+	DrawBoundMesh();
+	delete RestartBtnTex;
+}
+
 void NCL::CSC8503::GameTechRenderer::RenderCoopEndExitScreen() {
 	BindShader(uiShader);
 	if (GameLock::CoopExitBtnChange) endexitBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("endexit_selected.png");
@@ -1087,11 +1108,6 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopEndExitScreen() {
 	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 	BindMesh(endexitBtnMesh);
 	DrawBoundMesh();
-	//delete endexitBtnTex;
-	//RenderTriangle(point_1, point_4, point_2, color, windowSize);
-	//RenderTriangle(point_2, point_3, point_1, color, windowSize);
-	//BindMesh(endexitBtnMesh);
-	//DrawBoundMesh();
 	delete endexitBtnTex;
 }
 
@@ -1206,6 +1222,7 @@ void GameTechRenderer::RenderFrame( )
 		RenderEndScreen();
 		RendererCooScore1();
 		RendererCooScore2();
+		Restart();
 		RenderCoopEndExitScreen();
 	}
 
@@ -1460,7 +1477,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 		BindShader(shader);
 
 		BindTextureToShader((OGLTexture*)(*i).GetDefaultTexture(), "mainTex", 0);
-
+		
 	
 
 		if (i->GetPaintedPos().size()) {
@@ -1473,10 +1490,36 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", j);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
-				glUniform4fv(paintedLocation, 1, paintedPos.array);
+				if (!GameLock::gamestart) {
+					glUniform4fv(paintedLocation, 1, Vector4(0,0,0,0).array);
+				}
+				else
+				{
+					glUniform4fv(paintedLocation, 1, paintedPos.array);
+				}
+				
 			}
 		}
-
+		if (GameLock::isloading1 || GameLock::isloading2) {
+			gameWorld.OperateOnContents(
+				[&](GameObject* o) {
+					if (o->IsActive()) {
+						RenderObject* g = o->GetRenderObject();
+						if (g && g->GetPaintedPos().size() > 0) {
+							g->ClearPaintPos();
+						}
+					}
+				}
+			);
+			gameWorld.OperateOnMapNodes(
+				[&](MapNode* o) {
+					for (auto i : o->objects) {
+						i->redTally = 0;
+						i->blueTally = 0;
+					}
+				});
+		}
+		
 		/*if (GameLock::gamemod == 0) {
 			gameWorld.OperateOnContents(
 				[&](GameObject* o)

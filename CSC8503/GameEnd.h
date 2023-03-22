@@ -50,10 +50,15 @@ namespace NCL {
 									GameLock::CoopExitBtnChange = true;
 									break;
 								}
+								else if (state == 2) {
+									GameLock::restartBtnChange = true;
+									break;
+								}
 							}
 							else {
 								state = 0;
 								GameLock::CoopExitBtnChange = false;
+								GameLock::restartBtnChange = false;
 							}
 						}
 					}
@@ -73,6 +78,22 @@ namespace NCL {
 						GameLock::SingleEndMenuawake = false;
 						GameLock::CoopEndMenuawake = false;
 						return PushdownState::GotoMainMenu;
+					}
+					if (state == 2) {
+						GameLock::istoString = false;
+						GameLock::isto2String = false;
+						GameLock::gametime = GameLock::gamelength;
+						GameLock::gamemod = 0;
+						GameLock::gamestart = false;
+						GameLock::Player1lock = true;
+						GameLock::SingleEndMenuawake = false;
+						GameLock::CoopEndMenuawake = false;
+
+						GameLock::isloading2 = true;
+						GameLock::Mainmenuawake = false;
+						GameLock::redScore = 0.0f;
+						GameLock::blueScore = 0.0f;
+						return PushdownState::ExitoMainMenu;
 					}
 				}
 				return PushdownState::NoChange;

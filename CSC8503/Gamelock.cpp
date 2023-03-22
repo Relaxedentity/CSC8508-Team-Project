@@ -21,6 +21,7 @@ bool GameLock::exitBtnChange;
 bool GameLock::BackBtnChange;
 bool GameLock::SingleExitBtnChange;
 bool GameLock::CoopExitBtnChange;
+bool GameLock::restartBtnChange;
 
 bool GameLock::Mainmenuawake;
 bool GameLock::SingleEndMenuawake;
@@ -43,3 +44,7 @@ bool GameLock::istoString;
 bool GameLock::isto2String;
 
 bool GameLock::isNetwork = false;
+
+bool GameLock::Controller = false;
+bool GameLock::playerPosinit = false;
+bool GameLock::coopplayerPosinit = false;

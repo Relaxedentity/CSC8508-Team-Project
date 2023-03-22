@@ -11,7 +11,7 @@ namespace NCL {
 			static float blueScore;
 			static bool gamestart;
 			static int gamemod;
-			static const int gamelength = 200;
+			static const int gamelength = 20;
 			static ISoundEngine* hitsound;
 			static vector<vector<Vector2>> IntroButtonPos;
 			static vector<vector<Vector2>> EndButtonPos;
@@ -22,6 +22,7 @@ namespace NCL {
 			static bool introBtnChange;
 			static bool exitBtnChange;
 			static bool BackBtnChange;
+			static bool restartBtnChange;
 
 			static bool SingleExitBtnChange;
 			static bool CoopExitBtnChange;
@@ -46,6 +47,10 @@ namespace NCL {
 
 			static int RedS;
 			static int BlueS;
+
+			static bool Controller;
+			static bool playerPosinit;
+			static bool coopplayerPosinit;
 		};
 	}
 }

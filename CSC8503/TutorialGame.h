@@ -157,6 +157,7 @@ namespace NCL {
 			void FreezingPlayers(float dt);
 			void RegeneratePowerupProps(float dt);
 
+
 			/*sound functions*/
 			void MainScreenFireMapping(Vector3 sphereintipos);
 			void MainScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
@@ -173,6 +174,8 @@ namespace NCL {
 			void updateCamera(PlayerObject* player, float dt);
 			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
 			void moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos);
+
+			void Posreset();
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
