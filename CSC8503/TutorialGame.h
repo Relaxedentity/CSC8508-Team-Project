@@ -93,11 +93,6 @@ namespace NCL {
 
 			void UpdateEnemies(float dt);
 
-			//// pathfinding
-			//void CreatePath(Vector3& position);
-			//void DisplayPath();
-			//void WalkPath(Vector3& destination);
-
 
 			// animation 
 			void DrawAnim(PlayerObject* p, MeshAnimation* anim, int &cframe);
@@ -178,6 +173,7 @@ namespace NCL {
 			bool freeCamera;
 			bool mouseLock;
 			bool debug;
+			bool foundPath;
 
 			float renderTime = 0;
 			float accumulator = 0;

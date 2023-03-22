@@ -223,35 +223,14 @@ void TutorialGame::UpdateGame(float dt) {
 		}
 	}
 
-	//if (testStateObject) {
-	//	testStateObject->Update(dt);
-	//	for (int i = 1; i < nodes.size(); ++i) {
-	//		Vector3 a = nodes[i - 1];
-	//		Vector3 b = nodes[i];
-
-	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-	//	}
-	//}
-
-	//if (goose) {
-	//	goose->Update(dt);
-	//	for (int i = 1; i < nodes2.size(); ++i) {
-	//		Vector3 a = nodes2[i - 1];
-	//		Vector3 b = nodes2[i];
-
-	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-	//	}
-
-	//	reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
-	//	transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
-	//}
 
 	SelectObject();
 	MoveSelectedObject();
 	PlayerPaintTracks(player,'r');
 	PlayerPaintTracks(playerCoop, 'b');
-
-
+	
+	UpdateEnemies(dt);
+	
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
 	while (accumulator >= timeStep) {
@@ -299,7 +278,10 @@ void TutorialGame::UpdateGame(float dt) {
 	auto end = std::chrono::high_resolution_clock::now();
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
-	UpdateEnemies(dt);
+	//UpdateEnemies(dt);
+
+
+
 	Debug::UpdateRenderables(dt);
 }
 void TutorialGame::UpdateAnim(PlayerObject* p, MeshAnimation* anim, float &ftime, int &cframe) {
@@ -380,82 +362,15 @@ void TutorialGame::UpdateKeys()
 
 void NCL::CSC8503::TutorialGame::UpdateEnemies(float dt)
 {
-	if (boss) {
-		boss->Update(dt);
 		
-		reactphysics3d::Transform transform = boss->GetPhysicsObject()->getTransform();
-		transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
-	}
+		reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
+		Vector3 playerPos = Vector3(playerTransform.getPosition());
 
+		boss->UpdateBoss(dt, playerPos);
+		boss->DisplayPath();
 }
 
-//void NCL::CSC8503::TutorialGame::CreatePath(Vector3& position)
-//{
-//	NavigationGrid grid("TestGrid1.txt");
-//	NavigationPath outPath;
-//
-//	float x = targetDist.x - (-110);
-//	float z = targetDist.z - (20);
-//
-//	Vector3 endPos = Vector3(x, 0, z);
-//
-//	bool found = grid.FindPath(goose->GetTransform().GetPosition() - Vector3(-113, 0, 15), endPos, outPath);
-//	foundPath = found;
-//
-//	Vector3 pos;
-//	while (outPath.PopWaypoint(pos)) {
-//		newNodes.push_back(pos);
-//	}
-//}
-//
-//void NCL::CSC8503::TutorialGame::DisplayPath()
-//{
-//	for (int i = 1; i < newNodes.size(); ++i) {
-//		Vector3 a = newNodes[i - 1];
-//		Vector3 b = newNodes[i];
-//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-//	}
-//}
-//
-//void NCL::CSC8503::TutorialGame::WalkPath(Vector3& destination)
-//{
-//	if (newNodes.size() == 0) {
-//		CreatePath(targetDestination);
-//		destNotArrived = true;
-//	}
-//
-//	if (!foundPath) {
-//		CreatePath(targetDestination);
-//	}
-//
-//	if (walkToPlayer && nodeIndex == newNodes.size()) {
-//		nodeIndex = 0;
-//		newNodes.clear();
-//		destNotArrived = true;
-//		return;
-//	}
-//	else if (nodeIndex == newNodes.size())
-//	{
-//		destNotArrived = false;
-//		nodeIndex = 0;
-//		newNodes.clear();
-//		rNum == 0 ? rNum = 1 : rNum = 0;
-//		return;
-//	}
-//
-//	float distToNode = (goose->GetTransform().GetPosition() - newNodes[nodeIndex]).Length();
-//
-//	if (distToNode >= 2.0f && destNotArrived) {
-//		float x = newNodes[nodeIndex].x > goose->GetTransform().GetPosition().x ? 13 : -13;
-//		float z = newNodes[nodeIndex].z > goose->GetTransform().GetPosition().z ? 13 : -13;
-//		goose->GetPhysicsObject()->AddForce({ x, 0, z });
-//	}
-//
-//	if (distToNode <= 4.0f && destNotArrived)
-//	{
-//		nodeIndex += 1;
-//	}
-//}
+
 
 void TutorialGame::MovePlayer(PlayerObject* player, float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
@@ -1017,15 +932,16 @@ void NCL::CSC8503::TutorialGame::InitCameraSec()
 
 void TutorialGame::InitWorld() {
 	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
-	InitGameExamples();
 	
-	Vector3 startPos(70, 0, -10);
+	boss = AddBossAIToWorld(reactphysics3d::Vector3(80, 2, 50), reactphysics3d::Quaternion::identity(), newNodes);
+	InitGameExamples();
 	
 	//TestPathfinding(startPos);
 	//testStateObject = AddStateObjectToWorld(reactphysics3d::Vector3(nodes[0].x, nodes[0].y, nodes[0].z), reactphysics3d::Quaternion::identity(), nodes);
 	
 	//button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
 	buildGameworld();
+	
 	
 	//InitDefaultFloor();
 }
@@ -1430,15 +1346,17 @@ StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vecto
 BossAI* NCL::CSC8503::TutorialGame::AddBossAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
 {
 	BossAI* boss = new BossAI(world, testNodes);
-	//boss->setTarget1(player);
+	boss->setTarget1(player);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
-	body->setMass(2.0f);
-	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5f, 0.5f, 0.5f));
+	body->setMass(10.0f);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(1.0f, 1.0f, 1.0f));
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	boss->SetPhysicsObject(body);
-	boss->SetRenderObject(new RenderObject(body, Vector3(2, 2, 2), gooseMesh, nullptr, basicShader));
+
+	boss->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), gooseMesh, nullptr, basicShader));
 	boss->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
+
 
 	//NetworkObject* n = new NetworkObject(*boss, 3);
 	world->AddGameObject(boss);
@@ -1504,11 +1422,12 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(45, 2, 20), reactphysics3d::Quaternion::identity(), 1, 1);
 	player->setPaintColour('r');
 	playerCoop = AddPlayerForCoop(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity());
 	playerCoop->setPaintColour('b');
 	
+
 
 	//AddEmitterToWorld(reactphysics3d::Vector3(-20, 5, -345), reactphysics3d::Quaternion::identity());
 	LockCameraToObject(player);

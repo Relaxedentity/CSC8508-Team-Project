@@ -229,8 +229,32 @@ NCL::Maths::Quaternion NCL::Maths::Quaternion::AxisAngleToQuaterion(const NCL::M
 	return Quaternion((float)(vector.x * result), (float)(vector.y * result), (float)(vector.z * result), (float)cos(theta / 2.0f));
 }
 
+NCL::Maths::Quaternion NCL::Maths::Quaternion::LookAt(const Vector3& moveDir, const Vector3& up)
+{
+	// Normalize forward and up vectors
+	Vector3 f = moveDir.Normalised();
+	Vector3 u = up.Normalised();
+
+	// Calculate right vector
+	Vector3 r = Vector3::Cross(f, u);
+
+	// Calculate quaternion from rotation matrix
+	Matrix3 rotationMatrix;
+	rotationMatrix.array[0][0] = r.x;
+	rotationMatrix.array[0][1] = r.y;
+	rotationMatrix.array[0][2] = r.z;
+	rotationMatrix.array[1][0] = u.x;
+	rotationMatrix.array[1][1] = u.y;
+	rotationMatrix.array[1][2] = u.z;
+	rotationMatrix.array[2][0] = -f.x;
+	rotationMatrix.array[2][1] = -f.y;
+	rotationMatrix.array[2][2] = -f.z;
+	return Quaternion(rotationMatrix);
+}
+
 
 NCL::Maths::Vector3		NCL::Maths::Quaternion::operator *(const NCL::Maths::Vector3 &a)	const {
 	NCL::Maths::Quaternion newVec = *this * NCL::Maths::Quaternion(a.x, a.y, a.z, 0.0f) * Conjugate();
 	return NCL::Maths::Vector3(newVec.x, newVec.y, newVec.z);
 }
+

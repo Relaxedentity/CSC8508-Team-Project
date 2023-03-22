@@ -9,6 +9,8 @@ https://research.ncl.ac.uk/game/
 #pragma once
 #include <cmath>
 #include <iostream>
+#include "Matrix3.h"
+#include "Quaternion.h"
 #include <algorithm>
 
 namespace reactphysics3d {
@@ -38,6 +40,8 @@ namespace NCL::Maths {
 		Vector3(const Vector4& v4);
 		Vector3(const reactphysics3d::Vector3& v3);
 
+
+
 		reactphysics3d::Vector3 NCLtoReactVector3(NCL::Maths::Vector3 i);
 
 		~Vector3(void) = default;
@@ -61,6 +65,56 @@ namespace NCL::Maths {
 
 		float	Length() const {
 			return sqrt((x*x) + (y*y) + (z*z));
+		}
+
+		static Vector3 GetRotated(float angle, const Vector3& axis)  {
+
+			Quaternion rotation = Quaternion::AxisAngleToQuaterion(axis.Normalised(), angle);
+			
+			Quaternion result = rotation * Quaternion(0, axis.x, axis.y, axis.z) * rotation.Conjugate();
+			return Vector3(result.x, result.y, result.z);
+
+			
+		}
+
+		static Vector3 lerp(const Vector3& start, const Vector3& end, float t) {
+			t = std::fmax(0, std::fmin(1, t));
+			return Vector3(
+				(1 - t) * start.x + t * end.x,
+				(1 - t) * start.y + t * end.y,
+				(1 - t) * start.z + t * end.z
+			);
+		}
+
+		static Vector3 Projection(const Vector3& first, const Vector3& onto)
+		{
+			// calculate the scalar projection of this vector onto onto
+			float scalarProjection = Dot(first, onto) / onto.LengthSquared();
+
+			// calculate the projection vector
+			Vector3 projection = onto.Normalised() * scalarProjection;
+
+			return projection;
+		}
+
+
+		static Vector3 RotateY(const Vector3& vec, float angleInRad)  {
+			//float rad = Math::ToRadians(angle);
+			float sinA = sinf(angleInRad);
+			float cosA = cosf(angleInRad);
+
+			Matrix3 rotationMatrix;
+			rotationMatrix.array[0][0] = cosA;
+			rotationMatrix.array[0][1] = 0.0f;
+			rotationMatrix.array[0][2] = sinA;
+			rotationMatrix.array[1][0] = 0.0f;
+			rotationMatrix.array[1][1] = 1.0f;
+			rotationMatrix.array[1][2] = 0.0f;
+			rotationMatrix.array[2][0] = -sinA;
+			rotationMatrix.array[2][1] = 0.0f;
+			rotationMatrix.array[2][2] = cosA;
+
+			return rotationMatrix * vec;
 		}
 
 		constexpr float	LengthSquared() const {

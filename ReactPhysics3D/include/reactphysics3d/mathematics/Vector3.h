@@ -29,6 +29,7 @@
 // Libraries
 #include <cassert>
 #include <cmath>
+#include "Matrix3.h"
 #include <algorithm>
 #include <reactphysics3d/decimal.h>
 #include <reactphysics3d/mathematics/mathematics_common.h>

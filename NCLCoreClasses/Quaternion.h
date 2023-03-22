@@ -44,6 +44,8 @@ namespace NCL::Maths {
 		reactphysics3d::Quaternion NCLtoReactQuaternion(NCL::Maths::Quaternion i);
 
 
+		static reactphysics3d::Quaternion AxisAngle(const Vector3& axis, float angle);
+
 		~Quaternion(void) = default;
 
 		void		Normalise(); 
@@ -61,6 +63,8 @@ namespace NCL::Maths {
 
 		static Quaternion EulerAnglesToQuaternion(float pitch, float yaw, float roll);
 		static Quaternion AxisAngleToQuaterion(const Vector3& vector, float degrees);
+
+		static Quaternion LookAt(const Vector3& dirVec, const Vector3& axis);
 
 		inline bool  operator ==(const Quaternion &from)	const {
 			if (x != from.x || y != from.y || z != from.z || w != from.w) {
