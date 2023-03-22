@@ -1060,19 +1060,8 @@ void NCL::CSC8503::TutorialGame::InitCameraSec()
 }
 
 void TutorialGame::InitWorld() {
-	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
-
-	
-	Vector3 startPos(70, 0, -10);
-	
-	//TestPathfinding(startPos);
-	//testStateObject = AddStateObjectToWorld(reactphysics3d::Vector3(nodes[0].x, nodes[0].y, nodes[0].z), reactphysics3d::Quaternion::identity(), nodes);
-	
-	//button = AddButtonToWorld(reactphysics3d::Vector3(0, -18, 0), reactphysics3d::Quaternion::identity());
 	buildGameworld();
-	//AddRebCaveWallMainToWorld(reactphysics3d::Vector3(55, 2, 20), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(10, 3, 1));
 	InitGameExamples();
-	//InitDefaultFloor();
 }
 
 void TutorialGame::InitProjectiles(ShaderBase* shader) {
@@ -1111,6 +1100,8 @@ void TutorialGame::buildGameworld() {
 	GridNode* nodes = worldGrid->GetAllNodes();
 	int gridwidth = worldGrid->GetGridWidth();
 	int gridheight = worldGrid->getGridHeight();
+
+	InitDefaultFloor();
 	for (int y = 0; y < gridheight; y++) {
 		for (int x = 0; x < gridwidth; x++) {
 			GridNode& n = nodes[(gridwidth * y) + x];
@@ -1227,6 +1218,9 @@ TerrainObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& posi
 	body->setMass(0);
 	reactphysics3d::BoxShape* shape = physics.createBoxShape(halfextents);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+
+	collider->setIsTrigger(true);
+
 	floor->SetPhysicsObject(body);
 	floor->SetRenderObject(new RenderObject(body, Vector3(halfextents) * 2, cubeMesh, terrainTex, basicShader));
 
@@ -1247,6 +1241,22 @@ TerrainObject* TutorialGame::AddFloorToWorld(const reactphysics3d::Vector3& posi
 	world->addToNodeCount(9);
 
 	node->addObject(floor);
+
+	return floor;
+}
+
+GameObject* TutorialGame::AddColliderFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents) {
+	GameObject* floor = new GameObject(world, "ground");
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setType(reactphysics3d::BodyType::STATIC);
+	body->setMass(0);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(halfextents);
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	floor->SetPhysicsObject(body);
+	//floor->SetRenderObject(new RenderObject(body, Vector3(halfextents) * 2, cubeMesh, terrainTex, basicShader));
+
+	world->AddGameObject(floor);
 
 	return floor;
 }
@@ -1559,7 +1569,7 @@ void TutorialGame::TestHedgefinding(Vector3 position) {
 }
 
 void TutorialGame::InitDefaultFloor() {
-	//AddFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
+	AddColliderFloorToWorld(reactphysics3d::Vector3(0, 0, 0), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(200, 2, 150));
 }
 
 void TutorialGame::InitGameExamples() {

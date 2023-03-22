@@ -1,7 +1,7 @@
 #include "GameWorld.h"
 #include "MapNode.h"
 #include "Vector3.h"
-#
+#include "Vector4.h"
 
 using namespace NCL::CSC8503;
 
