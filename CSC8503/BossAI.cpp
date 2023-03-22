@@ -255,7 +255,6 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		else if (state == Ongoing) {
 			if (range == midRange) {
 				std::cout << "Moving to player!\n";
-				SetRotationToPlayer();
 
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 				
@@ -272,6 +271,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 				std::cout << "Distance to player: " << currentDist << std::endl;
 				std::cout << "Movement speed: " << movSpeed << std::endl;
 
+				SetRotationToPlayer();
 				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				// Check if the AI has reached the player
 				if (currentDist < stopDist) {
@@ -290,7 +290,6 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	BehaviourAction* farAttackAnimAct = new BehaviourAction("Far Attack", [&](float dt, BehaviourState state) -> BehaviourState {
 
 		if (state == Initialise) {
-			
 			std::cout << "jumping" << std::endl;
 			Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 			Vector3 aiVelocity = GetPhysicsObject()->getLinearVelocity();
@@ -315,12 +314,14 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 
-				UpdateAnim(this, aiFarAttackAnim, frameTime, currentFrame);
+			SetRotationToPlayer();
 
-				if (GetPhysicsObject()->getLinearVelocity().y <= 0.0f) {
-					std::cout << "jump sucessful" << std::endl;
-					state = Success;
-				}
+			UpdateAnim(this, aiFarAttackAnim, frameTime, currentFrame);
+
+			if (GetPhysicsObject()->getLinearVelocity().y <= 0.0f) {
+				std::cout << "jump sucessful" << std::endl;
+				state = Success;
+			}
 		}
 		return state;
 	});
@@ -336,6 +337,8 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 			if (range == closeRange) {
+
+				SetRotationToPlayer();
 				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 
@@ -347,6 +350,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 
 				// Apply the movement force
 				this->GetPhysicsObject()->applyLocalForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, 0, dir.z)* movSpeed);
+
 
 				//std::cout << "Distance to player: " << currentDist << std::endl;
 				//std::cout << "Movement speed: " << movSpeed << std::endl;
