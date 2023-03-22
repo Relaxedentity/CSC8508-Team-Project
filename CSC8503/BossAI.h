@@ -6,6 +6,8 @@
 #include "BehaviourNode.h"
 #include "BehaviourSelector.h"
 #include "BehaviourAction.h"
+#include "PlayerObject.h"
+#include "MeshAnimation.h"
 
 
 enum AttackRange {
@@ -58,6 +60,8 @@ namespace NCL {
 			double DegreesToRadian(double degrees);
 
 			void SetRotationToPlayer();
+			void UpdateAnim(BossAI* p, MeshAnimation* anim, float& ftime, int& cframe);
+			void DrawAnim(BossAI* p, MeshAnimation* anim, int& cframe);
 
 
 		protected:
@@ -74,6 +78,14 @@ namespace NCL {
 
 			std::vector<NCL::Maths::Vector3> pathNodes;
 			int currentNode;
+
+			MeshAnimation* aiWalkAnim = nullptr;
+			MeshAnimation* aiRunAnim = nullptr;
+			MeshAnimation* aicloseAttackAnim = nullptr;
+			MeshAnimation* aiMidAttackAnim = nullptr;
+			MeshAnimation* aiFarAttackAnim = nullptr;
+			MeshAnimation* aiRightStrafeAnim = nullptr;
+			MeshAnimation* aiLeftStrafeAnim = nullptr;
 
 			NCL::Maths::Vector3 dest;
 			NCL::Maths::Vector3 currPlayerPos;
@@ -95,14 +107,16 @@ namespace NCL {
 			int moveDirection = 1;
 			float movSpeed = 0;
 
-			//const float initialSpeed = 100.0f;  // Initial movement speed
-			// float minSpeed = 10.0f;  // Minimum movement speed (when close to the player)
-			// const float stopDist = 10.0f;  // Distance at which the AI stops moving
+			//anim
+			int currentFrame;
+			float frameTime;
 
 			float height;
 			float AngThres;
 			float outerRadius;
 			float innerRadius;
+			float attackTime;
+
 
 			float strafeTime = 3;
 			const float minDist = 7.0f;

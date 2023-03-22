@@ -85,7 +85,7 @@ namespace NCL {
 			void TestHedgefinding(Vector3 pos);
 			BTreeObject* AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
-			BossAI* AddBossAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
+			BossAI* AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			//StateGameObject* testStateObject;
 			//BTreeObject* goose;
 
@@ -195,13 +195,19 @@ namespace NCL {
 			MeshGeometry*	cubeMesh	= nullptr;
 			MeshGeometry*	sphereMesh	= nullptr;
 			MeshGeometry*   gooseMesh   = nullptr;
+
 			MeshGeometry* playerMesh = nullptr;
 			MeshAnimation* playerWalkAnim = nullptr;
 			MeshAnimation* playerIdleAnim = nullptr;
+
+			MeshGeometry* aiMesh = nullptr;
+			MeshMaterial* aiMat = nullptr;
+
 			TextureBase*	basicTex	= nullptr;
 			ShaderBase*		basicShader = nullptr;
 			OGLShader* animatedShader = nullptr;
 			OGLShader* animatedShaderA = nullptr;
+			OGLShader* animatedAIShader = nullptr;
 			ShaderBase*		charShader	= nullptr;
 			MeshMaterial* playerMat = nullptr;
 			vector <GLuint > playerTextures;

@@ -79,13 +79,15 @@ void TutorialGame::InitialiseAssets() {
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
 	gooseMesh = renderer->LoadMesh("goose.msh");
 	playerMesh = renderer->LoadMesh("splatPlayer.msh");
-	
+	aiMesh = renderer->LoadMesh("bot.msh");
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "sceneAlternate.frag");
 	charShader = renderer->LoadShader("charVert.vert", "charFrag.frag");
 	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag");
 	animatedShaderA = new OGLShader("skinningVertex.glsl", "charFrag.frag");
+	animatedAIShader = new OGLShader("skinningVertex.glsl", "charFrag.frag");
+
 	//Rebellion assets
 	//testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
 
@@ -100,6 +102,7 @@ void TutorialGame::InitialiseAssets() {
 	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	testMesh = renderer->LoadMesh("Rig_Maximilian.msh");
+
 
 	timeLimit = 300;
 
@@ -933,7 +936,7 @@ void NCL::CSC8503::TutorialGame::InitCameraSec()
 void TutorialGame::InitWorld() {
 	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	
-	boss = AddBossAIToWorld(reactphysics3d::Vector3(80, 2, 50), reactphysics3d::Quaternion::identity(), newNodes);
+	boss = AddAIToWorld(reactphysics3d::Vector3(80, 1, 50), reactphysics3d::Quaternion::identity(), newNodes);
 	InitGameExamples();
 	
 	//TestPathfinding(startPos);
@@ -1343,25 +1346,25 @@ StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vecto
 
 	return apple;
 }
-BossAI* NCL::CSC8503::TutorialGame::AddBossAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
+BossAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
 {
-	BossAI* boss = new BossAI(world, testNodes);
-	boss->setTarget1(player);
+	BossAI* AI = new BossAI(world, testNodes);
+	
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
 	body->setMass(10.0f);
 	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(1.0f, 1.0f, 1.0f));
-	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
-	boss->SetPhysicsObject(body);
+	//reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0), reactphysics3d::Quaternion::identity()));
+	AI->SetPhysicsObject(body);
 
-	boss->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), gooseMesh, nullptr, basicShader));
-	boss->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
+	AI->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), aiMesh, basicTex, animatedAIShader));
+	AI->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
 
+	world->AddGameObject(AI);
 
-	//NetworkObject* n = new NetworkObject(*boss, 3);
-	world->AddGameObject(boss);
-
-	return boss;
+	return AI;
 }
 
 BTreeObject* TutorialGame::AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes) {
