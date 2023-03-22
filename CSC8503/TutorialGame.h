@@ -123,12 +123,19 @@ namespace NCL {
 			TerrainObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
 			TerrainObject* AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
 
+			TerrainObject* AddRebCaveWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
+
 			void AddRebWallSquareToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
 			void AddRebWallNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+
+			void AddRebCaveWallNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebCaveWallSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebCaveWallEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebCaveWallWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
 			void AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position, MapNode* node);
@@ -241,6 +248,9 @@ namespace NCL {
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
 
+			TextureBase* corridorCaveTexture = nullptr;
+			MeshGeometry* corridorCaveStraightMesh = nullptr;
+
 			///Particle
 			OGLMesh* pointSprites = nullptr;
 			OGLShader* particleShader = nullptr;
@@ -259,6 +269,7 @@ namespace NCL {
 			
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
+			TextureBase*	testTexture = nullptr;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
