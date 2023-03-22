@@ -68,7 +68,7 @@ BTreeObject::BTreeObject(GameWorld* world, vector <Vector3 > testNodes):GameObje
 					currentNode = 1;
 				}	
 			}
-			return state; //will be ’ongoing ’ until success
+			return state; //will be ’ongoing ?until success
 		}
 	);
 
@@ -120,7 +120,7 @@ BTreeObject::BTreeObject(GameWorld* world, vector <Vector3 > testNodes):GameObje
 					}
 				}
 			}
-			return state; //will be ’ongoing ’ until success
+			return state; //will be ’ongoing ?until success
 		}
 	);
 	BehaviourAction* Rest = new BehaviourAction("resting\n",

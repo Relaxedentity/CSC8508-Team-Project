@@ -58,7 +58,6 @@ void TerrainObject::drawPaintNodes() {
 			colourVector = Vector4(0, 0, 1, 1);
 			break;
 		}
-
 		Debug::DrawPoint(i->getPos(), colourVector, 0.1f);
 	}
 }

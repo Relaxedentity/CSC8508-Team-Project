@@ -78,6 +78,7 @@ namespace NCL {
 			void RendererCooScore1();
 			void RendererCooScore2();
 			void RenderEndExitScreen();
+			void Restart();
 			void RenderCoopEndExitScreen();
 
 			void RenderLoadingScreen();
@@ -170,6 +171,9 @@ namespace NCL {
 			/// </summary>
 			OGLTexture* exitBtnTex;
 			OGLMesh* exitBtnMesh;
+
+			OGLTexture* RestartBtnTex;
+			OGLMesh* RestartBtnMesh;
 
 			/// introscreen 
             /// </summary>

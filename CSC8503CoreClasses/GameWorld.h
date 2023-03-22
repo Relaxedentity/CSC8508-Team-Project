@@ -114,6 +114,11 @@ namespace NCL {
 				return player;
 			}
 
+			void ScoreClear() {
+				colourOneNodes = 0;
+				colourTwoNodes = 0;
+			}
+
 			void SetPlayer(GameObject* p) {
 				player = p;
 			}
@@ -181,7 +186,6 @@ namespace NCL {
 
 			void AddMapNode(MapNode* o);
 			void RemoveMapNode(MapNode* o, bool andDelete);
-
 			float getColourOneScore() { return colourOneScore; }
 			float getColourTwoScore() { return colourTwoScore; }
 

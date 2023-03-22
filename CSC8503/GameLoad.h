@@ -24,11 +24,14 @@ namespace NCL {
 					GameLock::gamemod = 1;
 					GameLock::gamestart = true;
 					GameLock::Player1lock = false;
+					GameLock::playerPosinit = false;
 					*newState = new GameScreen();
 					return PushdownResult::Push;
 				}
 				else if (!GameLock::isloading2 && GameLock::loadingdone == 2) {
 					GameLock::gamemod = 2;
+					GameLock::coopplayerPosinit = false;
+					GameLock::playerPosinit = false;
 					GameLock::gamestart = true;
 					GameLock::Player1lock = false;
 					GameLock::Player2lock = false;

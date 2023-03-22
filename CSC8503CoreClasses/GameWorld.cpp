@@ -7,6 +7,7 @@
 #include "RenderObject.h"
 #include "MapNode.h"
 
+
 using namespace NCL;
 using namespace NCL::CSC8503;
 
@@ -175,11 +176,11 @@ void GameWorld::RemoveMapNode(MapNode* o, bool andDelete) {
 	}
 }
 
+
 void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char paintColour) {
 	reactphysics3d::Transform temp = reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), reactphysics3d::Quaternion::identity());
 	paintOrb->GetPhysicsObject()->setTransform(temp);
 	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
-	
 	for (auto& i : mapNodes) {
 		for (auto& j : i->objects) {
 			if (physicsWorld->testOverlap(paintOrb->GetPhysicsObject(), j->GetPhysicsObject())) {
@@ -188,6 +189,7 @@ void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char 
 			}
 		}
 	}
+
 	
 	reactphysics3d::Transform dumpster = reactphysics3d::Transform(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity());
 	paintOrb->GetPhysicsObject()->setTransform(dumpster);

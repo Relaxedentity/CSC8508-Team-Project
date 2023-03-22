@@ -36,7 +36,7 @@ float MapNode::getColourRatio() {
 	return (float)(redCount - blueCount) / nodeTally;
 }
 
-Vector4 MapNode::getMapColour() {
+Vector4 MapNode::getMapColour(bool isloading) {
 	int nodeTally = 0;
 	int redCount = 0;
 	int blueCount = 0;
@@ -49,6 +49,9 @@ Vector4 MapNode::getMapColour() {
 	float ratio = (((float)(redCount - blueCount) / nodeTally)+1)/2;
 	Vector4 baseline = (isFloor) ? Vector4(1.0f, 1.0f, 1.0f, 1.0f) : Vector4(0.3f, 0.3f, 0.3f, 1.0f);
 	Vector4 finalOut = (baseline * fill) + (Vector4(ratio, 0.0f, 1 - ratio, 1.0f) * (1 - fill));
-	finalOut = (isFloor) ? finalOut : finalOut*0.75;
+	if (isloading)
+		finalOut = baseline;
+	else
+		finalOut = (isFloor) ? finalOut : finalOut * 0.75;
 	return finalOut;
 }

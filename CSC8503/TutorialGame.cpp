@@ -250,6 +250,8 @@ void TutorialGame::UpdateGame(float dt) {
 		world->SetPlayerCoopHealth(secHealth);
 	}*/
 
+	Posreset();
+
 	if (GameLock::gamestart) {//gametime//////////////////////////////////////
 		timeLimit -= dt;
 		GameLock::gametime = timeLimit;
@@ -260,7 +262,6 @@ void TutorialGame::UpdateGame(float dt) {
 	}
 
 
-	
 	
 	GameLock::redScore = world->getColourOneScore();
 	GameLock::blueScore = world->getColourTwoScore();
@@ -1584,11 +1585,11 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	player = AddPlayerToWorld(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity(), animatedShader, 'r', 1, 1);
+	player = AddPlayerToWorld(reactphysics3d::Vector3(0, -20, 0), reactphysics3d::Quaternion::identity(), animatedShader, 'r', 1, 1);
 	LockCameraToObject(player);
 	world->SetPlayer(player);
 
-	playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', -1, -1);
+	playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(10, -20, 0), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', -1, -1);
 	LockCameraToObject2(playerCoop);
 	world->SetPlayerCoop(playerCoop);
 
@@ -2228,3 +2229,47 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 
 }
 
+void TutorialGame::Posreset() {
+	if (!GameLock::gamestart) {
+		reactphysics3d::Transform transform1(reactphysics3d::Vector3(0, -20, 0), reactphysics3d::Quaternion::identity());
+		reactphysics3d::Transform transform2(reactphysics3d::Vector3(50, -20, 0), reactphysics3d::Quaternion::identity());
+		player->GetPhysicsObject()->setTransform(transform1);
+		playerCoop->GetPhysicsObject()->setTransform(transform2);
+	}
+	if (GameLock::isloading1) {
+		world->SetPlayerHealth(1.0f);
+	}
+	else if (GameLock::isloading2) {
+		world->SetPlayerHealth(1.0f);
+		world->SetPlayerCoopHealth(1.0f);
+	}
+	if (GameLock::isloading1 || GameLock::isloading2) {
+		world->ScoreClear();
+	}
+
+
+	if (GameLock::gamestart && GameLock::gamemod == 1 && !GameLock::playerPosinit) {
+		reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity());
+		player->GetPhysicsObject()->setTransform(transform);
+		GameLock::playerPosinit = true;
+	}
+	if (GameLock::gamestart && GameLock::gamemod == 2 && !GameLock::playerPosinit) {
+		reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity());
+		player->GetPhysicsObject()->setTransform(transform);
+		GameLock::playerPosinit = true;
+	}
+	if (GameLock::gamestart && GameLock::gamemod == 2 && !GameLock::coopplayerPosinit) {
+		if (gamepad.UpdateController()) {
+			reactphysics3d::Transform transform(reactphysics3d::Vector3(40, 2, 20), reactphysics3d::Quaternion::identity());
+			playerCoop->GetPhysicsObject()->setTransform(transform);
+			GameLock::coopplayerPosinit = true;
+		}
+		else {
+			reactphysics3d::Transform transform2(reactphysics3d::Vector3(50, -20, 0), reactphysics3d::Quaternion::identity());
+			playerCoop->GetPhysicsObject()->setTransform(transform2);
+			world->GetSecCamera()->SetPosition(Vector3(50, 30, 20));
+		}
+	}
+
+
+}
