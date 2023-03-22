@@ -67,6 +67,8 @@ source_group("Networking" FILES ${Networking})
 set(Header_Files
     "Debug.h"
     "GameObject.h"
+    "TerrainObject.h"
+    "MapNode.h"
     "GameWorld.h"
     "RenderObject.h"
     "Transform.h"
@@ -76,6 +78,8 @@ source_group("Header Files" FILES ${Header_Files})
 set(Source_Files
     "Debug.cpp"
     "GameObject.cpp"
+    "TerrainObject.cpp"
+    "MapNode.cpp"
     "GameWorld.cpp"
     "RenderObject.cpp"
     "Transform.cpp"

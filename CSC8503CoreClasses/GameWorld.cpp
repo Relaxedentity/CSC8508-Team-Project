@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Debug.h"
 #include "RenderObject.h"
+#include "MapNode.h"
 
 using namespace NCL;
 using namespace NCL::CSC8503;
@@ -179,11 +180,12 @@ void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char 
 	paintOrb->GetPhysicsObject()->setTransform(temp);
 	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
 	
-	for (auto& i : gameObjects) {
-		if (inputObject == i) continue;
-		if (physicsWorld->testOverlap(paintOrb->GetPhysicsObject(), i->GetPhysicsObject())) {
-			i->GetRenderObject()->PaintSpray(position, paintColour);
-			i->paintHit(position, paintColour);
+	for (auto& i : mapNodes) {
+		for (auto& j : i->objects) {
+			if (physicsWorld->testOverlap(paintOrb->GetPhysicsObject(), j->GetPhysicsObject())) {
+				j->GetRenderObject()->PaintSpray(position, paintColour);
+				j->paintHit(position, paintColour);
+			}
 		}
 	}
 	
@@ -191,3 +193,22 @@ void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char 
 	paintOrb->GetPhysicsObject()->setTransform(dumpster);
 	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
 }
+
+
+//void GameWorld::paintSphereTest(GameObject* inputObject, Vector3 position, char paintColour) {
+//	reactphysics3d::Transform temp = reactphysics3d::Transform(reactphysics3d::Vector3(position.x, position.y, position.z), reactphysics3d::Quaternion::identity());
+//	paintOrb->GetPhysicsObject()->setTransform(temp);
+//	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::DYNAMIC);
+//
+//	for (auto& i : gameObjects) {
+//		if (inputObject == i) continue;
+//		if (physicsWorld->testOverlap(paintOrb->GetPhysicsObject(), i->GetPhysicsObject())) {
+//			i->GetRenderObject()->PaintSpray(position, paintColour);
+//			i->paintHit(position, paintColour);
+//		}
+//	}
+//
+//	reactphysics3d::Transform dumpster = reactphysics3d::Transform(reactphysics3d::Vector3(0, -100, 0), reactphysics3d::Quaternion::identity());
+//	paintOrb->GetPhysicsObject()->setTransform(dumpster);
+//	paintOrb->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+//}
