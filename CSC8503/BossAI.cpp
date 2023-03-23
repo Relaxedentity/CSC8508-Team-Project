@@ -17,11 +17,15 @@ using namespace CSC8503;
 
 
 BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) {
+	
+	health = 100;
+	
 	pathNodes = mapNodes; // getPathNodes
 	currentNode = 1;
 	nodeIndex = 1;
-
 	rNum = 0;
+
+	walkOrAttack = false;
 
 	inTime = true;
 	dest1 = Vector3(45, 2, 20);
@@ -29,7 +33,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) 
 	dest3 = Vector3(50, 2, 30);
 	dest4 = Vector3(40, 2, 25);
 	timeLimit = 0;
-
+	attackSelect = 0;
 	
 	aiWalkAnim = new MeshAnimation("botWalk.anm");
 	aiRunAnim = new MeshAnimation("BotRun.anm");
@@ -38,13 +42,14 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) 
 	aiMidAttackAnim = new MeshAnimation("BotMidAttack.anm");
 	aiRightStrafeAnim = new MeshAnimation("BotRightStrafe.anm");
 	aiLeftStrafeAnim = new MeshAnimation("BotLeftStrafe.anm");
+	aiDamaged = new MeshAnimation("BotHitReaction.anm");
+
 
 	height = 10;
 	AngThres = 70;
-	outerRadius = 10;
+	outerRadius = 15;
 	innerRadius = 2;
-
-	dest = Vector3(-10, 0, 30);
+	
 	CreateBehaviourTree();
 }
 
@@ -54,6 +59,9 @@ BossAI::~BossAI() {
 	delete attackSequence;
 	delete rangeForAttackSelector;
 	delete moveSelector;
+	delete strafeBehaviour;
+	delete runThenAttackSequence;
+
 	delete aiWalkAnim;
 	delete aiRunAnim ;
 	delete aicloseAttackAnim;
@@ -61,8 +69,7 @@ BossAI::~BossAI() {
 	delete aiFarAttackAnim ;
 	delete aiRightStrafeAnim ;
 	delete aiLeftStrafeAnim ;
-
-
+	delete aiDamaged;
 }
 
 void BossAI::UpdateBoss(float dt, NCL::Maths::Vector3& playerPos) {
@@ -94,12 +101,15 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		if (state == Initialise) {
 			std::cout << " patrolling !\n";
 			state = Ongoing;
+
+
 		}
 		else if (state == Ongoing) {
 
 			UpdateAnim(this,  aiWalkAnim, frameTime, currentFrame);
+			
 			// choose between four points on the map to patrol 
-			int patrolPoints = rand() % 3;
+			int patrolPoints = rand() % 1;
 
 			switch (patrolPoints)
 			{
@@ -109,16 +119,19 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 				case 1:
 					WalkPath(dest2);
 					break;
-				case 2:
-					WalkPath(dest3);
-					break;
-				case 3:
-					WalkPath(dest4);
-					break;
+				//case 2:
+					//WalkPath(dest3);
+					//break;
+				//case 3:
+					//WalkPath(dest4);
+					//break;
 			default:
 				break;
 			}
-			SetRotationToPlayer();
+
+
+		 SetRotationToPlayer();
+
 			if (SeenPlayer()) {
 				std::cout << " Player in View!\n";
 				state = Success;
@@ -138,7 +151,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 			float currentDistance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
 			//set appropriate attack range
-			currentDistance < 20 ? currentDistance < 5 ? range = closeRange : range = midRange : range = farRange;
+			currentDistance < 20 ? walkOrAttack = true: walkOrAttack = false;
 			//std::cout << " Set Attack Range";
 			state = Success;
 
@@ -146,39 +159,6 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	return state;
 		});
 
-	BehaviourAction* moveTowardPlayerAct = new BehaviourAction("Running To player", [&](float dt, BehaviourState state) -> BehaviourState {
-		if (state == Initialise) {
-
-			nodeIndex = 0;
-			pathNodes.clear();
-			destNotArrived = true;
-
-			walkToPlayer = true;
-
-			// set timer 
-			timeLimit = 5;
-			state = Ongoing;
-		}
-		else if (state == Ongoing) {
-
-			timeLimit -= dt;
-
-			UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
-
-			// run to player for a limited time
-			WalkPath(currPlayerPos);
-			// Get the distance value betwen the player and AI
-			float currentDistance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
-
-			if (currentDistance < 40.0f) {
-				state = Success;
-			}
-			else if (timeLimit < 0) {
-				state = Failure;
-			}
-		}
-	return state;
-		});
 
 	BehaviourAction* strafeLeftAroundPlayerAct = new BehaviourAction("Left", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
@@ -197,7 +177,9 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 
+
 			UpdateAnim(this, aiLeftStrafeAnim, frameTime, currentFrame);
+
 			// Move the AI left for a set amount of time
 			if (strafeTime > 0) {
 				strafeTime -= dt;
@@ -243,39 +225,35 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	return state;
 		});
 
-	BehaviourAction* midAttackAnimAct = new BehaviourAction("Mid Attack", [&](float dt, BehaviourState state) -> BehaviourState {
-		static const float initialSpeed = 50.0f;  
-		static const float minSpeed =5.0f;  
-		static const float stopDist = 10.0f;  
+	BehaviourAction* runToPlayerAttack = new BehaviourAction("Running to Player", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
 			state = Ongoing;
-			std::cout << "Mid Attack!\n";
-			movSpeed = initialSpeed;
+			std::cout << "Walking to Player!\n";
 		}
 		else if (state == Ongoing) {
-			if (range == midRange) {
-				std::cout << "Moving to player!\n";
 
+			float initialSpeed = 20.0f;
+			float stopDist = 1.0f;
+			if (walkOrAttack) {
+				std::cout << "Moving to player!\n";
+				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
-				
-				// Calculate the distance to the player
+			
 				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
 				// Interpolate the movement speed based on the current distance to the player
-				movSpeed = initialSpeed * std::max((currentDist - stopDist) / (initialSpeed - stopDist), 0.0f);
+				movSpeed = initialSpeed * std::max((currentDist - stopDist) / (initialSpeed - 2), 0.0f);
 
 				// Apply the movement force
-				this->GetPhysicsObject()->applyLocalForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * movSpeed);
+				this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * movSpeed);
 
-				std::cout << "Dir Vector" << dir << std::endl;
 				std::cout << "Distance to player: " << currentDist << std::endl;
 				std::cout << "Movement speed: " << movSpeed << std::endl;
 
 				SetRotationToPlayer();
-				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				// Check if the AI has reached the player
-				if (currentDist < stopDist) {
-					UpdateAnim(this, aiMidAttackAnim, frameTime, currentFrame);
+				if (currentDist < 5) {
+					
 					state = Success;
 					std::cout << "Attack Success!\n";
 				}
@@ -298,7 +276,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 			// Calculate the jump trajectory
 			float jumpHeight = 10.0f;
 			float jumpTime = 1.0f;
-			float jumpDistance = 20.0f;
+			float jumpDistance =  (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 			float gravity = 9.81f;
 
 			float initialVelocity = sqrtf((2 * jumpHeight * gravity) / jumpTime);// Calculate the initial velocity of the jump
@@ -327,37 +305,29 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	});
 
 	BehaviourAction* closeAttackAnimAct = new BehaviourAction("Close Attack", [&](float dt, BehaviourState state) -> BehaviourState {
-		static const float initialSpeed = 20.0f; 
-		static const float minSpeed = 5.0f; 
-		static const float stopDist = 2.0f;  
 		if (state == Initialise) {
 			state = Ongoing;
 			std::cout << " close Attack !\n";
-			movSpeed = initialSpeed;
+
+			attackSelect = rand() % 1;
 		}
 		else if (state == Ongoing) {
-			if (range == closeRange) {
+			if (range == 0) {
 
 				SetRotationToPlayer();
-				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
+				
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 
 				// Calculate the distance to the player
 				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
-				// Interpolate the movement speed based on the current distance to the player
-				movSpeed = initialSpeed * std::max((currentDist - stopDist) / (initialSpeed - stopDist), 0.0f);
-
 				// Apply the movement force
-				this->GetPhysicsObject()->applyLocalForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, 0, dir.z)* movSpeed);
+				this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, 0, dir.z)* 10);
 
-
-				//std::cout << "Distance to player: " << currentDist << std::endl;
-				//std::cout << "Movement speed: " << movSpeed << std::endl;
+				attackSelect == 0 ? UpdateAnim(this, aicloseAttackAnim, frameTime, currentFrame) : UpdateAnim(this, aiMidAttackAnim, frameTime, currentFrame);
 
 				// Check if the AI has reached the player
-				if (currentDist < stopDist) {
-					UpdateAnim(this, aicloseAttackAnim, frameTime, currentFrame);
+				if (currentDist < 1) {
 					state = Success;
 					std::cout << "Attack Success!\n";
 				}
@@ -368,22 +338,22 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 		return state;
 	});
 
-	BehaviourSequence* strafeBehaviour = new BehaviourSequence("strafing Sequence");
+	strafeBehaviour = new BehaviourSequence("strafing Sequence");
 	strafeBehaviour->AddChild(strafeLeftAroundPlayerAct);
 	strafeBehaviour->AddChild(strafeRightAroundPlayerAct);
 
-	moveSelector = new BehaviourSelector("Select Move");
-	//moveSelector->AddChild(moveTowardPlayerAct);
-	moveSelector->AddChild(strafeBehaviour);
+	runThenAttackSequence = new BehaviourSequence("Run/Attack Sequence");
+	runThenAttackSequence->AddChild(runToPlayerAttack);
+	runThenAttackSequence->AddChild(closeAttackAnimAct);
+
 
 	rangeForAttackSelector = new BehaviourSelector("Select Attack Range");
-	//rangeForAttackSelector->AddChild(midAttackAnimAct);
+	rangeForAttackSelector->AddChild(runThenAttackSequence);
 	rangeForAttackSelector->AddChild(farAttackAnimAct);
-	rangeForAttackSelector->AddChild(closeAttackAnimAct);
 
 	patrolSequence = new BehaviourSequence("Patrol Sequence");
 	patrolSequence->AddChild(walkAct);
-	patrolSequence->AddChild(moveSelector);
+	patrolSequence->AddChild(strafeBehaviour);
 
 	attackSequence = new BehaviourSequence("Attack Sequence");
 	attackSequence->AddChild(setRangeToTargetAct);
@@ -398,7 +368,7 @@ bool NCL::CSC8503::BossAI::SeenPlayer() // create a wedge volume from the perspe
 {
 	DrawWedgeVolume(height, AngThres, outerRadius, innerRadius);
 
-	// Get direction to target
+	 // Get direction to target
 	Vector3 dirToTargetWorld = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition());
 
 	// Convert direction to local space
@@ -412,32 +382,21 @@ bool NCL::CSC8503::BossAI::SeenPlayer() // create a wedge volume from the perspe
 	}
 
 	// Calculate wedge boundaries based on parameters
-	Vector3 forward = this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d:: Vector3(0, 0, -1);
-	Vector3 right = this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d:: Vector3(1, 0, 0);
+	Vector3 forward = this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, -1);
+	Vector3 right = this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(1, 0, 0);
 	float halfAngle = AngThres / 2.0f;
 	float innerDist = innerRadius / std::cos(halfAngle * PI / 180.0f);
 	float outerDist = outerRadius / std::cos(halfAngle * PI / 180.0f);
 	float innerWidth = innerDist * std::tan(halfAngle * PI / 180.0f);
 	float outerWidth = outerDist * std::tan(halfAngle * PI / 180.0f);
 
-	// Calculate distance to target in the forward direction
+	// Calculate projection of the target vector onto the forward and right vectors
 	float projDistance = Vector3::Projection(vecToTarget, forward).Length();
-
-	// Check if the target is outside the outer radius or behind the boss
-	if (projDistance > outerDist || Vector3::Dot(vecToTarget.Normalised(), forward) < 0) {
-		return false;
-	}
-
-	// Check if the target is inside the inner radius
-	if (projDistance < innerDist) {
-		return true;
-	}
-
-	// Calculate the projection of the target onto the right vector
 	float projWidth = Vector3::Projection(vecToTarget, right).Length();
 
 	// Check if the target is within the wedge boundaries
-	if (projWidth > innerWidth && projWidth < outerWidth) {
+	if (projDistance > innerDist && projDistance <= outerDist &&
+		projWidth > innerWidth && projWidth <= outerWidth) {
 		return true;
 	}
 
@@ -446,7 +405,6 @@ bool NCL::CSC8503::BossAI::SeenPlayer() // create a wedge volume from the perspe
 
 void NCL::CSC8503::BossAI::DrawWedgeVolume( float height, float AngThres, float outerRadius, float innerRadius)
 {
-
 	// get AI position and orientation
 	Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 	Quaternion aiRot = this->GetPhysicsObject()->getTransform().getOrientation();
@@ -550,19 +508,17 @@ void NCL::CSC8503::BossAI::WalkPath(Vector3& destination)
 		return;
 	}
 
-	float distToNode = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - pathNodes[nodeIndex]).Length();
+	float distToNode = (Vector3(this->GetPhysicsObject()->getTransform().getPosition()) - pathNodes[nodeIndex]).Length();
 
 	if (distToNode >= 2.0f && destNotArrived) {
-		float x = pathNodes[nodeIndex].x > this->GetPhysicsObject()->getTransform().getPosition().x ? 20 : -20;
-		float z = pathNodes[nodeIndex].z > this->GetPhysicsObject()->getTransform().getPosition().z ? 20 : -20;
+		float x = pathNodes[nodeIndex].x > this->GetPhysicsObject()->getTransform().getPosition().x ? 10 : -10;
+		float z = pathNodes[nodeIndex].z > this->GetPhysicsObject()->getTransform().getPosition().z ? 10 : -10;
 		this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(x, 0, z));
-
 	}
 
 	if (distToNode <= 4.0f && destNotArrived)
 	{
 		nodeIndex += 1;
-		
 	}
 }
 
@@ -583,15 +539,7 @@ double NCL::CSC8503::BossAI::DegreesToRadian(double degrees)
 void NCL::CSC8503::BossAI::SetRotationToPlayer()
 {
 
-	Vector3 aiPos = GetPhysicsObject()->getTransform().getPosition();
-
-	Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
-	//std::cout << dir << std::endl;
-
-	//Vector3 torqueVector = Vector3::Cross();
-
-	//Quaternion targetRot = Quaternion::LookAt(dir, Vector3(0, 1, 0));
-
+	Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 
 	Vector3 currentVelocity = Vector3(this->GetPhysicsObject()->getLinearVelocity());
 	float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
@@ -612,13 +560,11 @@ void NCL::CSC8503::BossAI::UpdateAnim(BossAI* p, MeshAnimation* anim, float& fti
 		cframe = (cframe + 1) % anim->GetFrameCount();
 		ftime += 1.0f / anim->GetFrameRate();
 	}
-
 	DrawAnim(p, anim, cframe);
 }
 
 void NCL::CSC8503::BossAI::DrawAnim(BossAI* p, MeshAnimation* anim, int& cframe)
 {
-	//const vector <Matrix4 > invBindPose = playerMesh->GetInverseBindPose();
 	const Matrix4* invBindPose = p->GetRenderObject()->GetMesh()->GetInverseBindPose().data();
 	const Matrix4* frameData = anim->GetJointData(cframe % anim->GetFrameCount());
 	vector <Matrix4 > tempMatrices;

@@ -71,6 +71,15 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	healthQuad->SetVertexIndices({ 0,1,2,2,3,0 });
 	healthQuad->UploadToGPU();
 
+	//chromatic effect
+	chromaticShader = new OGLShader("chromaticEffectVert.glsl", "chromaticEffectFrag.glsl");
+	chromaticQuad = new OGLMesh();
+	chromaticQuad->SetVertexPositions({ Vector3(-1, 1,-1), Vector3(-1,-1,-1) , Vector3(1,-1,-1) , Vector3(1,1,-1) });
+	chromaticQuad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	chromaticQuad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
+	chromaticQuad->SetVertexIndices({ 0,1,2,2,3,0 });
+	chromaticQuad->UploadToGPU();
+
 	// progressbar
 	progressShader = new OGLShader("progressVert.glsl", "progressFrag.glsl");
 	progressBar = new OGLMesh();
@@ -138,6 +147,9 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete miniMapPlayer;
 	delete miniMapEnemy;
 	delete miniMapWall;
+
+	delete chromaticShader;
+	delete chromaticQuad;
 
 	
 	glDeleteTextures(1, &shadowTex);
@@ -401,6 +413,18 @@ void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
 	DrawBoundMesh();
 }
 
+void NCL::CSC8503::GameTechRenderer::RenderEffect( float health)
+{
+	float time = gameWorld.GetEffectTime();
+	BindShader(chromaticShader);
+	glUniform1f(glGetUniformLocation(chromaticShader->GetProgramID(), "u_amount"), 0.02f);
+	glUniform1f(glGetUniformLocation(chromaticShader->GetProgramID(), "u_fade"), 3.0f);
+	glUniform1f(glGetUniformLocation(chromaticShader->GetProgramID(), "u_health"), health);
+	glUniform1f(glGetUniformLocation(chromaticShader->GetProgramID(), "u_Time"), time);
+	BindMesh(chromaticQuad);
+	DrawBoundMesh();
+}
+
 void NCL::CSC8503::GameTechRenderer::RenderProgressBar(float score)
 {
 	BindShader(progressShader);
@@ -452,6 +476,8 @@ void GameTechRenderer::RenderFrame( )
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	RenderHUD();
+
+	//RenderEffect(gameWorld.GetPlayerHealth());
 }
 void NCL::CSC8503::GameTechRenderer::AnimUpdate(MeshAnimation* playerAnim, float dt) {
 	frameTime -= dt;

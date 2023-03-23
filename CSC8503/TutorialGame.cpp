@@ -149,6 +149,7 @@ TutorialGame::~TutorialGame()	{
 void TutorialGame::UpdateGame(float dt) {
 	//Debug::DrawAxisLines(Matrix4());
 	accumulator += dt;
+	world->SetEffectTime(dt);
 
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::TAB)) {
 		debug = !debug;
@@ -282,6 +283,7 @@ void TutorialGame::UpdateGame(float dt) {
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
 	//UpdateEnemies(dt);
+
 
 
 
@@ -1352,7 +1354,7 @@ BossAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3& 
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
-	body->setMass(10.0f);
+	body->setMass(4.0f);
 	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(1.0f, 1.0f, 1.0f));
 	//reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0), reactphysics3d::Quaternion::identity()));

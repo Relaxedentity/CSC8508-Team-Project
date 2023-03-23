@@ -105,6 +105,16 @@ namespace NCL {
 				playerCoop = p;
 			}
 
+			float GetEffectTime()
+			{
+				return elapsedTime;
+			}
+
+			void SetEffectTime(float dt) {
+				elapsedTime += dt;
+			}
+
+
 			GameObject* GetPlayerCoop() {
 				return playerCoop;
 			}
@@ -114,7 +124,7 @@ namespace NCL {
 			}
 
 			void SetPlayerHealth(float health) {
-				playerHealth = health;
+				playerHealth = 0.3f;
 			}
 
 			void SetCollisionListener(GameObjectListener* listener) {
@@ -187,6 +197,8 @@ namespace NCL {
 			GameObjectListener* collisionManager;
 			GameObject* player;
 			float playerHealth;
+
+			float elapsedTime = 0.0f;
 
 			GameObject* playerCoop;
 			float playerCoopHealth;

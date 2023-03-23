@@ -10,12 +10,6 @@
 #include "MeshAnimation.h"
 
 
-enum AttackRange {
-	closeRange,
-	midRange,
-	farRange,
-};
-
 namespace NCL {
 	namespace CSC8503 {
 		//class StateMachine;
@@ -24,31 +18,10 @@ namespace NCL {
 			BossAI(GameWorld* world, std::vector<NCL::Maths::Vector3> mapNodes);
 			~BossAI();
 
-			void CreateBehaviourTree();
-
 			void UpdateBoss(float dt, NCL::Maths::Vector3& playePos) ;
-
-
 			void Update(float dt) override;
-			NCL::Maths::Vector3 getTargerPosition() {
-				return targetPosition;
-			};
-			void setTargetPosition(NCL::Maths::Vector3 position) {
-				targetPosition = position;
-			};
-			GameObject* getTarget1() {
-				return target1;
-			};
-			GameObject* getTarget2() {
-				return target2;
-			};
-			void setTarget1(GameObject* gametarget) {
-				target1 = gametarget;
-			};
-			void setTarget2(GameObject* gametarget) {
-				target2 = gametarget;
-			};
-			
+
+			void CreateBehaviourTree();
 			bool SeenPlayer();
 
 			void DrawWedgeVolume( float height, float AngThres, float outerRadius, float innerRadius);
@@ -67,14 +40,8 @@ namespace NCL {
 		protected:
 			const float PI = 3.14159265359f;
 
-			uint8_t range;
+			int range;
 			float timeLimit;
-
-			GameObject* target1;
-			GameObject* target2;
-
-			NCL::Maths::Vector3 targetPosition;
-			NCL::Maths::Vector3 targetDestination;
 
 			std::vector<NCL::Maths::Vector3> pathNodes;
 			int currentNode;
@@ -86,8 +53,8 @@ namespace NCL {
 			MeshAnimation* aiFarAttackAnim = nullptr;
 			MeshAnimation* aiRightStrafeAnim = nullptr;
 			MeshAnimation* aiLeftStrafeAnim = nullptr;
+			MeshAnimation* aiDamaged = nullptr;
 
-			NCL::Maths::Vector3 dest;
 			NCL::Maths::Vector3 currPlayerPos;
 			
 			NCL::Maths::Vector3 dest1;
@@ -101,6 +68,8 @@ namespace NCL {
 			bool foundPath;
 			bool walkToPlayer;
 			bool inTime;
+
+			bool walkOrAttack;
 
 			int nodeIndex;
 			int rNum;
@@ -117,6 +86,10 @@ namespace NCL {
 			float innerRadius;
 			float attackTime;
 
+			int attackSelect;
+
+			// health
+			float health;
 
 			float strafeTime = 3;
 			const float minDist = 7.0f;
@@ -124,14 +97,14 @@ namespace NCL {
 			const float strafeDist = 10.0f;
 
 			BehaviourSequence* rootSequence;
-
 			BehaviourSequence* patrolSequence;
 			BehaviourSequence* attackSequence;
-
 			BehaviourSelector* rangeForAttackSelector;
 			BehaviourSelector* moveSelector;
-
+			BehaviourSequence* strafeBehaviour;
+			BehaviourSequence* runThenAttackSequence;
 			BehaviourState currentstate;
+
 		};
 	}
 }

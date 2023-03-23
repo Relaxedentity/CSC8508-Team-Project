@@ -26,6 +26,7 @@ namespace NCL {
 
 			void AnimUpdate(MeshAnimation* playerAnim, float dt);
 			void RenderHealthBar(float health);
+			void RenderEffect(float health);
 			void RenderProgressBar(float score);
 			void RenderTimerQuad();
 			void RenderCrossHair();
@@ -83,6 +84,10 @@ namespace NCL {
 			OGLShader* healthShader;
 			OGLMesh* healthQuad;
 
+			// chromatic effect shading
+			OGLShader* chromaticShader;
+			OGLMesh* chromaticQuad;
+
 			// progress shader
 			OGLShader* progressShader;
 			OGLMesh* progressBar;
@@ -133,6 +138,7 @@ namespace NCL {
 
 			int currentFrame;
 			float frameTime;
+
 		};
 	}
 }
