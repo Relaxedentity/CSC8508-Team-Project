@@ -32,12 +32,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	if (dynamic_cast<Projectile*>(otherObject)) {
 		return;
 	}
-	if (dynamic_cast<PlayerObject*>(otherObject)) {
-		world->paintSphereTest(this, collisionPoint, paintColour);
-		if ( ((PlayerObject*)otherObject)->GetPlayerHealth() >= 0.0f) {
-			((PlayerObject*)otherObject)->SetPlayerHealth(((PlayerObject*)otherObject)->GetPlayerHealth() - 0.05f);
-		}
-	}
+
 	burstPos = GetPhysicsObject()->getTransform().getPosition();
 
 	/*Sound mod*/
@@ -53,6 +48,23 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	///Render the first collision object
 	//if (otherObject)otherObject->GetRenderObject()->PaintSpray(collisionPoint, paintColour);
 
+	world->paintSphereTest(this, collisionPoint, paintColour);
+	//PlayerObject* cPlayer = (PlayerObject*)world->GetPlayerCoop();
+	//PlayerObject* player = (PlayerObject*)world->GetPlayer();
+	//
+	//if (otherObject == cPlayer && cPlayer->GetPlayerHealth() >= 0.0f) {
+	//	cPlayer->SetPlayerHealth(cPlayer->GetPlayerHealth() - 0.05f);
+	//}
+	//else if (otherObject == player && player->GetPlayerHealth() >= 0.0f) {
+	//	player->SetPlayerHealth(player->GetPlayerHealth() - 0.05f);
+	//}
+
+	if (dynamic_cast<PlayerObject*>(otherObject)) {
+		world->paintSphereTest(this, collisionPoint, paintColour);
+		if (((PlayerObject*)otherObject)->GetPlayerHealth() >= 0.0f) {
+			((PlayerObject*)otherObject)->SetPlayerHealth(((PlayerObject*)otherObject)->GetPlayerHealth() - 0.05f);
+		}
+	}
 
 	//world->painted.push_back(paintCollision);
 

@@ -27,6 +27,16 @@ namespace NCL::CSC8503 {
 			size = sizeof(ProjectilePacket);
 		}
 	};
+	struct MovementPacket : public GamePacket {
+		int		lastID;
+		int		myID;
+		char	buttonstates[8];
+		float	yaw[9];
+		MovementPacket() {
+			type = Movement;
+			size = sizeof(MovementPacket);
+		}
+	};
 	struct HealthPacket : public GamePacket {
 		int		myID;
 		int		lastID;

@@ -157,11 +157,13 @@ namespace NCL {
 			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
 			void SecScreenJumpMapping(Vector3 sphereintipos);
 			void shootPaint(PlayerObject* p, float dt, Camera* c);
-			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			void MoveJump(PlayerObject* p);
 			void updateCamera(PlayerObject* player, float dt);
+			void CheckGrounded(PlayerObject* p);
 			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
 			void moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos);
 

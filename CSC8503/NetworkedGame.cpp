@@ -71,6 +71,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
 	thisClient->RegisterPacketHandler(Projectile_Fired, this);
 	thisClient->RegisterPacketHandler(Health, this);
+	thisClient->RegisterPacketHandler(Movement, this);
 	//goose->setTarget2(thisPlayer);
 
 
@@ -118,7 +119,7 @@ void NetworkedGame::UpdateAsServer(float dt) {
 		BroadcastPlayerHealth(player2);
 		BroadcastPlayerHealth(player3);
 		BroadcastPlayerHealth(player4);
-		std::cout <<"phealth : " << player2->GetPlayerHealth() << std::endl;
+		//std::cout <<"phealth : " << player2->GetPlayerHealth() << std::endl;
 		BroadcastSnapshot(false);
 		packetsToSnapshot = 5;
 	}
@@ -137,8 +138,9 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		//moveDesignatedPlayer(player2, dt,world->GetMainCamera()->GetPosition());
 		updateCamera(player2, dt);
 		world->playerHealth = player2->GetPlayerHealth();
-		MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
+		//MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
 		//shootPaint(player2, dt, world->GetMainCamera());
+		CheckGrounded(player2);
 		yaw = player2->GetYaw();
 		pitch = player2->GetPitch();
 		grounded = player2->IsGrounded();
@@ -149,8 +151,9 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		//moveDesignatedPlayer(player3, dt, world->GetMainCamera()->GetPosition());
 		updateCamera(player3, dt);
 		world->playerHealth = player3->GetPlayerHealth();
-		MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
+		//MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
 		//shootPaint(player3, dt, world->GetMainCamera());
+		CheckGrounded(player3);
 		yaw = player3->GetYaw();
 		pitch = player3->GetPitch();
 		grounded = player3->IsGrounded();
@@ -161,8 +164,9 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		//moveDesignatedPlayer(player4, dt, world->GetMainCamera()->GetPosition());
 		updateCamera(player4, dt);
 		world->playerHealth = player4->GetPlayerHealth();
-		MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
+		//MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
 		//shootPaint(player4, dt, world->GetMainCamera());
+		CheckGrounded(player4);
 		yaw = player4->GetYaw();
 		pitch = player4->GetPitch();
 		grounded = player4->IsGrounded();
@@ -171,33 +175,30 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		break;
 	}
 	ResetMovementFrame(player);
-
+	player2->directionInput = false;
+	player3->directionInput = false;
+	player4->directionInput = false;
 	thisClient->UpdateClient();
 
 	ClientPacket newPacket;
 	newPacket.myID = thisClient->clientID;
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
-		//fire button pressed!
 		newPacket.buttonstates[0] = 1;
-		newPacket.lastID = lastID; //You'll need to work this out somehow...
+		newPacket.lastID = lastID;
 	}
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
-		//fire button pressed!
 		newPacket.buttonstates[0] = 2;
 		newPacket.lastID = lastID;
 	}
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
-		//fire button pressed!
 		newPacket.buttonstates[0] = 3;
 		newPacket.lastID = lastID;
 	}
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
-		//fire button pressed!
 		newPacket.buttonstates[0] = 4;
 		newPacket.lastID = lastID;
 	}
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE)) {
-		//fire button pressed!
 		newPacket.buttonstates[0] = 5;
 		newPacket.lastID = lastID;
 	}
@@ -219,6 +220,20 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	
 	lastID++;
 	thisClient->SendPacket(newPacket);
+}
+
+void NetworkedGame::BroadcastClientMovement(int ID,int buttonState, Quaternion yaw, bool grounded) {
+	MovementPacket newPacket;
+	newPacket.myID = ID;
+	newPacket.buttonstates[0] = buttonState;
+	newPacket.yaw[0] = yaw.x;
+	newPacket.yaw[1] = yaw.y;
+	newPacket.yaw[2] = yaw.z;
+	newPacket.yaw[3] = yaw.w;
+	newPacket.yaw[4] = grounded ? 1 : 0;
+	newPacket.lastID = lastID;
+	lastID++;
+	thisServer->SendGlobalPacket(newPacket);
 }
 
 void NetworkedGame::BroadcastProjectile(PlayerObject* p) {
@@ -309,6 +324,7 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 		}
 		if (((FullPacket*)payload)->objectID == o->GetNetworkID()) {
 			//std::cout << "server " << source << std::endl;
+
 			o->ReadPacket(*payload);
 			if (o->GetNetworkID() == 10) {
 				reactphysics3d::Vector3 temp = reactphysics3d::Vector3(player2->GetPhysicsObject()->getTransform().getPosition()) + reactphysics3d::Vector3(1, 2, 0);
@@ -322,16 +338,12 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 			
 		}
 		if (((DeltaPacket*)payload)->objectID == o->GetNetworkID()) {
-			std::cout << "Delta_poop";
 			o->ReadPacket(*payload);
-		}
-		if (type == Delta_State) {
-			std::cout << "Delta_poop";
 		}
 		if (type == Health) {
 			if (o->getGameObject().GetWorldID() == ((HealthPacket*)payload)->myID) {
 				((PlayerObject*)(&(o->getGameObject())))->SetPlayerHealth(((HealthPacket*)payload)->health);
-				std::cout<< "ID: " << ((HealthPacket*)payload)->myID << "  hpacket : " << ((HealthPacket*)payload)->health << std::endl;
+				//std::cout<< "ID: " << ((HealthPacket*)payload)->myID << "  hpacket : " << ((HealthPacket*)payload)->health << std::endl;
 
 			}
 		}
@@ -359,6 +371,32 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				}
 			}
 		}
+		if (type == Movement) {
+			Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
+			bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
+			if (o->getGameObject().GetWorldID() == ((MovementPacket*)payload)->myID) {
+				if (((MovementPacket*)payload)->buttonstates[0] == 1) {
+					MoveForward((PlayerObject*)(&(o->getGameObject())), yaw, Vector3(0, 0, 0), grounded);
+					((PlayerObject*)(&(o->getGameObject())))->directionInput = true;
+				}
+				if (((MovementPacket*)payload)->buttonstates[0] == 2) {
+					MoveBackward((PlayerObject*)(&(o->getGameObject())), yaw, Vector3(0, 0, 0), grounded);
+					((PlayerObject*)(&(o->getGameObject())))->directionInput = true;
+				}
+				if (((MovementPacket*)payload)->buttonstates[0] == 3) {
+					MoveRight((PlayerObject*)(&(o->getGameObject())), yaw, Vector3(0, 0, 0), grounded);
+					((PlayerObject*)(&(o->getGameObject())))->directionInput = true;
+				}
+				if (((MovementPacket*)payload)->buttonstates[0] == 4) {
+					MoveLeft((PlayerObject*)(&(o->getGameObject())), yaw, Vector3(0, 0, 0), grounded);
+					((PlayerObject*)(&(o->getGameObject())))->directionInput = true;
+				}
+				if (((MovementPacket*)payload)->buttonstates[0] == 5) {
+					MoveJump((PlayerObject*)(&(o->getGameObject())));
+					//((PlayerObject*)(&(o->getGameObject())))->directionInput = true;
+				}
+			}
+		}
 		if (type == Received_State) {
 			if (o->getGameObject().GetWorldID() == ((ClientPacket*)payload)->myID + 1) {
 				player->playerState = ((ClientPacket*)payload)->lastID;
@@ -375,23 +413,30 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
 				o->getGameObject().GetPhysicsObject()->resetTorque();
 				o->getGameObject().SetPitch(reactphysics3d::Quaternion(pitch.x,pitch.y,pitch.z,pitch.w));
+				o->getGameObject().setGrounded(grounded);
+				o->getGameObject().SetYaw(reactphysics3d::Quaternion(yaw.x, yaw.y, yaw.z, yaw.w));
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
-					Vector3 trajectory = grounded ? yaw * Vector3(0, 0, -25) : yaw * Vector3(0, 0, -12);
+					//Vector3 trajectory = grounded ? yaw * Vector3(0, 0, -25) : yaw * Vector3(0, 0, -12);
 					//o->getGameObject().GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-					//MoveForward((PlayerObject*)(&(o->getGameObject())),yaw,Vector3(0,0,0));
+					//MoveForward((PlayerObject*)(&(o->getGameObject())),yaw,Vector3(0,0,0), grounded);
 					o->GameobjectMove(1, yaw, grounded);
+					BroadcastClientMovement(((ClientPacket*)payload)->myID+1,1, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 2) {
 					o->GameobjectMove(2, yaw, grounded);
+					BroadcastClientMovement(((ClientPacket*)payload)->myID + 1, 2, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 3) {
 					o->GameobjectMove(3, yaw, grounded);
+					BroadcastClientMovement(((ClientPacket*)payload)->myID + 1, 3, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 4) {
 					o->GameobjectMove(4, yaw, grounded);
+					BroadcastClientMovement(((ClientPacket*)payload)->myID + 1, 4, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 5) {
 					o->GameobjectMove(5, yaw, grounded);
+					BroadcastClientMovement(((ClientPacket*)payload)->myID + 1, 5, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 6) {
 					std::cout << "poop";
@@ -445,8 +490,8 @@ void  NetworkedGame::UpdateNetworkAnimations(float dt) {
 }
 void  NetworkedGame::ResetMovementFrame(GameObject* p) {
 	if (!p->directionInput) {
-		p->GetPhysicsObject()->resetForce();
-		p->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
+		//p->GetPhysicsObject()->resetForce();
+		//p->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
 	}
 	
 }
