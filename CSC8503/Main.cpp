@@ -34,6 +34,7 @@ using namespace CSC8503;
 #include <thread>
 #include <sstream>
 
+SoundObject* sound;
 /*
 
 The main function should look pretty familar to you!
@@ -94,6 +95,8 @@ int main() {
 
 	
 	w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
+
+	sound->MainMusic(GameLock::hitsound);
 	while (w->UpdateWindow()) {
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
 		if (!NotConfirmExit) {//exit game

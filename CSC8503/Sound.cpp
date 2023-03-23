@@ -75,7 +75,7 @@ void SoundObject::HitVoice(ISoundEngine* hitvoice, Vector3 HitPosition)
 
 void SoundObject::MainMusic(ISoundEngine* mainmusic)
 {
-	const std::string a = "MF-PANTS.MOD";
+	const std::string a = "BGM.WAV";
 	const std::string s = SOUNDSDIR + a;
 	const char* soundfilepos = s.c_str();
 	mainmusic->play2D(soundfilepos, true);
