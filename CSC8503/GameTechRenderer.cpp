@@ -247,7 +247,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	cooscore1Tex = new OGLTexture();
 	cooscore1Tex = (OGLTexture*)cooscore1Tex->SRGBTextureFromFilename("Score_5.png");
 	cooscore1Mesh = new OGLMesh();
-	cooscore1Mesh->SetVertexPositions({ Vector3(0.09, 0.55,0), Vector3(0.09, 0.4,0) , Vector3(-0.29, 0.4, 0) , Vector3(-0.29, 0.55, 0) });
+	cooscore1Mesh->SetVertexPositions({ Vector3(0.10, 0.57,0), Vector3(0.10, 0.4,0) , Vector3(-0.30, 0.4, 0) , Vector3(-0.30, 0.57, 0) });
 	cooscore1Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	cooscore1Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	cooscore1Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -274,7 +274,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	RestartBtnTex = new OGLTexture();
 	RestartBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("restart.png");
 	RestartBtnMesh = new OGLMesh();
-	RestartBtnMesh->SetVertexPositions({ Vector3(0.16, -0.06, 0), Vector3(0.16, -0.25, 0), Vector3(-0.16, -0.25, 0), Vector3(-0.16, -0.06, 0) });
+	RestartBtnMesh->SetVertexPositions({ Vector3(0.19, -0.06, 0), Vector3(0.19, -0.25, 0), Vector3(-0.19, -0.25, 0), Vector3(-0.19, -0.06, 0) });
 	RestartBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	RestartBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	RestartBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -284,7 +284,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	vector<Vector2> coopBtn = { {  Vector2(-0.2,0),   Vector2(0.2,-0.2)  } };
 	vector<Vector2> introBtn = { {  Vector2(-0.2,-0.3),  Vector2(0.2,-0.5)} };
 	vector<Vector2> exitBtn = { {  Vector2(-0.1,-0.6),  Vector2(0.1,-0.75)} };
-	vector<Vector2> restartBtn = { {  Vector2(-0.16, -0.06) , Vector2(0.16, -0.25)} };
+	vector<Vector2> restartBtn = { {  Vector2(-0.19, -0.06) , Vector2(0.19, -0.25)} };
 	vector<Vector2> endexitBtn = { {  Vector2(-0.11, -0.26) , Vector2(0.11, -0.45)} };
 	vector<Vector2> coopendexitBtn = { {  Vector2(-0.11, -0.36) , Vector2(0.11, -0.55)} };
 	vector<Vector2> backBtn = { {  Vector2(-0.1, -0.6),   Vector2(0.1, -0.75)  } };
