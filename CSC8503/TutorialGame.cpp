@@ -211,7 +211,10 @@ void TutorialGame::UpdateGame(float dt) {
 			Window::GetWindow()->LockMouseToWindow(true);
 		}
 		if (lockedObject == player && !GameLock::Player1lock&&!isMultiplayer) {//player movelock!
-
+			PlayerPaintTracks(player, 'r');
+			if (coopMode) {
+				PlayerPaintTracks(playerCoop, 'b');
+			}
 			updateCamera(player, dt);
 			CheckGrounded(player);
 			moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
@@ -287,10 +290,10 @@ void TutorialGame::UpdateGame(float dt) {
 
 	SelectObject();
 	MoveSelectedObject();
-	PlayerPaintTracks(player,'r');
-	if (coopMode) {
-		PlayerPaintTracks(playerCoop, 'b');
-	}
+	//PlayerPaintTracks(player,'r');
+	//if (coopMode) {
+	//	PlayerPaintTracks(playerCoop, 'b');
+	//}
 
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
@@ -343,7 +346,7 @@ void TutorialGame::UpdateGame(float dt) {
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
 	Debug::UpdateRenderables(dt); 
-	FreezingPlayers(dt);
+	FreezingPlayers(dt, player);
 	RegeneratePowerupProps(dt);
 }
 void TutorialGame::moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos) {
@@ -1976,18 +1979,18 @@ void TutorialGame::SecScreenJumpMapping(Vector3 playerjumpos) {
 	}
 }
 
-void TutorialGame::FreezingPlayers(float dt) {
+void TutorialGame::FreezingPlayers(float dt, PlayerObject* p) {
 
-	if (player->GetPlayerHealth() <= 0) {
+	if (p->GetPlayerHealth() <= 0) {
 		GameLock::Player1lock = true;
 		p1pauseTime -= dt;
 		if (p1pauseTime <= 0) {
 			GameLock::Player1lock = false;
-			player->SetPlayerHealth(1.0f);
+			p->SetPlayerHealth(1.0f);
 			p1pauseTime = 3.0f;
 		}
 	}
-	if (playerCoop->GetPlayerHealth() <= 0) {
+	if (playerCoop->GetPlayerHealth() <= 0 && coopMode== true) {
 		GameLock::Player2lock = true;
 		p2pauseTime -= dt;
 		if (p2pauseTime <= 0) {

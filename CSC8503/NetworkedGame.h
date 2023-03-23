@@ -43,9 +43,9 @@ namespace NCL {
 			void BroadcastPlayerHealth(PlayerObject* p);
 			void BroadcastClientMovement(int ID, int buttonState, Quaternion yaw, bool grounded);
 			void UpdateMinimumState();
+			void NetworkPaintTracks();
 			void ResetMovementFrame(GameObject* p);
 			std::map<int, int> stateIDs;
-
 			GameServer* thisServer;
 			GameClient* thisClient;
 			float timeToNextPacket;

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include "Projectile.h"
+#include "Gamelock.h"
 
 #define COLLISION_MSG 30
 
@@ -104,6 +105,7 @@ void NetworkedGame::UpdateGame(float dt) {
 void NetworkedGame::UpdateAsServer(float dt) {
 	UpdateNetworkAnimations(dt);
 	updateCamera(player, dt);
+	CheckGrounded(player);
 	world->playerHealth = player->GetPlayerHealth();
 	moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
@@ -114,6 +116,13 @@ void NetworkedGame::UpdateAsServer(float dt) {
 	ResetMovementFrame(player2);
 	ResetMovementFrame(player3);
 	ResetMovementFrame(player4);
+	FreezingPlayers(dt, player2);
+	FreezingPlayers(dt, player3);
+	FreezingPlayers(dt, player4);
+	PlayerPaintTracks(player, 'r');
+	PlayerPaintTracks(player2, 'b');
+	PlayerPaintTracks(player3, 'r');
+	PlayerPaintTracks(player4, 'b');
 	packetsToSnapshot--;
 	if (packetsToSnapshot < 0) {
 		BroadcastPlayerHealth(player2);
@@ -133,13 +142,13 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	reactphysics3d::Quaternion pitch;
 	bool grounded = false;
 	UpdateNetworkAnimations(dt);
+	CheckGrounded(player2);
+	CheckGrounded(player3);
+	CheckGrounded(player4);
 	switch (thisClient->clientID) {
 	case 1:
-		//moveDesignatedPlayer(player2, dt,world->GetMainCamera()->GetPosition());
 		updateCamera(player2, dt);
 		world->playerHealth = player2->GetPlayerHealth();
-		//MovePlayer(player2, dt, world->GetMainCamera()->GetPosition());
-		//shootPaint(player2, dt, world->GetMainCamera());
 		CheckGrounded(player2);
 		yaw = player2->GetYaw();
 		pitch = player2->GetPitch();
@@ -148,11 +157,8 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		ResetMovementFrame(player4);
 		break;
 	case 2:
-		//moveDesignatedPlayer(player3, dt, world->GetMainCamera()->GetPosition());
 		updateCamera(player3, dt);
 		world->playerHealth = player3->GetPlayerHealth();
-		//MovePlayer(player3, dt,world->GetMainCamera()->GetPosition()); 
-		//shootPaint(player3, dt, world->GetMainCamera());
 		CheckGrounded(player3);
 		yaw = player3->GetYaw();
 		pitch = player3->GetPitch();
@@ -161,11 +167,8 @@ void NetworkedGame::UpdateAsClient(float dt) {
 		ResetMovementFrame(player4);
 		break;
 	case 3:
-		//moveDesignatedPlayer(player4, dt, world->GetMainCamera()->GetPosition());
 		updateCamera(player4, dt);
 		world->playerHealth = player4->GetPlayerHealth();
-		//MovePlayer(player4, dt, world->GetMainCamera()->GetPosition());
-		//shootPaint(player4, dt, world->GetMainCamera());
 		CheckGrounded(player4);
 		yaw = player4->GetYaw();
 		pitch = player4->GetPitch();
@@ -179,32 +182,38 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	player3->directionInput = false;
 	player4->directionInput = false;
 	thisClient->UpdateClient();
-
+	PlayerPaintTracks(player, 'r');
+	PlayerPaintTracks(player2, 'b');
+	std::cout << player2->IsGrounded() << std::endl;
+	PlayerPaintTracks(player3, 'r');
+	PlayerPaintTracks(player4, 'b');
 	ClientPacket newPacket;
 	newPacket.myID = thisClient->clientID;
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
-		newPacket.buttonstates[0] = 1;
-		newPacket.lastID = lastID;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
-		newPacket.buttonstates[0] = 2;
-		newPacket.lastID = lastID;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
-		newPacket.buttonstates[0] = 3;
-		newPacket.lastID = lastID;
-	}
-	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
-		newPacket.buttonstates[0] = 4;
-		newPacket.lastID = lastID;
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE)) {
-		newPacket.buttonstates[0] = 5;
-		newPacket.lastID = lastID;
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
-		newPacket.buttonstates[0] = 6;
-		newPacket.lastID = lastID;
+	if (world->playerHealth > 0) {
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::W)) {
+			newPacket.buttonstates[0] = 1;
+			newPacket.lastID = lastID;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::S)) {
+			newPacket.buttonstates[0] = 2;
+			newPacket.lastID = lastID;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::A)) {
+			newPacket.buttonstates[0] = 3;
+			newPacket.lastID = lastID;
+		}
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::D)) {
+			newPacket.buttonstates[0] = 4;
+			newPacket.lastID = lastID;
+		}
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::SPACE)) {
+			newPacket.buttonstates[0] = 5;
+			newPacket.lastID = lastID;
+		}
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
+			newPacket.buttonstates[0] = 6;
+			newPacket.lastID = lastID;
+		}
 	}
 	newPacket.yaw[0] = yaw.x;
 	newPacket.yaw[1] = yaw.y;
@@ -402,12 +411,6 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				player->playerState = ((ClientPacket*)payload)->lastID;
 				o->getGameObject().directionInput = false;
 				reactphysics3d::Vector3 temp = reactphysics3d::Vector3(player2->GetPhysicsObject()->getTransform().getPosition()) + reactphysics3d::Vector3(1, 2, 0);
-				//Debug::DrawLine(Vector3(temp), Vector3(temp) - Vector3(0, 2, 0), Debug::BLUE);
-				//projectiles[9]->GetPhysicsObject()->setTransform(reactphysics3d::Transform(temp, reactphysics3d::Quaternion::identity()));
-				//std::cout << "client" << source << std::endl;
-				// o->GameObjectRotate(reactphysics3d::Quaternion(((ClientPacket*)payload)->orientation[0],
-				//((ClientPacket*)payload)->orientation[1], ((ClientPacket*)payload)->orientation[2], ((ClientPacket*)payload)->orientation[3]));
-				//std::cout << ((ClientPacket*)payload)->orientation[0] << ((ClientPacket*)payload)->orientation[1] << ((ClientPacket*)payload)->orientation[2] << ((ClientPacket*)payload)->orientation[3];
 				Quaternion yaw = Quaternion(((ClientPacket*)payload)->yaw[0], ((ClientPacket*)payload)->yaw[1], ((ClientPacket*)payload)->yaw[2], ((ClientPacket*)payload)->yaw[3]);
 				Quaternion pitch = Quaternion(((ClientPacket*)payload)->yaw[5], ((ClientPacket*)payload)->yaw[6], ((ClientPacket*)payload)->yaw[7], ((ClientPacket*)payload)->yaw[8]);
 				bool grounded = ((ClientPacket*)payload)->yaw[4] == 1 ? true : false;
@@ -416,9 +419,6 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 				o->getGameObject().setGrounded(grounded);
 				o->getGameObject().SetYaw(reactphysics3d::Quaternion(yaw.x, yaw.y, yaw.z, yaw.w));
 				if (((ClientPacket*)payload)->buttonstates[0] == 1) {
-					//Vector3 trajectory = grounded ? yaw * Vector3(0, 0, -25) : yaw * Vector3(0, 0, -12);
-					//o->getGameObject().GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
-					//MoveForward((PlayerObject*)(&(o->getGameObject())),yaw,Vector3(0,0,0), grounded);
 					o->GameobjectMove(1, yaw, grounded);
 					BroadcastClientMovement(((ClientPacket*)payload)->myID+1,1, yaw, grounded);
 				}
@@ -439,7 +439,6 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 					BroadcastClientMovement(((ClientPacket*)payload)->myID + 1, 5, yaw, grounded);
 				}
 				if (((ClientPacket*)payload)->buttonstates[0] == 6) {
-					std::cout << "poop";
 					ShootProjectile((PlayerObject*)(&(o->getGameObject())), pitch);
 					BroadcastProjectile((PlayerObject*)(&(o->getGameObject())));
 				}
@@ -493,6 +492,10 @@ void  NetworkedGame::ResetMovementFrame(GameObject* p) {
 		//p->GetPhysicsObject()->resetForce();
 		//p->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(0, 0, 0));
 	}
-	
+}
+void NetworkedGame::NetworkPaintTracks() {
+	PlayerPaintTracks(player2, 'b');
+	PlayerPaintTracks(player3, 'r');
+	PlayerPaintTracks(player4, 'b');
 }
 

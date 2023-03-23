@@ -145,7 +145,7 @@ namespace NCL {
 
 			void RenderDebug(float dt);
 
-			void FreezingPlayers(float dt);
+			void FreezingPlayers(float dt, PlayerObject* p);
 			void RegeneratePowerupProps(float dt);
 
 			/*sound functions*/
