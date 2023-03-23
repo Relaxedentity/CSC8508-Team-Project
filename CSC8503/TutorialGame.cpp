@@ -597,7 +597,7 @@ void NCL::CSC8503::TutorialGame::shootPaint(PlayerObject* p, float dt, Camera* c
 
 void NCL::CSC8503::TutorialGame::MovePlayerCoop(PlayerObject* player, float dt)
 {
-	if (!gamepad.UpdateController() && false)
+	if (!gamepad.UpdateController())
 	{
 		if (gpConnected)
 		{

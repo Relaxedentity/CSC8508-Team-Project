@@ -186,7 +186,6 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	thisClient->UpdateClient();
 	PlayerPaintTracks(player, 'r');
 	PlayerPaintTracks(player2, 'b');
-	std::cout << player2->IsGrounded() << std::endl;
 	PlayerPaintTracks(player3, 'r');
 	PlayerPaintTracks(player4, 'b');
 	ClientPacket newPacket;
