@@ -247,7 +247,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	cooscore1Tex = new OGLTexture();
 	cooscore1Tex = (OGLTexture*)cooscore1Tex->SRGBTextureFromFilename("Score_5.png");
 	cooscore1Mesh = new OGLMesh();
-	cooscore1Mesh->SetVertexPositions({ Vector3(0.10, 0.57,0), Vector3(0.10, 0.4,0) , Vector3(-0.30, 0.4, 0) , Vector3(-0.30, 0.57, 0) });
+	cooscore1Mesh->SetVertexPositions({ Vector3(0.10, 0.55,0), Vector3(0.10, 0.38,0) , Vector3(-0.30, 0.38, 0) , Vector3(-0.30, 0.55, 0) });
 	cooscore1Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	cooscore1Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	cooscore1Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
