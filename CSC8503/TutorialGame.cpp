@@ -1383,7 +1383,7 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.5f, 1.2f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0),reactphysics3d::Quaternion::identity()));
 	character->SetPhysicsObject(body);
-	character->SetRenderObject(new RenderObject(body, Vector3(1.5, 1.5, 1.5), playerMesh, nullptr, shader));
+	character->SetRenderObject(new RenderObject(body, Vector3(-1.5, 1.5, -1.5), playerMesh, nullptr, shader));
 	character->GetRenderObject()->isAnimation = true;
 
 	for (int i = 0; i < playerMesh->GetSubMeshCount(); ++i) {
@@ -1391,7 +1391,6 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 		const std::string* filename = nullptr;
 		matEntry->GetEntry("Diffuse", &filename);
 		std::string path = *filename;
-		std::cout << path << std::endl;
 		character->GetRenderObject()->matTextures.emplace_back(renderer->LoadTexture(path));
 	}
 

@@ -1508,6 +1508,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 						if (g && g->GetPaintedPos().size() > 0) {
 							g->ClearPaintPos();
 						}
+						delete g;
 					}
 				}
 			);
