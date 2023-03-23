@@ -1,4 +1,4 @@
-#include "BossAI.h"
+#include "BasicAI.h"
 #include <reactphysics3d/reactphysics3d.h>
 
 #include "Window.h"
@@ -16,7 +16,7 @@ using namespace NCL;
 using namespace CSC8503;
 
 
-BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) {
+BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) {
 	
 	health = 100;
 	
@@ -53,7 +53,7 @@ BossAI::BossAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) 
 	CreateBehaviourTree();
 }
 
-BossAI::~BossAI() {
+BasicAI::~BasicAI() {
 	delete rootSequence;
 	delete patrolSequence;
 	delete attackSequence;
@@ -72,7 +72,7 @@ BossAI::~BossAI() {
 	delete aiDamaged;
 }
 
-void BossAI::UpdateBoss(float dt, NCL::Maths::Vector3& playerPos) {
+void BasicAI::UpdateBoss(float dt, NCL::Maths::Vector3& playerPos) {
 
 	currPlayerPos = playerPos;
 	frameTime -= dt;
@@ -85,7 +85,7 @@ void BossAI::UpdateBoss(float dt, NCL::Maths::Vector3& playerPos) {
 	}
 }
 
-void NCL::CSC8503::BossAI::Update(float dt)
+void NCL::CSC8503::BasicAI::Update(float dt)
 {
 	BehaviourState state = Ongoing;
 	state = rootSequence->Execute(dt);
@@ -95,7 +95,7 @@ void NCL::CSC8503::BossAI::Update(float dt)
 	}
 }
 
-void NCL::CSC8503::BossAI::CreateBehaviourTree()
+void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 {
 	BehaviourAction* walkAct = new BehaviourAction("Patrolling ", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
@@ -365,7 +365,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 	rootSequence->AddChild(attackSequence);
 }
 
-bool NCL::CSC8503::BossAI::SeenPlayer() // create a wedge volume from the perspective of boss. Only Check if the player is within it
+bool NCL::CSC8503::BasicAI::SeenPlayer() // create a wedge volume from the perspective of boss. Only Check if the player is within it
 {
 	DrawWedgeVolume(height, AngThres, outerRadius, innerRadius);
 
@@ -404,7 +404,7 @@ bool NCL::CSC8503::BossAI::SeenPlayer() // create a wedge volume from the perspe
 	return false;
 }
 
-void NCL::CSC8503::BossAI::DrawWedgeVolume( float height, float AngThres, float outerRadius, float innerRadius)
+void NCL::CSC8503::BasicAI::DrawWedgeVolume( float height, float AngThres, float outerRadius, float innerRadius)
 {
 	// get AI position and orientation
 	Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
@@ -455,7 +455,7 @@ void NCL::CSC8503::BossAI::DrawWedgeVolume( float height, float AngThres, float 
 }
 
 
-void NCL::CSC8503::BossAI::CreatePath(Vector3& targetDist)
+void NCL::CSC8503::BasicAI::CreatePath(Vector3& targetDist)
 {
 	NavigationGrid grid("TestGrid5.txt");
 	NavigationPath outPath;
@@ -474,7 +474,7 @@ void NCL::CSC8503::BossAI::CreatePath(Vector3& targetDist)
 	}
 }
 
-void NCL::CSC8503::BossAI::DisplayPath()
+void NCL::CSC8503::BasicAI::DisplayPath()
 {
 	for (int i = 1; i < pathNodes.size(); ++i) {
 		Vector3 a = pathNodes[i - 1];
@@ -483,7 +483,7 @@ void NCL::CSC8503::BossAI::DisplayPath()
 	}
 }
 
-void NCL::CSC8503::BossAI::WalkPath(Vector3& destination)
+void NCL::CSC8503::BasicAI::WalkPath(Vector3& destination)
 {
 	if (pathNodes.size() == 0) {
 		CreatePath(destination);
@@ -523,7 +523,7 @@ void NCL::CSC8503::BossAI::WalkPath(Vector3& destination)
 	}
 }
 
-float NCL::CSC8503::BossAI::VectorMagnitude(float x, float y, float z)
+float NCL::CSC8503::BasicAI::VectorMagnitude(float x, float y, float z)
 {
 	// Stores the sum of squares of coordinates of a vector
 	float sum = x * x + y * y + z * z;
@@ -532,12 +532,12 @@ float NCL::CSC8503::BossAI::VectorMagnitude(float x, float y, float z)
 	return sqrt(sum);
 }
 
-double NCL::CSC8503::BossAI::DegreesToRadian(double degrees)
+double NCL::CSC8503::BasicAI::DegreesToRadian(double degrees)
 {
 	return degrees * 3.14159265358 / 180.0;
 }
 
-void NCL::CSC8503::BossAI::SetRotationToPlayer()
+void NCL::CSC8503::BasicAI::SetRotationToPlayer()
 {
 
 	Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
@@ -555,7 +555,7 @@ void NCL::CSC8503::BossAI::SetRotationToPlayer()
 	this->GetPhysicsObject()->setTransform(newTransform);
 }
 
-void NCL::CSC8503::BossAI::UpdateAnim(BossAI* p, MeshAnimation* anim, float& ftime, int& cframe)
+void NCL::CSC8503::BasicAI::UpdateAnim(BasicAI* p, MeshAnimation* anim, float& ftime, int& cframe)
 {
 	while (ftime < 0.0f) {
 		cframe = (cframe + 1) % anim->GetFrameCount();
@@ -564,7 +564,7 @@ void NCL::CSC8503::BossAI::UpdateAnim(BossAI* p, MeshAnimation* anim, float& fti
 	DrawAnim(p, anim, cframe);
 }
 
-void NCL::CSC8503::BossAI::DrawAnim(BossAI* p, MeshAnimation* anim, int& cframe)
+void NCL::CSC8503::BasicAI::DrawAnim(BasicAI* p, MeshAnimation* anim, int& cframe)
 {
 	const Matrix4* invBindPose = p->GetRenderObject()->GetMesh()->GetInverseBindPose().data();
 	const Matrix4* frameData = anim->GetJointData(cframe % anim->GetFrameCount());

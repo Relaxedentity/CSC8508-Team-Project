@@ -13,10 +13,10 @@
 namespace NCL {
 	namespace CSC8503 {
 		//class StateMachine;
-		class BossAI : public GameObject {
+		class BasicAI : public GameObject {
 		public:
-			BossAI(GameWorld* world, std::vector<NCL::Maths::Vector3> mapNodes);
-			~BossAI();
+			BasicAI(GameWorld* world, std::vector<NCL::Maths::Vector3> mapNodes);
+			~BasicAI();
 
 			void UpdateBoss(float dt, NCL::Maths::Vector3& playePos) ;
 			void Update(float dt) override;
@@ -33,8 +33,8 @@ namespace NCL {
 			double DegreesToRadian(double degrees);
 
 			void SetRotationToPlayer();
-			void UpdateAnim(BossAI* p, MeshAnimation* anim, float& ftime, int& cframe);
-			void DrawAnim(BossAI* p, MeshAnimation* anim, int& cframe);
+			void UpdateAnim(BasicAI* p, MeshAnimation* anim, float& ftime, int& cframe);
+			void DrawAnim(BasicAI* p, MeshAnimation* anim, int& cframe);
 
 
 		protected:

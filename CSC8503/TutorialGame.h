@@ -6,7 +6,7 @@
 #include "NavigationGrid.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
-#include "BossAI.h"
+#include "BasicAI.h"
 #include "MeshMaterial.h"
 #include "PlayerObject.h"
 #include "MeshAnimation.h"
@@ -85,11 +85,11 @@ namespace NCL {
 			void TestHedgefinding(Vector3 pos);
 			BTreeObject* AddGooseToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			StateGameObject* AddStateObjectToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
-			BossAI* AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
+			BasicAI* AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
 			//StateGameObject* testStateObject;
 			//BTreeObject* goose;
 
-			BossAI* boss;
+			BasicAI* boss;
 
 			void UpdateEnemies(float dt);
 

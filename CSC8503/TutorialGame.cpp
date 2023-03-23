@@ -6,6 +6,7 @@
 #include "NetworkObject.h"
 #include "StateGameObject.h"
 #include "BTreeObject.h"
+#include "BasicAI.h"
 #include "Debug.h"
 #include <iostream>
 #include <fstream>
@@ -1347,9 +1348,10 @@ StateGameObject* TutorialGame::AddStateObjectToWorld(const reactphysics3d::Vecto
 
 	return apple;
 }
-BossAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
+
+BasicAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
 {
-	BossAI* AI = new BossAI(world, testNodes);
+	BasicAI* AI = new BasicAI(world, testNodes);
 	
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
