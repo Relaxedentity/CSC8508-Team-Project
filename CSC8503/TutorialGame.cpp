@@ -243,6 +243,7 @@ void TutorialGame::UpdateGame(float dt) {
 			updateCamera(player, dt);
 			CheckGrounded(player);
 			moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
+
 		}
 	}
 	
@@ -252,15 +253,17 @@ void TutorialGame::UpdateGame(float dt) {
 	}*/
 
 	Posreset();
+	if (!isMultiplayer) {
+		if (GameLock::gamestart) {//gametime//////////////////////////////////////
+			timeLimit -= dt;
+			GameLock::gametime = timeLimit;
+		}
+		else {
+			timeLimit = GameLock::gametime;
+		}
+	}
+	Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
 
-	if (GameLock::gamestart) {//gametime//////////////////////////////////////
-		timeLimit -= dt;
-		GameLock::gametime = timeLimit;
-		Debug::Print(std::to_string((int)timeLimit), Vector2(47, 4), Debug::WHITE);
-	}
-	else {
-		timeLimit = GameLock::gametime;
-	}
 
 
 	

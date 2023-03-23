@@ -72,6 +72,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
 	thisClient->RegisterPacketHandler(Projectile_Fired, this);
 	thisClient->RegisterPacketHandler(Health, this);
+	thisClient->RegisterPacketHandler(Time, this);
 	thisClient->RegisterPacketHandler(Movement, this);
 	//goose->setTarget2(thisPlayer);
 
@@ -110,6 +111,13 @@ void NetworkedGame::UpdateAsServer(float dt) {
 	CheckGrounded(player);
 	world->playerHealth = player->GetPlayerHealth();
 	moveDesignatedPlayer(player, dt, world->GetMainCamera()->GetPosition());
+	if (GameLock::gamestart) {//gametime//////////////////////////////////////
+		timeLimit -= dt;
+		GameLock::gametime = timeLimit;
+	}
+	else {
+		timeLimit = GameLock::gametime;
+	}
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F)) {
 		BroadcastProjectile(player);
 	}
@@ -130,6 +138,7 @@ void NetworkedGame::UpdateAsServer(float dt) {
 		BroadcastPlayerHealth(player2);
 		BroadcastPlayerHealth(player3);
 		BroadcastPlayerHealth(player4);
+		BroadcastTime(timeLimit);
 		//std::cout <<"phealth : " << player2->GetPlayerHealth() << std::endl;
 		BroadcastSnapshot(false);
 		packetsToSnapshot = 5;
@@ -271,6 +280,12 @@ void NetworkedGame::BroadcastPlayerHealth(PlayerObject* p) {
 	thisServer->SendGlobalPacket(newPacket);
 }
 
+void NetworkedGame::BroadcastTime(float time) {
+	TimePacket newPacket;
+	newPacket.time = time;
+	thisServer->SendGlobalPacket(newPacket);
+}
+
 void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
 	std::vector<GameObject*>::const_iterator first;
 	std::vector<GameObject*>::const_iterator last;
@@ -354,8 +369,12 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 			if (o->getGameObject().GetWorldID() == ((HealthPacket*)payload)->myID) {
 				((PlayerObject*)(&(o->getGameObject())))->SetPlayerHealth(((HealthPacket*)payload)->health);
 				//std::cout<< "ID: " << ((HealthPacket*)payload)->myID << "  hpacket : " << ((HealthPacket*)payload)->health << std::endl;
-
 			}
+		}
+		if (type == Time) {
+			GameLock::gametime = ((TimePacket*)payload)->time;
+			timeLimit = ((TimePacket*)payload)->time;
+			
 		}
 		if (type == Projectile_Fired) {
 			if (o->getGameObject().GetWorldID() == ((ProjectilePacket*)payload)->myID) {

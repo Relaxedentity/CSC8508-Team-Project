@@ -17,6 +17,7 @@ enum BasicNetworkMessages {
 	Projectile_Fired,
 	Movement,
 	Health,
+	Time,
 	Shutdown
 };
 

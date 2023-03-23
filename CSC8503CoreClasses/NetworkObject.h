@@ -47,6 +47,14 @@ namespace NCL::CSC8503 {
 			size = sizeof(ProjectilePacket);
 		}
 	};
+	struct TimePacket : public GamePacket {
+		float		time;
+
+		TimePacket() {
+			type = Time;
+			size = sizeof(TimePacket);
+		}
+	};
 
 	struct DeltaPacket : public GamePacket {
 		int		fullID		= -1;
