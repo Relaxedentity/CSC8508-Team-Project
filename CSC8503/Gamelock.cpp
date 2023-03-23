@@ -21,6 +21,7 @@ bool GameLock::exitBtnChange;
 bool GameLock::BackBtnChange;
 bool GameLock::SingleExitBtnChange;
 bool GameLock::CoopExitBtnChange;
+bool GameLock::restartBtnChange;
 
 bool GameLock::Mainmenuawake;
 bool GameLock::SingleEndMenuawake;
@@ -33,6 +34,17 @@ bool GameLock::isloading2;
 int GameLock::loadingdone;
 float GameLock::redScore;
 float GameLock::blueScore;
+int GameLock::RedS;
+int GameLock::BlueS;
 
-float GameLock::p1ModeTime = 0.0f;
-float GameLock::p2ModeTime = 0.0f;
+float GameLock::p1ModeTime;
+float GameLock::p2ModeTime;
+
+bool GameLock::istoString;
+bool GameLock::isto2String;
+
+bool GameLock::isNetwork = false;
+
+bool GameLock::Controller = false;
+bool GameLock::playerPosinit = false;
+bool GameLock::coopplayerPosinit = false;

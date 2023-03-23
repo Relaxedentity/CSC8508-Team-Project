@@ -48,14 +48,17 @@ namespace NCL {
 								state = i;
 								if (state == 1) {
 									GameLock::CoopExitBtnChange = true;
-									//std::cout << "yes£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡" << std::endl;
+									break;
+								}
+								else if (state == 2) {
+									GameLock::restartBtnChange = true;
 									break;
 								}
 							}
 							else {
 								state = 0;
 								GameLock::CoopExitBtnChange = false;
-								//std::cout << "no£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡" << std::endl;
+								GameLock::restartBtnChange = false;
 							}
 						}
 					}
@@ -65,7 +68,9 @@ namespace NCL {
 				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1) {
-						GameLock::gametime = 10;
+						GameLock::istoString = false;
+						GameLock::isto2String = false;
+						GameLock::gametime = GameLock::gamelength;
 						GameLock::gamemod = 0;
 						GameLock::gamestart = false;
 						GameLock::Player1lock = true;
@@ -73,6 +78,22 @@ namespace NCL {
 						GameLock::SingleEndMenuawake = false;
 						GameLock::CoopEndMenuawake = false;
 						return PushdownState::GotoMainMenu;
+					}
+					if (state == 2) {
+						GameLock::istoString = false;
+						GameLock::isto2String = false;
+						GameLock::gametime = GameLock::gamelength;
+						GameLock::gamemod = 0;
+						GameLock::gamestart = false;
+						GameLock::Player1lock = true;
+						GameLock::SingleEndMenuawake = false;
+						GameLock::CoopEndMenuawake = false;
+
+						GameLock::isloading2 = true;
+						GameLock::Mainmenuawake = false;
+						GameLock::redScore = 0.0f;
+						GameLock::blueScore = 0.0f;
+						return PushdownState::ExitoMainMenu;
 					}
 				}
 				return PushdownState::NoChange;

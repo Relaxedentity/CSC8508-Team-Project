@@ -63,43 +63,6 @@ namespace NCL {
 						}
 					}
 				}
-
-
-				/*switch (state)
-				{
-				case 1:
-					Debug::Print("Start Single Game", Vector2(60, 50),Vector4(1,0,0,1));
-					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
-					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
-					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
-					break;
-				case 2:
-					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
-					Debug::Print("Start Multiple Game", Vector2(60, 55), Vector4(1, 0, 0, 1));
-					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
-					Debug::Print("Exit Game", Vector2(60, 65),Debug::BLACK);
-					break;
-				case 3:
-					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
-					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
-					Debug::Print("Game Introduction", Vector2(60, 60),Vector4(1, 0, 0, 1));
-					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
-					break;
-				case 4:
-					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
-					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
-					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
-					Debug::Print("Exit Game", Vector2(60, 65), Vector4(1, 0, 0, 1));
-					break;
-				case 0:
-					Debug::Print("Start Single Game", Vector2(60, 50), Debug::BLACK);
-					Debug::Print("Start Multiple Game", Vector2(60, 55), Debug::BLACK);
-					Debug::Print("Game Introduction", Vector2(60, 60), Debug::BLACK);
-					Debug::Print("Exit Game", Vector2(60, 65), Debug::BLACK);
-					break;
-				}*/
-
-
  				if (Window::GetMouse()->ButtonPressed(NCL::MouseButtons::LEFT))
 				{
 					if (state == 1)

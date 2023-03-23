@@ -34,6 +34,7 @@ using namespace CSC8503;
 #include <thread>
 #include <sstream>
 
+SoundObject* sound;
 /*
 
 The main function should look pretty familar to you!
@@ -54,6 +55,12 @@ int main() {
 	GameLock::introBtnChange = false;
 	GameLock::exitBtnChange = false;
 
+	GameLock::p1ModeTime = 0.0f;
+	GameLock::p2ModeTime = 0.0f;
+
+	GameLock::istoString = false;
+	GameLock::isto2String = false;
+
 	GameLock::isloading1 = false;
 	GameLock::isloading2 = false;
 
@@ -67,7 +74,7 @@ int main() {
 	GameLock::gamestart = false;////////////////
 	GameLock::redScore = 0.0f;////////////////////////////
 	GameLock::blueScore = 0.0f;////////////////////////////
-	GameLock::gametime = 300;////////////////////////////
+	GameLock::gametime = GameLock::gamelength;////////////////////////////
 	bool NotConfirmExit = true;///////////////////////////
 	PushdownMachine* machine = new PushdownMachine(new IntroScreen());//menuinit
 
@@ -88,6 +95,8 @@ int main() {
 
 	
 	w->GetTimer()->GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
+
+	sound->MainMusic(GameLock::hitsound);
 	while (w->UpdateWindow()) {
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
 		if (!NotConfirmExit) {//exit game

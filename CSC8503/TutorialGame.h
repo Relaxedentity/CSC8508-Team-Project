@@ -102,6 +102,8 @@ namespace NCL {
 			void UpdateAnim(PlayerObject* p, MeshAnimation* anim);
 
 			TerrainObject* AddFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, MapNode* node);
+			GameObject* AddColliderFloorToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents);
+
 			Projectile* AddProjectileToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, char colour, float mass = 0.1f);
 			GameObject* AddBreakableToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float radius, float mass = 0.1f);
 			GameObject* AddCubeToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 halfextents, float mass = 0.1f);
@@ -123,12 +125,19 @@ namespace NCL {
 			TerrainObject* AddRebWallRightToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
 			TerrainObject* AddRebWallLeftToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale, bool nodes);
 
+			TerrainObject* AddRebCaveWallMainToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, reactphysics3d::Vector3 scale);
+
 			void AddRebWallSquareToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
 			void AddRebWallNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+
+			void AddRebCaveWallNorthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebCaveWallSouthToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebCaveWallEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+			void AddRebCaveWallWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 
 			void AddRebWallDualVerticalToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallDualHorizontalToWorld(const reactphysics3d::Vector3& position, MapNode* node);
@@ -148,6 +157,7 @@ namespace NCL {
 			void FreezingPlayers(float dt, PlayerObject* p);
 			void RegeneratePowerupProps(float dt);
 
+
 			/*sound functions*/
 			void MainScreenFireMapping(Vector3 sphereintipos);
 			void MainScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
@@ -166,6 +176,8 @@ namespace NCL {
 			void CheckGrounded(PlayerObject* p);
 			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
 			void moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos);
+
+			void Posreset();
 
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
@@ -229,6 +241,7 @@ namespace NCL {
 			OGLShader* animatedShaderA = nullptr;
 			ShaderBase*		charShader	= nullptr;
 			MeshMaterial* playerMat = nullptr;
+			MeshMaterial* player2Mat = nullptr;
 			vector <GLuint > playerTextures;
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;
@@ -243,6 +256,13 @@ namespace NCL {
 			MeshGeometry*	corridorCornerRightSideMesh			= nullptr;
 			MeshGeometry*	corridorCornerLeftSideMesh			= nullptr;
 
+			TextureBase* corridorCaveTexture = nullptr;
+			MeshGeometry* corridorCaveStraightMesh = nullptr;
+
+			///Particle
+			OGLMesh* pointSprites = nullptr;
+			OGLShader* particleShader = nullptr;
+			TextureBase* particleTex = nullptr;
 			//Power-up Items
 			ShaderBase* itemShader = nullptr;
 			TextureBase* capsuleTex = nullptr;
@@ -257,6 +277,7 @@ namespace NCL {
 			
 			// Test Mesh for quick changing
 			MeshGeometry*	testMesh	= nullptr;
+			TextureBase*	testTexture = nullptr;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
@@ -280,8 +301,8 @@ namespace NCL {
 			float orbitScalarMin = 2.0f;
 
 			float thirdPersonYScalar = 1;
-			float thirdPersonXScalar = 1.25;
-			float thirdPersonZScalar = 4;
+			float thirdPersonXScalar = 1.5;
+			float thirdPersonZScalar = 5;
 			Projectile* projectiles[100];
 			Projectile* oneShot[5];
 			int currentProjectile = 0;

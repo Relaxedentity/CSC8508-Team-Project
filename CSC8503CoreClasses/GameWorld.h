@@ -55,7 +55,7 @@ namespace NCL {
 			SceneContactPoint* getHit() {
 				float fraction = hitPoints[0]->hitFraction;
 				int counter = 0;
-				for (int i = 0; i < hitPoints.size() - 1; i++) {
+				for (int i = 1; i < hitPoints.size(); i++) {
 					float challengerFraction = hitPoints[i]->hitFraction;
 					if (challengerFraction < fraction) {
 						fraction = challengerFraction;
@@ -114,6 +114,11 @@ namespace NCL {
 				return player;
 			}
 
+			void ScoreClear() {
+				colourOneNodes = 0;
+				colourTwoNodes = 0;
+			}
+
 			void SetPlayer(GameObject* p) {
 				player = p;
 			}
@@ -164,7 +169,6 @@ namespace NCL {
 
 			void AddMapNode(MapNode* o);
 			void RemoveMapNode(MapNode* o, bool andDelete);
-
 			float getColourOneScore() { return colourOneScore; }
 			float getColourTwoScore() { return colourTwoScore; }
 

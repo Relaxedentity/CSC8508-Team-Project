@@ -109,6 +109,10 @@ namespace NCL {
 
 			float frameTime;
 			int currentFrame;
+
+			std::vector<TextureBase*>matTextures;
+			bool isAnimation = false;
+
 		protected:
 			int paintCount = 0;
 			int paintMax = 50;

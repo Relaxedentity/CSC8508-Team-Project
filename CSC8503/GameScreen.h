@@ -155,6 +155,10 @@ namespace NCL {
 				if (GameLock::gametime <= 0) {
 					GameLock::gamestart = false;
 					GameLock::Player1lock = true;
+					
+					int red =1000 * GameLock::redScore/(GameLock::redScore + GameLock::blueScore);
+					GameLock::RedS = red;
+					GameLock::BlueS = 1000 - red;
 					*newState = new GameEnd();
 					return PushdownResult::Push;
 				}

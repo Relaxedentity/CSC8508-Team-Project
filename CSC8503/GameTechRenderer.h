@@ -78,6 +78,7 @@ namespace NCL {
 			void RendererCooScore1();
 			void RendererCooScore2();
 			void RenderEndExitScreen();
+			void Restart();
 			void RenderCoopEndExitScreen();
 
 			void RenderLoadingScreen();
@@ -129,6 +130,27 @@ namespace NCL {
 			OGLTexture* menuTex;////////////ÐÞ¸Ä
 			OGLMesh* menuMesh;////////////ÐÞ¸Ä
 
+			//score
+			OGLTexture* Score1Tex;
+			OGLTexture* Score2Tex;
+			OGLTexture* Score3Tex;
+			OGLTexture* Score4Tex;
+
+			OGLMesh* Score1Mesh;
+			OGLMesh* Score2Mesh;
+			OGLMesh* Score3Mesh;
+			OGLMesh* Score4Mesh;
+
+			OGLTexture* CoopScore1Tex;
+			OGLTexture* CoopScore2Tex;
+			OGLTexture* CoopScore3Tex;
+			OGLTexture* CoopScore4Tex;
+
+			OGLMesh* CoopScore1Mesh;
+			OGLMesh* CoopScore2Mesh;
+			OGLMesh* CoopScore3Mesh;
+			OGLMesh* CoopScore4Mesh;
+
 			/// <summary>
 			/// normalButton
 			/// </summary>
@@ -149,6 +171,9 @@ namespace NCL {
 			/// </summary>
 			OGLTexture* exitBtnTex;
 			OGLMesh* exitBtnMesh;
+
+			OGLTexture* RestartBtnTex;
+			OGLMesh* RestartBtnMesh;
 
 			/// introscreen 
             /// </summary>
@@ -216,6 +241,15 @@ namespace NCL {
 
 			int currentFrame;
 			float frameTime;
+			string a;
+			string b;
+			string c;
+			string d;
+
+			string a2;
+			string b2;
+			string c2;
+			string d2;
 		};
 	}
 }
