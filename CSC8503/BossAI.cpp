@@ -330,6 +330,7 @@ void NCL::CSC8503::BossAI::CreateBehaviourTree()
 				if (currentDist < 1) {
 					state = Success;
 					std::cout << "Attack Success!\n";
+
 				}
 			}
 			else
