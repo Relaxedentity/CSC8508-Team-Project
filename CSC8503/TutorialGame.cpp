@@ -2252,11 +2252,11 @@ void TutorialGame::Posreset() {
 		playerCoop->GetPhysicsObject()->setTransform(transform2);
 	}
 	if (GameLock::isloading1) {
-		world->SetPlayerHealth(1.0f);
+		((PlayerObject*)world->GetPlayer())->SetPlayerHealth(1.0f);
 	}
 	else if (GameLock::isloading2) {
-		world->SetPlayerHealth(1.0f);
-		world->SetPlayerCoopHealth(1.0f);
+		((PlayerObject*)world->GetPlayer())->SetPlayerHealth(1.0f);
+		((PlayerObject*)world->GetPlayerCoop())->SetPlayerHealth(1.0f);
 	}
 	if (GameLock::isloading1 || GameLock::isloading2) {
 		world->ScoreClear();
