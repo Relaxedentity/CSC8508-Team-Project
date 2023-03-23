@@ -7,7 +7,7 @@
 #include "Debug.h"
 #include "Gamelock.h"
 #include "MapNode.h"
-#include "PlayerObject.h"
+#include <string>
 using namespace NCL;
 using namespace Rendering;
 using namespace CSC8503;
@@ -49,8 +49,8 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	
 	glClearColor(1, 1, 1, 1);
 
-	//Animated Objects
-	animatedShader = new OGLShader("skinningVertex.glsl", "charFrag.frag"); 
+	////Animated Objects
+	//animatedShader = new OGLShader("skinningVertex.vert", "SkinningFrag.frag"); 
 
 	//Set up the light properties
 	lightColour = Vector4(0.8f, 0.8f, 0.5f, 1.0f);
@@ -116,7 +116,70 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	//miniMapEnemy = new OGLShader()
 	miniMapPlayer = new OGLShader("triangle.vert", "triangle.frag");
 
+	//Scoure
+	Score1Tex = new OGLTexture();
+	Score2Tex = new OGLTexture();
+	Score3Tex = new OGLTexture();
+	Score4Tex = new OGLTexture();
+	Score1Mesh = new OGLMesh();
+	Score2Mesh = new OGLMesh();
+	Score3Mesh = new OGLMesh();
+	Score4Mesh = new OGLMesh();
 
+	CoopScore1Tex = new OGLTexture();
+	CoopScore2Tex = new OGLTexture();
+	CoopScore3Tex = new OGLTexture();
+	CoopScore4Tex = new OGLTexture();
+	CoopScore1Mesh = new OGLMesh();
+	CoopScore2Mesh = new OGLMesh();
+	CoopScore3Mesh = new OGLMesh();
+	CoopScore4Mesh = new OGLMesh();
+
+
+	Score1Mesh->SetVertexPositions({ Vector3(0.15, 0.55,0), Vector3(0.15, 0.4,0) , Vector3(0.1, 0.4, 0) , Vector3(0.1, 0.55, 0) });
+	Score1Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	Score1Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	Score1Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	Score1Mesh-> UploadToGPU();
+	Score2Mesh->SetVertexPositions({ Vector3(0.2, 0.55,0), Vector3(0.2, 0.4,0) , Vector3(0.15, 0.4, 0) , Vector3(0.15, 0.55, 0) });
+	Score2Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	Score2Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	Score2Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	Score2Mesh->UploadToGPU();
+	Score3Mesh->SetVertexPositions({ Vector3(0.25, 0.55,0), Vector3(0.25, 0.4,0) , Vector3(0.2, 0.4, 0) , Vector3(0.2, 0.55, 0) });
+	Score3Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	Score3Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	Score3Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	Score3Mesh->UploadToGPU();
+	Score4Mesh->SetVertexPositions({ Vector3(0.3, 0.55,0), Vector3(0.3, 0.4,0) , Vector3(0.25, 0.4, 0) , Vector3(0.25, 0.55, 0) });
+	Score4Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	Score4Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	Score4Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	Score4Mesh->UploadToGPU();
+
+	CoopScore1Mesh->SetVertexPositions({ Vector3(0.15, 0.35,0), Vector3(0.15, 0.2,0) , Vector3(0.1, 0.2, 0) , Vector3(0.1, 0.35, 0) });
+	CoopScore1Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	CoopScore1Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	CoopScore1Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	CoopScore1Mesh->UploadToGPU();
+	CoopScore2Mesh->SetVertexPositions({ Vector3(0.2, 0.35,0), Vector3(0.2, 0.2,0) , Vector3(0.15, 0.2, 0) , Vector3(0.15, 0.35, 0) });
+	CoopScore2Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	CoopScore2Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	CoopScore2Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	CoopScore2Mesh->UploadToGPU();
+	CoopScore3Mesh->SetVertexPositions({ Vector3(0.25, 0.35,0), Vector3(0.25, 0.2,0) , Vector3(0.2, 0.2, 0) , Vector3(0.2, 0.35, 0) });
+	CoopScore3Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	CoopScore3Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	CoopScore3Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	CoopScore3Mesh->UploadToGPU();
+	CoopScore4Mesh->SetVertexPositions({ Vector3(0.3, 0.35,0), Vector3(0.3, 0.2,0) , Vector3(0.25, 0.2, 0) , Vector3(0.25, 0.35, 0) });
+	CoopScore4Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	CoopScore4Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	CoopScore4Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	CoopScore4Mesh->UploadToGPU();
+
+
+	//
 	uiShader = new OGLShader("ui.vert", "ui.frag");
 	menuTex = new OGLTexture();
 	menuTex = (OGLTexture*)menuTex->SRGBTextureFromFilename("MenuBG.png");
@@ -184,7 +247,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	cooscore1Tex = new OGLTexture();
 	cooscore1Tex = (OGLTexture*)cooscore1Tex->SRGBTextureFromFilename("Score_5.png");
 	cooscore1Mesh = new OGLMesh();
-	cooscore1Mesh->SetVertexPositions({ Vector3(0.09, 0.55,0), Vector3(0.09, 0.4,0) , Vector3(-0.29, 0.4, 0) , Vector3(-0.29, 0.55, 0) });
+	cooscore1Mesh->SetVertexPositions({ Vector3(0.10, 0.55,0), Vector3(0.10, 0.38,0) , Vector3(-0.30, 0.38, 0) , Vector3(-0.30, 0.55, 0) });
 	cooscore1Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	cooscore1Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	cooscore1Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -193,7 +256,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	cooscore2Tex = new OGLTexture();
 	cooscore2Tex = (OGLTexture*)cooscore2Tex->SRGBTextureFromFilename("Score_6.png");
 	cooscore2Mesh = new OGLMesh();
-	cooscore2Mesh->SetVertexPositions({ Vector3(0.09, 0.55,0), Vector3(0.09, 0.4,0) , Vector3(-0.29, 0.4, 0) , Vector3(-0.29, 0.55, 0) });
+	cooscore2Mesh->SetVertexPositions({ Vector3(0.09, 0.35,0), Vector3(0.09, 0.2,0) , Vector3(-0.29, 0.2, 0) , Vector3(-0.29, 0.35, 0) });
 	cooscore2Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	cooscore2Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	cooscore2Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -202,19 +265,28 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	endexitBtnTex = new OGLTexture();
 	endexitBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("endexit.png");
 	endexitBtnMesh = new OGLMesh();
-	endexitBtnMesh->SetVertexPositions({ Vector3(0.11, -0.26, 0), Vector3(0.11, -0.45, 0), Vector3(-0.11, -0.45, 0), Vector3(-0.11, -0.26, 0)});
+	endexitBtnMesh->SetVertexPositions({ Vector3(0.11, -0.36, 0), Vector3(0.11, -0.55, 0), Vector3(-0.11, -0.55, 0), Vector3(-0.11, -0.36, 0)});
 	endexitBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	endexitBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	endexitBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	endexitBtnMesh->UploadToGPU();
 
-	
+	RestartBtnTex = new OGLTexture();
+	RestartBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("restart.png");
+	RestartBtnMesh = new OGLMesh();
+	RestartBtnMesh->SetVertexPositions({ Vector3(0.19, -0.06, 0), Vector3(0.19, -0.25, 0), Vector3(-0.19, -0.25, 0), Vector3(-0.19, -0.06, 0) });
+	RestartBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
+	RestartBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	RestartBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
+	RestartBtnMesh->UploadToGPU();
+
 	vector<Vector2> normalBtn = { {  Vector2(-0.2, 0.3) , Vector2(0.2, 0.1) } };
 	vector<Vector2> coopBtn = { {  Vector2(-0.2,0),   Vector2(0.2,-0.2)  } };
 	vector<Vector2> introBtn = { {  Vector2(-0.2,-0.3),  Vector2(0.2,-0.5)} };
 	vector<Vector2> exitBtn = { {  Vector2(-0.1,-0.6),  Vector2(0.1,-0.75)} };
+	vector<Vector2> restartBtn = { {  Vector2(-0.19, -0.06) , Vector2(0.19, -0.25)} };
 	vector<Vector2> endexitBtn = { {  Vector2(-0.11, -0.26) , Vector2(0.11, -0.45)} };
-	vector<Vector2> coopendexitBtn = { {  Vector2(-0.11, -0.26) , Vector2(0.11, -0.45)} };
+	vector<Vector2> coopendexitBtn = { {  Vector2(-0.11, -0.36) , Vector2(0.11, -0.55)} };
 	vector<Vector2> backBtn = { {  Vector2(-0.1, -0.6),   Vector2(0.1, -0.75)  } };
 	
 
@@ -251,6 +323,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	GameLock::IntroButtonPos.push_back(exitBtn);
 	GameLock::EndButtonPos.push_back(endexitBtn);
 	GameLock::CoopButtonPos.push_back(coopendexitBtn);
+	GameLock::CoopButtonPos.push_back(restartBtn);
 	GameLock::BackButtonPos.push_back(backBtn);
 	
 	glGenVertexArrays(1, &lineVAO);
@@ -295,12 +368,18 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete intropageTex; 
 	delete menuTex;
 
+	delete Score1Tex;
+	delete Score2Tex;
+	delete Score3Tex;
+	delete Score4Tex;
+
+	delete CoopScore1Tex;
+	delete CoopScore2Tex;
+	delete CoopScore3Tex;
+	delete CoopScore4Tex;
 	
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
-
-	//glDeleteTextures(1, &secScreenTex);
-	//glDeleteFramebuffers(1, &secScreenFBO);
 }
 
 void GameTechRenderer::LoadSkybox() {
@@ -387,6 +466,9 @@ void NCL::CSC8503::GameTechRenderer::RenderCircle(float cx, float cy, float r, c
 
 	// perform draw call
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector4& color, Vector2 windowSize)
@@ -431,6 +513,9 @@ void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2 v1, Vector2 v2, Vect
 
 	// perform draw call
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+	
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 }
 
 void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windowSize, GameObject* player)
@@ -438,7 +523,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 	float map_x = windowSize.x - 100.0f;
 	float map_y = 100;
 	float map_size = 80.0f;
-	float draw_distance = 25.0f;
+	float draw_distance = 75.0f;
 	Vector4 map_color(0.8f, 0.8f, 0.8f, 0.7f);
 	RenderCircle(window_pos.x + map_x, window_pos.y + map_y, map_size, map_color);
 
@@ -523,7 +608,7 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 
 		// I'm working out a colour to depict each rectangle as here, based upon its constituent objects and their paint nodes.
 
-		Vector4 finalColour = object->getMapColour();
+		Vector4 finalColour = object->getMapColour(GameLock::isloading2);
 
 		// the reason why the rectangle is rotating , is because we ignored that the cube also has a
 		// facing direction , and rotate just the center of it ,
@@ -700,6 +785,146 @@ void NCL::CSC8503::GameTechRenderer::RendererCooScore1() {
 
 	BindMesh(cooscore1Mesh);
 	DrawBoundMesh();
+
+	BindShader(uiShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(Score1Mesh);
+	DrawBoundMesh();
+	int n = int(GameLock::RedS);
+	if (!GameLock::istoString) {
+		if (n > 999 && n <= 9999) {
+			int s1 = n / 1000 % 10; a = std::to_string(s1);
+			int s2 = n / 100 % 10;  b = std::to_string(s2);
+			int s3 = n / 10 % 10;   c = std::to_string(s3);
+			int s4 = n % 10;        d = std::to_string(s4);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
+			Score4Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(d + d + ".png");
+		}
+		else if (n > 99 && n <= 999) {
+			int s1 = n / 100 % 10; a = std::to_string(s1);
+			int s2 = n / 10 % 10;  b = std::to_string(s2);
+			int s3 = n % 10;       c = std::to_string(s3);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
+		}
+		else if (n > 9 && n <= 99) {
+			int s1 = n / 10 % 10; a = std::to_string(s1);
+			int s2 = n % 10;      b = std::to_string(s2);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + "png");
+		}
+		else {
+			int s1 = n % 10;      a = std::to_string(s1);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+		}
+		GameLock::istoString = true;
+	}
+
+
+	if (n > 999 && n <= 9999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score3Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score4Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score4Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 99 && n <= 999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score3Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 9 && n <= 99) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score2Mesh);
+		DrawBoundMesh();
+	}
+	else {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score1Mesh);
+		DrawBoundMesh();
+	}
+
 }
 
 void NCL::CSC8503::GameTechRenderer::RendererCooScore2() {
@@ -711,6 +936,137 @@ void NCL::CSC8503::GameTechRenderer::RendererCooScore2() {
 
 	BindMesh(cooscore2Mesh);
 	DrawBoundMesh();
+
+	int n = int(GameLock::BlueS);
+	if (!GameLock::isto2String) {
+		if (n > 999 && n <= 9999) {
+			int s1 = n / 1000 % 10; a2 = std::to_string(s1);
+			int s2 = n / 100 % 10;  b2 = std::to_string(s2);
+			int s3 = n / 10 % 10;   c2 = std::to_string(s3);
+			int s4 = n % 10;        d2 = std::to_string(s4);
+			CoopScore1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a2 + ".png");
+			CoopScore2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b2 + ".png");
+			CoopScore3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c2 + ".png");
+			CoopScore4Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(d2 + ".png");
+		}
+		else if (n > 99 && n <= 999) {
+			int s1 = n / 100 % 10; a2 = std::to_string(s1);
+			int s2 = n / 10 % 10;  b2 = std::to_string(s2);
+			int s3 = n % 10;       c2 = std::to_string(s3);
+			CoopScore1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a2 + ".png");
+			CoopScore2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b2 + ".png");
+			CoopScore3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c2 + ".png");
+		}
+		else if (n > 9 && n <= 99) {
+			int s1 = n / 10 % 10; a2 = std::to_string(s1);
+			int s2 = n % 10;      b2 = std::to_string(s2);
+			CoopScore1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a2 + ".png");
+			CoopScore2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b2 + ".png");
+		}
+		else {
+			int s1 = n % 10;      a2 = std::to_string(s1);
+			CoopScore1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a2 + ".png");
+		}
+		GameLock::isto2String = true;
+	}
+
+
+	if (n > 999 && n <= 9999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore3Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore4Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore4Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 99 && n <= 999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore3Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 9 && n <= 99) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score2Mesh);
+		DrawBoundMesh();
+	}
+	else {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+	}
 
 }
 
@@ -728,6 +1084,20 @@ void NCL::CSC8503::GameTechRenderer::RenderEndExitScreen() {
 	delete endexitBtnTex;
 }
 
+void NCL::CSC8503::GameTechRenderer::Restart() {
+	BindShader(uiShader);
+	if (GameLock::restartBtnChange) RestartBtnTex = (OGLTexture*)RestartBtnTex->SRGBTextureFromFilename("restart_selected.png");
+	else RestartBtnTex = (OGLTexture*)RestartBtnTex->SRGBTextureFromFilename("restart.png");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, RestartBtnTex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(RestartBtnMesh);
+	DrawBoundMesh();
+	delete RestartBtnTex;
+}
+
 void NCL::CSC8503::GameTechRenderer::RenderCoopEndExitScreen() {
 	BindShader(uiShader);
 	if (GameLock::CoopExitBtnChange) endexitBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("endexit_selected.png");
@@ -738,11 +1108,6 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopEndExitScreen() {
 	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 	BindMesh(endexitBtnMesh);
 	DrawBoundMesh();
-	//delete endexitBtnTex;
-	//RenderTriangle(point_1, point_4, point_2, color, windowSize);
-	//RenderTriangle(point_2, point_3, point_1, color, windowSize);
-	//BindMesh(endexitBtnMesh);
-	//DrawBoundMesh();
 	delete endexitBtnTex;
 }
 
@@ -853,6 +1218,13 @@ void GameTechRenderer::RenderFrame( )
 		RendererSinScore();
 		RenderEndExitScreen();
 	}
+	if (GameLock::CoopEndMenuawake) {
+		RenderEndScreen();
+		RendererCooScore1();
+		RendererCooScore2();
+		Restart();
+		RenderCoopEndExitScreen();
+	}
 
 
 	if (GameLock::isloading1){
@@ -901,14 +1273,7 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 	if (GameLock::gamestart) {
 		RenderCrossHair();
 		RenderMap({ 0, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayer());
-		RenderHealthBar(gameWorld.playerHealth);
-	}
-
-	if (GameLock::CoopEndMenuawake) {
-		RenderEndScreen();
-		RendererCooScore1();
-		RendererCooScore2();
-		RenderCoopEndExitScreen();
+		RenderHealthBar(gameWorld.GetPlayerHealth());
 	}
 
 	glDisable(GL_BLEND);
@@ -939,7 +1304,7 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 		RenderCrossHair();
 		RenderMap({ windowWidth * 0.5f, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayerCoop());
-		RenderHealthBar(((PlayerObject*)(gameWorld.GetPlayerCoop()))->GetPlayerHealth());
+		RenderHealthBar(gameWorld.GetPlayerCoopHealth());
 	}
 
 
@@ -958,7 +1323,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 		NewRenderLines();
 		NewRenderText();
 		RenderMap({ 0, 0 }, { (float)windowWidth, (float)windowHeight }, gameWorld.GetPlayer());
-		RenderHealthBar(gameWorld.playerHealth);
+		RenderHealthBar(gameWorld.GetPlayerHealth());
 		RenderProgressBar(gameWorld.getColourOneScore());
 	}
 	
@@ -1112,7 +1477,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 		BindShader(shader);
 
 		BindTextureToShader((OGLTexture*)(*i).GetDefaultTexture(), "mainTex", 0);
-
+		
 	
 
 		if (i->GetPaintedPos().size()) {
@@ -1125,10 +1490,36 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", j);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
-				glUniform4fv(paintedLocation, 1, paintedPos.array);
+				if (!GameLock::gamestart) {
+					glUniform4fv(paintedLocation, 1, Vector4(0,0,0,0).array);
+				}
+				else
+				{
+					glUniform4fv(paintedLocation, 1, paintedPos.array);
+				}
+				
 			}
 		}
-
+		if (GameLock::isloading1 || GameLock::isloading2) {
+			gameWorld.OperateOnContents(
+				[&](GameObject* o) {
+					if (o->IsActive()) {
+						RenderObject* g = o->GetRenderObject();
+						if (g && g->GetPaintedPos().size() > 0) {
+							g->ClearPaintPos();
+						}
+					}
+				}
+			);
+			gameWorld.OperateOnMapNodes(
+				[&](MapNode* o) {
+					for (auto i : o->objects) {
+						i->redTally = 0;
+						i->blueTally = 0;
+					}
+				});
+		}
+		
 		/*if (GameLock::gamemod == 0) {
 			gameWorld.OperateOnContents(
 				[&](GameObject* o)
@@ -1170,8 +1561,11 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			lightRadiusLocation = glGetUniformLocation(shader->GetProgramID(), "lightRadius");
 			cameraLocation = glGetUniformLocation(shader->GetProgramID(), "cameraPos");
 			//paintCount = glGetUniformLocation(shader->GetProgramID(), "paintCount");
-			int j = glGetUniformLocation(shader->GetProgramID(), "joints");
-			glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
+			if (i->isAnimation) {
+				int j = glGetUniformLocation(shader->GetProgramID(), "joints");
+				glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
+			}
+			
 			Vector3 camPos = camera.GetPosition();
 	
 			
@@ -1213,8 +1607,13 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 
 		BindMesh((*i).GetMesh());
 		int layerCount = (*i).GetMesh()->GetSubMeshCount();
-		for (int i = 0; i < layerCount; ++i) {
-			DrawBoundMesh(i);
+		for (int x = 0; x < layerCount; ++x) {
+			if (i->isAnimation) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, ((OGLTexture*)i->matTextures[x])->GetObjectID());
+				glUniform1i(glGetUniformLocation(shader->GetProgramID(), "diffuseTex"), 0);
+			}	
+			DrawBoundMesh(x);
 		}
 	}
 }
