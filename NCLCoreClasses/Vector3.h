@@ -63,6 +63,17 @@ namespace NCL::Maths {
 			return sqrt((x*x) + (y*y) + (z*z));
 		}
 
+		static Vector3 Projection(const Vector3& first, const Vector3& onto)
+		{
+			// calculate the scalar projection of this vector onto onto
+			float scalarProjection = Dot(first, onto) / onto.LengthSquared();
+
+			// calculate the projection vector
+			Vector3 projection = onto.Normalised() * scalarProjection;
+
+			return projection;
+		}
+
 		constexpr float	LengthSquared() const {
 			return ((x*x) + (y*y) + (z*z));
 		}

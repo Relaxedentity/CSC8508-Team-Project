@@ -10,7 +10,7 @@
 #include "BehaviourSelector.h"
 #include "BehaviourSequence.h"
 #include "BehaviourAction.h"
-#include <Debug.cpp>
+//#include <Debug.cpp>
 
 
 using namespace NCL;
@@ -47,7 +47,7 @@ BTreeObject::BTreeObject(GameWorld* world, vector <Vector3 > testNodes):GameObje
 					Vector3 dis = b - GetPhysicsObject()->getTransform().getPosition();
 					Vector3 force = dis.Normalised() * 2.5f;
 					GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(force.x, force.y, force.z));
-					Debug::DrawLine(b, Vector3(0, 10, 0) + b, Vector4(1, 0, 0, 1));
+					//Debug::DrawLine(b, Vector3(0, 10, 0) + b, Vector4(1, 0, 0, 1));
 					if (Vector3(b - GetPhysicsObject()->getTransform().getPosition()).Length() < 1.5f) {
 						currentNode++;
 					}

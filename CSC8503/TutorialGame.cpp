@@ -26,6 +26,7 @@
 #include "MeshAnimation.h"
 #include "Gamepad.h"
 #include "PlayerObject.h"
+#include "BasicAI.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -111,6 +112,11 @@ void TutorialGame::InitialiseAssets() {
 	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	
+	// AI // 
+	animatedAIShader = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");;
+	aiMesh = renderer->LoadMesh("splatPlayer.msh");
+	aiMat = new MeshMaterial("splatPlayer.mat");
+
 	/// Particle /// 
 	pointSprites = new OGLMesh();
 	particleShader = new OGLShader("scene.vert", "scene.frag", "pointGeom.glsl");
@@ -150,14 +156,17 @@ TutorialGame::~TutorialGame()	{
 	delete bonusMesh;
 	delete capsuleMesh;
 	delete gooseMesh;
+	delete aiMesh;
 
 	delete playerTex;
+	delete aiMat;
 
 	delete basicTex;
 	delete basicShader;
 
 	delete animatedShader;
 	delete animatedShaderA;
+	delete animatedAIShader;
 	delete charShader;
 
 	delete chairTex;
@@ -250,6 +259,8 @@ void TutorialGame::UpdateGame(float dt) {
 		world->SetPlayerCoopHealth(secHealth);
 	}*/
 
+	UpdateEnemies(dt);
+
 	Posreset();
 
 	if (GameLock::gamestart) {//gametime//////////////////////////////////////
@@ -289,27 +300,27 @@ void TutorialGame::UpdateGame(float dt) {
 		else delete closestCollision;
 	}
 
-	if (testStateObject) {
-		testStateObject->Update(dt);
-		for (int i = 1; i < nodes.size(); ++i) {
-			Vector3 a = nodes[i - 1];
-			Vector3 b = nodes[i];
+	//if (testStateObject) {
+	//	testStateObject->Update(dt);
+	//	for (int i = 1; i < nodes.size(); ++i) {
+	//		Vector3 a = nodes[i - 1];
+	//		Vector3 b = nodes[i];
 
-			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-		}
-	}
-	if (goose) {
-		goose->Update(dt);
-		for (int i = 1; i < nodes2.size(); ++i) {
-			Vector3 a = nodes2[i - 1];
-			Vector3 b = nodes2[i];
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
+	//}
+	//if (goose) {
+	//	goose->Update(dt);
+	//	for (int i = 1; i < nodes2.size(); ++i) {
+	//		Vector3 a = nodes2[i - 1];
+	//		Vector3 b = nodes2[i];
 
-			//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-		}
+	//		//Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	//	}
 
-		reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
-		transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
-	}
+	//	reactphysics3d::Transform transform = goose->GetPhysicsObject()->getTransform();
+	//	transform.setPosition(reactphysics3d::Vector3(0, 0, 1));
+	//}
 
 	SelectObject();
 	MoveSelectedObject();
@@ -1375,7 +1386,7 @@ GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& positi
 
 PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, char paintColour, int netID, int worldID) {
 	PlayerObject* character = new PlayerObject(world);
-	character->SetTag(1);
+	character->SetTag(netID);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
@@ -1444,7 +1455,6 @@ void TutorialGame::DrawAnim(PlayerObject* p, MeshAnimation* anim) {
 	p->GetRenderObject()->SetFrameMatrices(tempMatrices);
 }
 	
-
 GameObject* TutorialGame::AddEmitterToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation,char colour) {
 	GameObject* emitter = new GameObject(world);
 	reactphysics3d::Transform transform(position, orientation);
@@ -1543,6 +1553,45 @@ BTreeObject* TutorialGame::AddGooseToWorld(const reactphysics3d::Vector3& positi
 
 	return apple;
 }
+BasicAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
+{
+	BasicAI* AI = new BasicAI(world, testNodes);
+	AI->SetTag(666);
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
+	body->setMass(4.0f);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(1.0f, 1.0f, 1.0f));
+	//reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0), reactphysics3d::Quaternion::identity()));
+	AI->SetPhysicsObject(body);
+
+	AI->SetRenderObject(new RenderObject(body, Vector3(-1.5, 1.5, -1.5), aiMesh, nullptr, animatedAIShader));
+
+	AI->GetRenderObject()->isAnimation = true;
+
+	for (int i = 0; i < aiMesh->GetSubMeshCount(); ++i) {
+		const MeshMaterialEntry* matEntry = playerMat->GetMaterialForLayer(i);
+		const std::string* filename = nullptr;
+		matEntry->GetEntry("Diffuse", &filename);
+		std::string path = *filename;
+		AI->GetRenderObject()->matTextures.emplace_back(renderer->LoadTexture(path));
+	}
+
+
+	world->AddGameObject(AI);
+
+	return AI;
+}
+void NCL::CSC8503::TutorialGame::UpdateEnemies(float dt)
+{
+	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
+	Vector3 playerPos = Vector3(playerTransform.getPosition());
+
+	basicAI->UpdateBoss(dt, playerPos);
+	basicAI->DisplayPath();
+
+}
 void TutorialGame::TestPathfinding(Vector3 position) {
 	NavigationGrid grid("TestGrid2.txt");
 	NavigationPath outPath;
@@ -1591,6 +1640,8 @@ void TutorialGame::InitGameExamples() {
 	playerCoop = AddPlayerToWorld(reactphysics3d::Vector3(10, -20, 0), reactphysics3d::Quaternion::identity(), animatedShaderA, 'b', -1, -1);
 	LockCameraToObject2(playerCoop);
 	world->SetPlayerCoop(playerCoop);
+
+	basicAI = AddAIToWorld(reactphysics3d::Vector3(80, 1, 50), reactphysics3d::Quaternion::identity(), newNodes);
 
 	if(!coin)coin = AddBonusToWorld(itemPos[1], reactphysics3d::Quaternion::identity());
 	if(!coin2)coin2 = AddBonusToWorld(itemPos[13], reactphysics3d::Quaternion::identity());
