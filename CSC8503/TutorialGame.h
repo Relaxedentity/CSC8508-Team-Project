@@ -239,6 +239,7 @@ namespace NCL {
 			OGLShader* animatedShaderA = nullptr;
 			ShaderBase*		charShader	= nullptr;
 			MeshMaterial* playerMat = nullptr;
+			MeshMaterial* player2Mat = nullptr;
 			vector <GLuint > playerTextures;
 			//Coursework Meshes
 			MeshGeometry*	charMesh	= nullptr;

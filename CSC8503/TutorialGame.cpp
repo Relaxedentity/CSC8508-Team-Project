@@ -108,6 +108,7 @@ void TutorialGame::InitialiseAssets() {
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
 	playerMat = new MeshMaterial("splatPlayer.mat");
+	player2Mat = new MeshMaterial("splatPlayer2.mat");
 	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
 	
@@ -1385,9 +1386,21 @@ PlayerObject* TutorialGame::AddPlayerToWorld(const reactphysics3d::Vector3& posi
 	character->SetPhysicsObject(body);
 	character->SetRenderObject(new RenderObject(body, Vector3(-1.5, 1.5, -1.5), playerMesh, nullptr, shader));
 	character->GetRenderObject()->isAnimation = true;
+	
+	MeshMaterial* mat=nullptr;
+	switch (paintColour) {
+	case 'r':
+		mat = playerMat;
+		break;
+	case 'b':
+		mat = player2Mat;
+		break;
+	default:
+		break;
+	}
 
 	for (int i = 0; i < playerMesh->GetSubMeshCount(); ++i) {
-		const MeshMaterialEntry* matEntry = playerMat->GetMaterialForLayer(i);
+		const MeshMaterialEntry* matEntry = mat->GetMaterialForLayer(i);
 		const std::string* filename = nullptr;
 		matEntry->GetEntry("Diffuse", &filename);
 		std::string path = *filename;
