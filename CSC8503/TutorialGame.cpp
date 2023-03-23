@@ -104,7 +104,7 @@ void TutorialGame::InitialiseAssets() {
 	corridorStraightMesh	= renderer->LoadMesh("corridor_Wall_Straight_Mid_end_L.msh");
 	corridorCornerRightSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_L.msh");
 	corridorCornerLeftSideMesh	= renderer->LoadMesh("Corridor_Wall_Corner_Out_R.msh");
-	playerTex = renderer->LoadTexture("Ch03_1001_Diffuse.png");
+	playerTex = renderer->LoadTexture("Ch03_1001_Diffuse_1.png");
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
 	playerMat = new MeshMaterial("splatPlayer.mat");
