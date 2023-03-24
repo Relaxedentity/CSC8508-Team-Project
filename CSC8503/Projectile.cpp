@@ -55,6 +55,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	else if (otherObject == world->GetPlayer() && world->GetPlayerHealth() >= 0.0f) {
 		world->SetPlayerHealth(world->GetPlayerHealth() - 0.05f); 
 	}
+	
 
 	//world->painted.push_back(paintCollision);
 

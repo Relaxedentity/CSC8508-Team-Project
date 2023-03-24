@@ -11,15 +11,16 @@
 #include "NavigationMesh.h"
 #include <cmath>
 #include "PlayerObject.h"
+#include "Projectile.h"
 
 
 using namespace NCL;
 using namespace CSC8503;
 
-BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world) {
+BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes, std::string aiName) :GameObject(world) {
+	name = aiName;
 
 	health = 100;
-
 	pathNodes = mapNodes; // getPathNodes
 	currentNode = 1;
 	nodeIndex = 1;
@@ -35,14 +36,14 @@ BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes) :GameObject(world
 	timeLimit = 0;
 	attackSelect = 0;
 
-	aiWalkAnim = new MeshAnimation("botWalk.anm");
-	aiRunAnim = new MeshAnimation("BotRun.anm");
-	aicloseAttackAnim = new MeshAnimation("BotCloseAttack.anm");
-	aiFarAttackAnim = new MeshAnimation("BotJump.anm");
-	aiMidAttackAnim = new MeshAnimation("BotMidAttack.anm");
-	aiRightStrafeAnim = new MeshAnimation("BotRightStrafe.anm");
-	aiLeftStrafeAnim = new MeshAnimation("BotLeftStrafe.anm");
-	aiDamaged = new MeshAnimation("BotHitReaction.anm");
+	aiWalkAnim = new MeshAnimation("AIWalking.anm");
+	aiRunAnim = new MeshAnimation("AIRun.anm");
+	aicloseAttackAnim = new MeshAnimation("AICloseAttack.anm");
+	aiFarAttackAnim = new MeshAnimation("AIJump.anm");
+	aiFarAttackTwoAnim = new MeshAnimation("AIJumpAttack.anm");
+	aiRightStrafeAnim = new MeshAnimation("AIRightStrafe.anm");
+	aiLeftStrafeAnim = new MeshAnimation("AILeftStrafe.anm");
+	aiDamaged = new MeshAnimation("AIHitReaction.anm");
 	
 	height = 10;
 	AngThres = 70;
@@ -64,7 +65,7 @@ BasicAI::~BasicAI() {
 	delete aiWalkAnim;
 	delete aiRunAnim;
 	delete aicloseAttackAnim;
-	delete aiMidAttackAnim;
+	delete aiFarAttackTwoAnim;
 	delete aiFarAttackAnim;
 	delete aiRightStrafeAnim;
 	delete aiLeftStrafeAnim;
@@ -148,7 +149,10 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			float currentDistance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 		
 			SetRotationToPlayer();
-			reactphysics3d::Ray ray = reactphysics3d::Ray(this->GetPhysicsObject()->getTransform().getPosition() + this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0,0,-0.8f), reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.x));
+
+			// Define the end point of the ray (adjust this based on how far you want the ray to go)
+
+			reactphysics3d::Ray ray(this->GetPhysicsObject()->getTransform().getPosition() + this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, 1), reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.z));
 			SceneContactPoint* playerVisible = world->Raycast(ray);
 
 			if (playerVisible->isHit) { 
@@ -159,34 +163,12 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 					std::cout << playerVisible->object->GetTag() << std::endl;
 					currentDistance < 20 ? walkOrAttack = true : walkOrAttack = false;
 					state = Success;
-					//delete playerVisible;
 				}
 				else {
 					std::cout << playerVisible->object->GetTag() << std::endl;
 					std::cout << "fail hit" << std::endl;
 					state = Failure;
-					//delete playerVisible;
 				}
-
-
-				////currentDistance < 20 ? walkOrAttack = true : walkOrAttack = false;
-				////state = Success;
-
-				/////*f (playerVisible->object->GetTag() != 1) {
-				////	
-				////	std::cout << playerVisible->object->GetTag() << std::endl;
-				////	std::cout << "3" << std::endl;
-				////	state = Failure;
-
-				////}
-
-				////if (playerVisible->object->GetTag() == 1) {
-				////	std::cout << playerVisible->object->GetTag() << std::endl;
-				////	std::cout << "4";
-				////	currentDistance < 20 ? walkOrAttack = true : walkOrAttack = false;
-				////	state = Success;
-				////}*/
-
 			}
 			else {
 				std::cout << "no ray";
@@ -196,7 +178,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		//	state = Success;
 		}
 		return state;
-		});
+	});
 
 
 	BehaviourAction* strafeLeftAroundPlayerAct = new BehaviourAction("Left", [&](float dt, BehaviourState state) -> BehaviourState {
@@ -344,7 +326,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			state = Ongoing;
 			std::cout << " close Attack !\n";
 
-			attackSelect = rand() % 1;
+			//attackSelect = rand() % 1;
 		}
 		else if (state == Ongoing) {
 			if (range == 0) {
@@ -359,7 +341,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 				// Apply the movement force
 				this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, 0, dir.z) * 10);
 
-				attackSelect == 0 ? UpdateAnim(this, aicloseAttackAnim, frameTime, currentFrame) : UpdateAnim(this, aiMidAttackAnim, frameTime, currentFrame);
+				UpdateAnim(this, aicloseAttackAnim, frameTime, currentFrame);
 
 				// Check if the AI has reached the player
 				if (currentDist < 1) {
@@ -437,6 +419,21 @@ bool NCL::CSC8503::BasicAI::SeenPlayer() // create a wedge volume from the persp
 	}
 
 	return false;
+}
+
+void NCL::CSC8503::BasicAI::OnCollisionBegin(GameObject* otherObject)
+{
+	if (dynamic_cast<Projectile*>(otherObject)) {
+		if (aiHealth > 0) {
+			aiHealth - 0.15f;
+		}
+	}
+
+	if (aiHealth <= 0) {
+		this->setActive(false);
+		this->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+	}
+
 }
 
 void NCL::CSC8503::BasicAI::DrawWedgeVolume(float height, float AngThres, float outerRadius, float innerRadius)

@@ -63,4 +63,10 @@ void PlayerObject::OnCollisionBegin(GameObject* otherObject) {
 	   otherObject->setActive(false);
 	   otherObject->GetPhysicsObject()->setType(BodyType::STATIC);
    }
+
+   if (otherObject && otherObject->GetName() == "AI") {
+	   if (this == world->GetPlayer() && world->GetPlayerHealth() > 0) {
+		   world->SetPlayerHealth(world->GetPlayerHealth() - 0.15f);
+	   }
+   }
 }

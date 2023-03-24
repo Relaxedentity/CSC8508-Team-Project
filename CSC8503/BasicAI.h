@@ -9,11 +9,12 @@
 #include "MeshAnimation.h"
 #include "TerrainObject.h"
 
+
 namespace NCL {
 	namespace CSC8503 {
 		class BasicAI : public GameObject {
 		public:
-			BasicAI(GameWorld* world, std::vector<NCL::Maths::Vector3> mapNodes);
+			BasicAI(GameWorld* world, std::vector<NCL::Maths::Vector3> mapNodes, std::string name);
 			~BasicAI();
 
 			void UpdateBoss(float dt, NCL::Maths::Vector3& playePos);
@@ -21,6 +22,8 @@ namespace NCL {
 
 			void CreateBehaviourTree();
 			bool SeenPlayer();
+
+			void OnCollisionBegin(GameObject* otherObject) override;
 
 			void DrawWedgeVolume(float height, float AngThres, float outerRadius, float innerRadius);
 			void CreatePath(NCL::Maths::Vector3& position);
@@ -40,6 +43,8 @@ namespace NCL {
 
 			int range;
 			float timeLimit;
+			std::string	name;
+			float aiHealth = 1;
 
 			std::vector<NCL::Maths::Vector3> pathNodes;
 			int currentNode;
@@ -47,7 +52,7 @@ namespace NCL {
 			MeshAnimation* aiWalkAnim = nullptr;
 			MeshAnimation* aiRunAnim = nullptr;
 			MeshAnimation* aicloseAttackAnim = nullptr;
-			MeshAnimation* aiMidAttackAnim = nullptr;
+			MeshAnimation* aiFarAttackTwoAnim = nullptr;
 			MeshAnimation* aiFarAttackAnim = nullptr;
 			MeshAnimation* aiRightStrafeAnim = nullptr;
 			MeshAnimation* aiLeftStrafeAnim = nullptr;

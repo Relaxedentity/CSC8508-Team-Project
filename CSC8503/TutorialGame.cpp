@@ -114,8 +114,8 @@ void TutorialGame::InitialiseAssets() {
 	
 	// AI // 
 	animatedAIShader = new OGLShader("SkinningVertex.glsl", "SkinningFrag.glsl");;
-	aiMesh = renderer->LoadMesh("splatPlayer.msh");
-	aiMat = new MeshMaterial("splatPlayer.mat");
+	aiMesh = renderer->LoadMesh("AIMesh.msh");
+	aiMat = new MeshMaterial("AIMat.mat");
 
 	/// Particle /// 
 	pointSprites = new OGLMesh();
@@ -1555,7 +1555,7 @@ BTreeObject* TutorialGame::AddGooseToWorld(const reactphysics3d::Vector3& positi
 }
 BasicAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes)
 {
-	BasicAI* AI = new BasicAI(world, testNodes);
+	BasicAI* AI = new BasicAI(world, testNodes, "AI");
 	AI->SetTag(666);
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
@@ -1571,18 +1571,17 @@ BasicAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3&
 	AI->GetRenderObject()->isAnimation = true;
 
 	for (int i = 0; i < aiMesh->GetSubMeshCount(); ++i) {
-		const MeshMaterialEntry* matEntry = playerMat->GetMaterialForLayer(i);
+		const MeshMaterialEntry* matEntry = aiMat->GetMaterialForLayer(i);
 		const std::string* filename = nullptr;
 		matEntry->GetEntry("Diffuse", &filename);
 		std::string path = *filename;
 		AI->GetRenderObject()->matTextures.emplace_back(renderer->LoadTexture(path));
 	}
 
-
 	world->AddGameObject(AI);
-
 	return AI;
 }
+
 void NCL::CSC8503::TutorialGame::UpdateEnemies(float dt)
 {
 	reactphysics3d::Transform playerTransform = player->GetPhysicsObject()->getTransform();
