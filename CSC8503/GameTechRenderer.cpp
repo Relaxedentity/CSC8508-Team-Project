@@ -1511,7 +1511,7 @@ void GameTechRenderer::RenderFrame( )
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (progress < 1) {
-		progress += 0.0025f;
+		progress += 0.0050f;
 	}
 	if (progress >= 1) {
 		if(GameLock::loadingdone == 1)
