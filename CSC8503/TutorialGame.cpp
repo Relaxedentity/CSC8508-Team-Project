@@ -753,7 +753,10 @@ Vector3 TutorialGame::MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVe
 	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
 	Vector3 trajectory = isGrounded ? Yaw * Vector3(0, 0, -25) : Yaw * Vector3(0, 0, -12);
+	if(p->getACARMode())
 	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	else 
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z)*0.5f);
 	p->directionInput = true;
 	return endVelocity + Yaw * Vector3(0, 0, -1);
 }
@@ -763,7 +766,10 @@ Vector3 TutorialGame::MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endV
 	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
 	Vector3 trajectory = isGrounded ? Yaw * Vector3(0, 0, 25) : Yaw * Vector3(0, 0, 12);
-	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	if (p->getACARMode())
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	else
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z) * 0.5f);
 	p->directionInput = true;
 	return endVelocity + Yaw * Vector3(0, 0, 1);
 }
@@ -773,7 +779,10 @@ Vector3 TutorialGame::MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVeloc
 	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
 	Vector3 trajectory = isGrounded ? Yaw * Vector3(-25, 0, 0) : Yaw * Vector3(-12, 0, 0);
-	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	if (p->getACARMode())
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	else
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z) * 0.5f);
 	p->directionInput = true;
 	return endVelocity + Yaw * Vector3(-1, 0, 0);
 }
@@ -783,7 +792,10 @@ Vector3 TutorialGame::MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelo
 	MainScreenMoveMapping(playermoveposition, p->directionInput);
 
 	Vector3 trajectory = isGrounded ? Yaw * Vector3(25, 0, 0) : Yaw * Vector3(12, 0, 0);
-	p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	if (p->getACARMode())
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z));
+	else
+		p->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(trajectory.x, trajectory.y, trajectory.z) * 0.5f);
 	p->directionInput = true;
 	return endVelocity + Yaw * Vector3(1, 0, 0);
 }
@@ -1643,9 +1655,9 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	Debug::DrawLine(Vector3(50, 2, 20), Vector3(0, -20, 0), Vector4(1, 1, 1, 1), 1000);
-	Debug::DrawLine(Vector3(50, 2, 20), Vector3(55, 2, 20), Vector4(0, 1, 1, 1), 1000);
-	Debug::DrawLine(Vector3(50, 2, 20), Vector3(10, 2, 0), Vector4(0.5f, 0, 1, 1), 1000);
+	//Debug::DrawLine(Vector3(50, 2, 20), Vector3(0, -20, 0), Vector4(1, 1, 1, 1), 1000);
+	//Debug::DrawLine(Vector3(50, 2, 20), Vector3(55, 2, 20), Vector4(0, 1, 1, 1), 1000);
+	//Debug::DrawLine(Vector3(50, 2, 20), Vector3(10, 2, 0), Vector4(0.5f, 0, 1, 1), 1000);
 	player = AddPlayerToWorld(reactphysics3d::Vector3(0, 2, 0), reactphysics3d::Quaternion::identity(), animatedShader, 'r', 1, 1);
 	LockCameraToObject(player);
 	world->SetPlayer(player);
@@ -2299,6 +2311,22 @@ void TutorialGame::RegeneratePowerupProps(float dt) {
 				playerCoop->setFireMode(false);
 			}
 		}
+
+		if (player->getACARMode()) {
+			GameLock::p1FastTime -= dt;
+			if (GameLock::p1FastTime <= 0) {
+				GameLock::p1FastTime = speedUpTime;
+				player->setACARMode(false);
+			}
+		}
+
+		if (coopMode && playerCoop->getACARMode()) {
+			GameLock::p2FastTime -= dt;
+			if (GameLock::p2FastTime <= 0) {
+				GameLock::p2FastTime = speedUpTime;
+				playerCoop->setACARMode(false);
+			}
+		}
 	}
 	
 
@@ -2335,7 +2363,7 @@ void TutorialGame::Posreset() {
 	}
 	if (GameLock::gamestart && GameLock::gamemod == 2 && !GameLock::coopplayerPosinit) {
 		if (gamepad.UpdateController()) {
-			reactphysics3d::Transform transform(reactphysics3d::Vector3(40, 2, 0), reactphysics3d::Quaternion::identity());
+			reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 10), reactphysics3d::Quaternion::identity());
 			playerCoop->GetPhysicsObject()->setTransform(transform);
 			GameLock::coopplayerPosinit = true;
 		}

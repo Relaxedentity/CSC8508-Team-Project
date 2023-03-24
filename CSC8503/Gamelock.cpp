@@ -40,6 +40,9 @@ int GameLock::BlueS;
 float GameLock::p1ModeTime;
 float GameLock::p2ModeTime;
 
+float GameLock::p1FastTime;
+float GameLock::p2FastTime;
+
 bool GameLock::istoString;
 bool GameLock::isto2String;
 

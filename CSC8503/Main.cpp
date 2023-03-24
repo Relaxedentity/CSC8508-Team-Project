@@ -57,6 +57,8 @@ int main() {
 
 	GameLock::p1ModeTime = 0.0f;
 	GameLock::p2ModeTime = 0.0f;
+	GameLock::p1FastTime = 0.0f;
+	GameLock::p2FastTime = 0.0f;
 
 	GameLock::istoString = false;
 	GameLock::isto2String = false;
