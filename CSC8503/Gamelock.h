@@ -40,6 +40,9 @@ namespace NCL {
 			static float p1ModeTime;
 			static float p2ModeTime;
 
+			static float p1FastTime;
+			static float p2FastTime;
+
 			static bool istoString;
 			static bool isto2String;
 

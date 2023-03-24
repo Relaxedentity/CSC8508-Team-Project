@@ -49,11 +49,21 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 	//if (otherObject)otherObject->GetRenderObject()->PaintSpray(collisionPoint, paintColour);
 
 	world->paintSphereTest(this, collisionPoint, paintColour);
-	if (otherObject == world->GetPlayerCoop() && world->GetPlayerCoopHealth() >= 0.0f){
-		world->SetPlayerCoopHealth(world->GetPlayerCoopHealth() - 0.05f);
-	}
-	else if (otherObject == world->GetPlayer() && world->GetPlayerHealth() >= 0.0f) {
-		world->SetPlayerHealth(world->GetPlayerHealth() - 0.05f); 
+	//PlayerObject* cPlayer = (PlayerObject*)world->GetPlayerCoop();
+	//PlayerObject* player = (PlayerObject*)world->GetPlayer();
+	//
+	//if (otherObject == cPlayer && cPlayer->GetPlayerHealth() >= 0.0f) {
+	//	cPlayer->SetPlayerHealth(cPlayer->GetPlayerHealth() - 0.05f);
+	//}
+	//else if (otherObject == player && player->GetPlayerHealth() >= 0.0f) {
+	//	player->SetPlayerHealth(player->GetPlayerHealth() - 0.05f);
+	//}
+
+	if (dynamic_cast<PlayerObject*>(otherObject)) {
+		world->paintSphereTest(this, collisionPoint, paintColour);
+		if (((PlayerObject*)otherObject)->GetPlayerHealth() >= 0.0f) {
+			((PlayerObject*)otherObject)->SetPlayerHealth(((PlayerObject*)otherObject)->GetPlayerHealth() - 0.05f);
+		}
 	}
 	
 

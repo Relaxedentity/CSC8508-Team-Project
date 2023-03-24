@@ -164,7 +164,7 @@ namespace NCL {
 
 			void RenderDebug(float dt);
 
-			void FreezingPlayers(float dt);
+			void FreezingPlayers(float dt, PlayerObject* p);
 			void RegeneratePowerupProps(float dt);
 
 			/*sound functions*/
@@ -176,11 +176,13 @@ namespace NCL {
 			void SecScreenMoveMapping(Vector3 playermoveposition, bool directionInput);
 			void SecScreenJumpMapping(Vector3 sphereintipos);
 			void shootPaint(PlayerObject* p, float dt, Camera* c);
-			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
-			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity);
+			Vector3 MoveForward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			Vector3 MoveBackward(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			Vector3 MoveLeft(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			Vector3 MoveRight(PlayerObject* p, Quaternion Yaw, Vector3 endVelocity, bool isGrounded);
+			void MoveJump(PlayerObject* p);
 			void updateCamera(PlayerObject* player, float dt);
+			void CheckGrounded(PlayerObject* p);
 			void ShootProjectile(PlayerObject* p, Quaternion Pitch);
 			void moveDesignatedPlayer(PlayerObject* p, float dt, Vector3 camPos);
 
@@ -230,7 +232,7 @@ namespace NCL {
 			float     p1pauseTime = 3.0f;
 			float     p2pauseTime = 3.0f;
 			float    shotGunModeTime = 10.0f;
-
+			float     speedUpTime = 10.0f;
 
 
 			GameObject* selectionObject = nullptr;

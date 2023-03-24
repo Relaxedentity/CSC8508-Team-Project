@@ -28,11 +28,18 @@ namespace NCL::CSC8503 {
 		/// Accelerated Mode ///
 		void setACARMode(bool setACAR) { isACARMode = setACAR; };
 		bool getACARMode() { return isACARMode; };
+		void SetPlayerHealth(float health) {
+			playerHealth = health;
+		}
+		float GetPlayerHealth() {
+			return playerHealth;
+		}
+		bool playerLocked = false;
+		float freezeTimer = 3.0f;
 	protected:
 		bool isShotGun = false;
 		bool isACARMode = false;
-
-		Vector3 totalCollisionForce;
+		float playerHealth;
 		
 	};
 

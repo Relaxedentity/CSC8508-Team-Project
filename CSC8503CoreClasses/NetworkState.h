@@ -11,7 +11,7 @@ namespace NCL {
 
 			Vector3		position;
 			Quaternion	orientation;
-			reactphysics3d::Vector3		projVelocity;
+			int			playerhealth;
 			int			stateID;
 		};
 	}
