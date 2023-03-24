@@ -45,7 +45,7 @@ namespace NCL::CSC8503 {
 		bool IsActive() const {
 			return isActive;
 		}
-		void SetTag(int tag) {
+		void SetTag(int tag)  {
 			objectTag = tag;
 		}
 		int GetTag() {
@@ -83,6 +83,8 @@ namespace NCL::CSC8503 {
 		virtual void OnCollisionBegin(GameObject* otherObject) {
 			//std::cout << "OnCollisionBegin event occured!\n";
 		}
+
+
 
 		virtual void OnCollisionEnd(GameObject* otherObject) {
 			//std::cout << "OnCollisionEnd event occured!\n";

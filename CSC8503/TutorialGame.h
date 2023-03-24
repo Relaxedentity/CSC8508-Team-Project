@@ -10,6 +10,7 @@
 #include "PlayerObject.h"
 #include "MeshAnimation.h"
 #include "Sound.h"
+#include "BasicAI.h"
 
 namespace reactphysics3d {
 	class PhysicsCommon;
@@ -89,6 +90,9 @@ namespace NCL {
 			//test
 			void MovePlayerCoop(PlayerObject* player, float dt);
 
+			// AI // 
+			BasicAI* AddAIToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, vector<Vector3> testNodes);
+			void UpdateEnemies(float dt);
 
 			void TestPathfinding(Vector3 pos);
 			void TestHedgefinding(Vector3 pos);
@@ -162,7 +166,6 @@ namespace NCL {
 
 			void FreezingPlayers(float dt);
 			void RegeneratePowerupProps(float dt);
-
 
 			/*sound functions*/
 			void MainScreenFireMapping(Vector3 sphereintipos);
@@ -265,6 +268,13 @@ namespace NCL {
 
 			TextureBase* corridorCaveTexture = nullptr;
 			MeshGeometry* corridorCaveStraightMesh = nullptr;
+
+			//AI //
+			BasicAI* basicAI;
+			MeshGeometry* aiMesh = nullptr;
+			MeshMaterial* aiMat = nullptr;
+			OGLShader* animatedAIShader = nullptr;
+			vector <Vector3> newNodes;
 
 			///Particle
 			OGLMesh* pointSprites = nullptr;

@@ -19,6 +19,7 @@ namespace NCL::CSC8503 {
 		~PlayerObject();
 		Vector3 currentPos = Vector3(0, 0, 0);
 		void OnCollisionBegin(GameObject* otherObject) override;
+		void OnCollisionEnd(GameObject* otherObject) override;
 		
 		/// ShotGun Mode ///
 		void setFireMode(bool setShotGun) { isShotGun = setShotGun; };
@@ -30,6 +31,8 @@ namespace NCL::CSC8503 {
 	protected:
 		bool isShotGun = false;
 		bool isACARMode = false;
+
+		Vector3 totalCollisionForce;
 		
 	};
 
