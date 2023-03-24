@@ -329,6 +329,7 @@ void TutorialGame::UpdateGame(float dt) {
 	//	PlayerPaintTracks(playerCoop, 'b');
 	//}
 
+	auto start = std::chrono::high_resolution_clock::now();
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
 	
