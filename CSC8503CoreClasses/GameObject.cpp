@@ -70,3 +70,7 @@ NCL::CSC8503::GameObject::~GameObject()	{
 	delete renderObject;
 	delete networkObject;
 }
+
+NCL::CSC8503::FurnitureObject::FurnitureObject(GameWorld* world, std::string name) :GameObject(world, name) {
+
+}

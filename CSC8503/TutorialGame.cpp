@@ -103,6 +103,8 @@ void TutorialGame::InitialiseAssets() {
 	playerTex = renderer->LoadTexture("Ch03_1001_Diffuse_1.png");
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
+	tableTex = renderer->LoadTexture("InSanct_Max_Table_A_Colour.tga");
+	tableMesh = renderer->LoadMesh("InSanct_Max_Table_Big_Chair.msh");
 	playerMat = new MeshMaterial("splatPlayer.mat");
 	player2Mat = new MeshMaterial("splatPlayer2.mat");
 	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
@@ -159,6 +161,9 @@ TutorialGame::~TutorialGame()	{
 
 	delete chairTex;
 	delete chairMesh;
+
+	delete tableTex;
+	delete tableMesh;
 
 	delete testMesh;
 	delete testTexture;
@@ -326,13 +331,16 @@ void TutorialGame::UpdateGame(float dt) {
 
 	world->OperateOnContents([&](GameObject* o) {o->Update(dt); });
 	world->UpdateWorld(dt);
+	
 	while (accumulator >= timeStep) {
 		physicsWorld->update(timeStep);
 		//std::cout << accumulator << "s in the accumulator \n";
 		accumulator -= timeStep;
 	}
+	auto end = std::chrono::high_resolution_clock::now();
+	physicsTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	//std::cout << "<<<<<<<<<<frame \n";
-	auto start = std::chrono::high_resolution_clock::now();
+	start = std::chrono::high_resolution_clock::now();
 	renderer->Update(dt);
 	
 	player->GetRenderObject()->frameTime -= dt;
@@ -384,7 +392,7 @@ void TutorialGame::UpdateGame(float dt) {
 	}
 	else
 		renderer->Render();
-	auto end = std::chrono::high_resolution_clock::now();
+	end = std::chrono::high_resolution_clock::now();
 	renderTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	
 	Debug::UpdateRenderables(dt); 
@@ -415,6 +423,8 @@ void TutorialGame::RenderDebug(float dt) {
 	Debug::Print(ft, Vector2(5, 13), Debug::WHITE);
 	std::string rt = "Render Time: " + std::to_string((int)renderTime) + "ms";
 	Debug::Print(rt, Vector2(5, 18), Debug::WHITE);
+	std::string pt = "Physics Time: " + std::to_string((int)physicsTime) + "ms";
+	Debug::Print(pt, Vector2(5, 23), Debug::WHITE);
 
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
@@ -428,22 +438,22 @@ void TutorialGame::RenderDebug(float dt) {
 
 	std::string vramA = "Virtual Mem available: " + std::to_string(totalVirtualMem / (1024 * 1024)) + "MB";
 	std::string vramT = "Virtual Mem in use: " + std::to_string(virtualMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(vramA, Vector2(5, 23), Debug::WHITE);
-	Debug::Print(vramT, Vector2(5, 28), Debug::WHITE);
+	Debug::Print(vramA, Vector2(5, 28), Debug::WHITE);
+	Debug::Print(vramT, Vector2(5, 33), Debug::WHITE);
 
 	std::string pramA = "Physical RAM available: " + std::to_string(totalPhysMem / (1024 * 1024)) + "MB";
 	std::string pramT = "Physical RAM in use: " + std::to_string(physMemUsedByMe / (1024 * 1024)) + "MB";
-	Debug::Print(pramA, Vector2(5, 33), Debug::WHITE);
-	Debug::Print(pramT, Vector2(5, 38), Debug::WHITE);
+	Debug::Print(pramA, Vector2(5, 38), Debug::WHITE);
+	Debug::Print(pramT, Vector2(5, 43), Debug::WHITE);
 
 	std::string paintAmount = "Paint Balls in World: " + std::to_string(world->GetPaintBalls());
-	Debug::Print(paintAmount, Vector2(5, 43), Debug::WHITE);
+	Debug::Print(paintAmount, Vector2(5, 48), Debug::WHITE);
 
 	std::string nbRigidBodies = "Number of Rigid Bodies: " + std::to_string(physicsWorld->getNbRigidBodies());
-	Debug::Print(nbRigidBodies, Vector2(5, 48), Debug::WHITE);
+	Debug::Print(nbRigidBodies, Vector2(5, 53), Debug::WHITE);
 
 	std::string gravity = useGravity ? "Gravity: Enabled" : "Gravity: Disabled";
-	Debug::Print(gravity, Vector2(5, 53), useGravity ? Debug::WHITE : Vector4(1, 0, 0.25f, 1));
+	Debug::Print(gravity, Vector2(5, 58), useGravity ? Debug::WHITE : Vector4(1, 0, 0.25f, 1));
 }
 
 void TutorialGame::UpdateKeys()
@@ -1116,7 +1126,7 @@ void TutorialGame::buildGameworld() {
 			Vector3 Nposition = n.position;
 			GameObject* object;
 			if (n.type == 'N') continue;
-			bool floorIn = (n.type == '.') ? true : false;
+			bool floorIn = (n.type == '.' || n.type == 'C' || n.type == 'B') ? true : false;
 			MapNode* Node = new MapNode(Nposition, floorIn);
 			world->AddMapNode(Node);
 			switch (n.type) {
@@ -1180,6 +1190,17 @@ void TutorialGame::buildGameworld() {
 				break;
 			case 'L':
 				AddRebCaveWallWestToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y + 2, Nposition.z), Node);
+				break;
+
+			case 'C':
+				AddFloorToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y, Nposition.z), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 2, 5), Node);
+				itemPos.push_back(reactphysics3d::Vector3(Nposition.x, Nposition.y + 3.5, Nposition.z));
+				AddChairsFacingEast(reactphysics3d::Vector3(Nposition.x, Nposition.y + 2, Nposition.z));
+				break;
+			case 'B':
+				AddFloorToWorld(reactphysics3d::Vector3(Nposition.x, Nposition.y, Nposition.z), reactphysics3d::Quaternion::identity(), reactphysics3d::Vector3(5, 2, 5), Node);
+				itemPos.push_back(reactphysics3d::Vector3(Nposition.x, Nposition.y + 3.5, Nposition.z));
+				AddChairsFacingWest(reactphysics3d::Vector3(Nposition.x, Nposition.y + 2, Nposition.z));
 				break;
 			}
 		}
@@ -1360,6 +1381,24 @@ GameObject* TutorialGame::AddGWBlocksToWorld(const reactphysics3d::Vector3& posi
 
 	return cube;
 }
+
+
+FurnitureObject* TutorialGame::AddChairToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation) {
+	FurnitureObject* cube = new FurnitureObject(world);
+	reactphysics3d::Transform transform(position, orientation);
+	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
+	body->setMass(1.0f);
+	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(0.5f, 0.5f, 0.5f));
+	reactphysics3d::Transform collisionOffset(reactphysics3d::Vector3(0, 0.5, 0), reactphysics3d::Quaternion::identity());
+	reactphysics3d::Collider* collider = body->addCollider(shape, collisionOffset);
+	cube->SetPhysicsObject(body);
+	cube->SetRenderObject(new RenderObject(body, Vector3(reactphysics3d::Vector3(1.0f, 1.0f, 1.0f)) * 2, chairMesh, chairTex, basicShader));
+	cube->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
+	world->AddGameObject(cube);
+
+	return cube;
+}
+
 
 GameObject* TutorialGame::AddButtonToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, float mass) {
 	GameObject* floor = new GameObject(world);
@@ -1956,6 +1995,20 @@ void TutorialGame::AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector
 
 	node->addObject(AddRebWallLeftToWorld(position + reactphysics3d::Vector3(4.5, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(1, 3, 1), false));
 	node->addObject(AddRebWallMainToWorld(position + reactphysics3d::Vector3(-1, 0, -5.5), realObjectRotation, reactphysics3d::Vector3(10, 3, 1)));
+}
+
+//Furniture
+void TutorialGame::AddChairsFacingEast(const reactphysics3d::Vector3& position) {
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(90, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+	AddChairToWorld(reactphysics3d::Vector3(position.x - 4, position.y + 2, position.z+2), realObjectRotation);
+	AddChairToWorld(reactphysics3d::Vector3(position.x - 4, position.y + 2, position.z-2), realObjectRotation);
+}
+void TutorialGame::AddChairsFacingWest(const reactphysics3d::Vector3& position) {
+	Quaternion objectRotation = Quaternion(Matrix4::Rotation(270, Vector3(0, 1, 0)));
+	reactphysics3d::Quaternion realObjectRotation = reactphysics3d::Quaternion(objectRotation.x, objectRotation.y, objectRotation.z, objectRotation.w);
+	AddChairToWorld(reactphysics3d::Vector3(position.x + 4, position.y + 2, position.z+2), realObjectRotation);
+	AddChairToWorld(reactphysics3d::Vector3(position.x + 4, position.y + 2, position.z-2), realObjectRotation);
 }
 
 /*
