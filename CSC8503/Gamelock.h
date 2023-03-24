@@ -11,7 +11,7 @@ namespace NCL {
 			static float blueScore;
 			static bool gamestart;
 			static int gamemod;
-			static const int gamelength = 20;
+			static const int gamelength = 60;
 			static ISoundEngine* hitsound;
 			static vector<vector<Vector2>> IntroButtonPos;
 			static vector<vector<Vector2>> EndButtonPos;

@@ -108,6 +108,7 @@ void TutorialGame::InitialiseAssets() {
 	playerTex = renderer->LoadTexture("Ch03_1001_Diffuse.png");
 	chairTex	= renderer->LoadTexture("InSanct_Max_Chairs_Colour.tga");
 	chairMesh	= renderer->LoadMesh("SanctumChair.msh");
+
 	playerMat = new MeshMaterial("splatPlayer.mat");
 	playerWalkAnim = new MeshAnimation("splatPlayer.anm");
 	playerIdleAnim = new MeshAnimation("splatIdle.anm");
@@ -1560,10 +1561,11 @@ BasicAI* NCL::CSC8503::TutorialGame::AddAIToWorld(const reactphysics3d::Vector3&
 	reactphysics3d::Transform transform(position, orientation);
 	reactphysics3d::RigidBody* body = physicsWorld->createRigidBody(transform);
 	body->setAngularLockAxisFactor(reactphysics3d::Vector3(0, 1, 0));
-	body->setMass(4.0f);
-	reactphysics3d::BoxShape* shape = physics.createBoxShape(reactphysics3d::Vector3(1.0f, 1.0f, 1.0f));
-	//reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform::identity());
+	body->setMass(4.5f);
+
+	reactphysics3d::CapsuleShape* shape = physics.createCapsuleShape(0.8f, 1.5f);
 	reactphysics3d::Collider* collider = body->addCollider(shape, reactphysics3d::Transform(reactphysics3d::Vector3(0, 1, 0), reactphysics3d::Quaternion::identity()));
+
 	AI->SetPhysicsObject(body);
 
 	AI->SetRenderObject(new RenderObject(body, Vector3(-1.5, 1.5, -1.5), aiMesh, nullptr, animatedAIShader));

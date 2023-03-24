@@ -63,10 +63,20 @@ void PlayerObject::OnCollisionBegin(GameObject* otherObject) {
 	   otherObject->setActive(false);
 	   otherObject->GetPhysicsObject()->setType(BodyType::STATIC);
    }
+}
 
-   if (otherObject && otherObject->GetName() == "AI") {
-	   if (this == world->GetPlayer() && world->GetPlayerHealth() > 0) {
-		   world->SetPlayerHealth(world->GetPlayerHealth() - 0.15f);
-	   }
-   }
+void NCL::CSC8503::PlayerObject::OnCollisionEnd(GameObject* otherObject)
+{
+	if (otherObject && otherObject->GetTag() == 666) {
+		if (this == world->GetPlayer() && world->GetPlayerHealth() > 0) {
+				// Calculate collision magnitude
+				Vector3 collisionVelocity = otherObject->GetPhysicsObject()->getLinearVelocity() - this->GetPhysicsObject()->getLinearVelocity();
+				float collisionMagnitude = collisionVelocity.Length();
+
+				// Calculate damage based on collision magnitude
+				float damage = collisionMagnitude * 0.003;
+				world->SetPlayerHealth(world->GetPlayerHealth() - damage);
+		}
+	}
+
 }

@@ -126,6 +126,7 @@ namespace NCL::Maths {
 			return array[i];
 		}
 
+		
 		inline friend std::ostream& operator <<(std::ostream& o, const Quaternion& q);
 		inline friend std::istream& operator >>(std::istream& i, Quaternion &v);
 	};

@@ -37,7 +37,8 @@ namespace NCL {
 			void UpdateAnim(BasicAI* p, MeshAnimation* anim, float& ftime, int& cframe);
 			void DrawAnim(BasicAI* p, MeshAnimation* anim, int& cframe);
 
-
+			MeshAnimation* BlendAnimation(MeshAnimation* anim1, MeshAnimation* anim2, float blendFactor);
+		
 		protected:
 			const float PI = 3.14159265359f;
 
@@ -52,11 +53,14 @@ namespace NCL {
 			MeshAnimation* aiWalkAnim = nullptr;
 			MeshAnimation* aiRunAnim = nullptr;
 			MeshAnimation* aicloseAttackAnim = nullptr;
+			MeshAnimation* aiJumpBack = nullptr;
 			MeshAnimation* aiFarAttackTwoAnim = nullptr;
 			MeshAnimation* aiFarAttackAnim = nullptr;
 			MeshAnimation* aiRightStrafeAnim = nullptr;
 			MeshAnimation* aiLeftStrafeAnim = nullptr;
 			MeshAnimation* aiDamaged = nullptr;
+
+			MeshAnimation* blendedAnimm = nullptr;
 
 			NCL::Maths::Vector3 currPlayerPos;
 
@@ -66,7 +70,7 @@ namespace NCL {
 			NCL::Maths::Vector3 dest4;
 
 		
-
+			float hitTime;
 			bool destNotArrived;
 			bool seenPlayer;
 			bool foundPath;
@@ -108,6 +112,7 @@ namespace NCL {
 			BehaviourSequence* strafeBehaviour;
 			BehaviourSequence* runThenAttackSequence;
 			BehaviourState currentstate;
+			BehaviourSequence* jumpSequence;
 
 		};
 	}

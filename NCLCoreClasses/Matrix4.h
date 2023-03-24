@@ -86,6 +86,29 @@ namespace NCL::Maths {
 		Vector4 GetRow(unsigned int row) const;
 		Vector4 GetColumn(unsigned int column) const;
 
+
+		inline Matrix4 operator*(float scalar) const {
+			Matrix4 result;
+			for (int c = 0; c < 4; ++c) {
+				for (int r = 0; r < 4; ++r) {
+					result.array[c][r] = array[c][r] * scalar;
+				}
+			}
+			return result;
+		}
+
+		inline Matrix4 operator+(const Matrix4& a) const {
+			Matrix4 result;
+			for (unsigned int c = 0; c < 4; ++c) {
+				for (unsigned int r = 0; r < 4; ++r) {
+					result.array[c][r] = this->array[c][r] + a.array[c][r];
+				}
+			}
+			return result;
+		}
+
+
+
 		//Multiplies 'this' matrix by matrix 'a'. Performs the multiplication in 'OpenGL' order (ie, backwards)
 		inline Matrix4 operator*(const Matrix4& a) const {
 			Matrix4 out;

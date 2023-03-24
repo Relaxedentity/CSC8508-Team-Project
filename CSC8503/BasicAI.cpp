@@ -12,6 +12,7 @@
 #include <cmath>
 #include "PlayerObject.h"
 #include "Projectile.h"
+#include "MeshAnimation.h"
 
 
 using namespace NCL;
@@ -39,12 +40,15 @@ BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes, std::string aiNam
 	aiWalkAnim = new MeshAnimation("AIWalking.anm");
 	aiRunAnim = new MeshAnimation("AIRun.anm");
 	aicloseAttackAnim = new MeshAnimation("AICloseAttack.anm");
-	aiFarAttackAnim = new MeshAnimation("AIJump.anm");
+	aiFarAttackAnim = new MeshAnimation("BigJump.anm");
+	aiJumpBack = new MeshAnimation("BackFlip.anm");
 	aiFarAttackTwoAnim = new MeshAnimation("AIJumpAttack.anm");
 	aiRightStrafeAnim = new MeshAnimation("AIRightStrafe.anm");
 	aiLeftStrafeAnim = new MeshAnimation("AILeftStrafe.anm");
 	aiDamaged = new MeshAnimation("AIHitReaction.anm");
 	
+	blendedAnimm = BlendAnimation(aiFarAttackAnim, aiFarAttackTwoAnim, 0.5f);
+
 	height = 10;
 	AngThres = 70;
 	outerRadius = 15;
@@ -61,6 +65,7 @@ BasicAI::~BasicAI() {
 	delete moveSelector;
 	delete strafeBehaviour;
 	delete runThenAttackSequence;
+	delete jumpSequence;
 
 	delete aiWalkAnim;
 	delete aiRunAnim;
@@ -70,6 +75,8 @@ BasicAI::~BasicAI() {
 	delete aiRightStrafeAnim;
 	delete aiLeftStrafeAnim;
 	delete aiDamaged;
+	delete aiJumpBack;
+	delete blendedAnimm;
 }
 
 void BasicAI::UpdateBoss(float dt, NCL::Maths::Vector3& playerPos) {
@@ -127,7 +134,6 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			//	break;
 			//}
 
-
 			SetRotationToPlayer();
 
 			if (SeenPlayer()) {
@@ -135,7 +141,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 				state = Success;
 			}
 		}
-		return state; // will be ’ongoing ’ until success
+		return state; 
 		});
 
 	BehaviourAction* setRangeToTargetAct = new BehaviourAction("Set Range To player", [&](float dt, BehaviourState state) -> BehaviourState {
@@ -145,13 +151,8 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 
-			// Get the distance value betwen the player and AI
 			float currentDistance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
-		
-			SetRotationToPlayer();
-
-			// Define the end point of the ray (adjust this based on how far you want the ray to go)
-
+	
 			reactphysics3d::Ray ray(this->GetPhysicsObject()->getTransform().getPosition() + this->GetPhysicsObject()->getTransform().getOrientation() * reactphysics3d::Vector3(0, 0, 1), reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.z));
 			SceneContactPoint* playerVisible = world->Raycast(ray);
 
@@ -173,9 +174,9 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			else {
 				std::cout << "no ray";
 				delete playerVisible;
+				state = Failure;
 			}
 
-		//	state = Success;
 		}
 		return state;
 	});
@@ -183,27 +184,24 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 	BehaviourAction* strafeLeftAroundPlayerAct = new BehaviourAction("Left", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			// Calculate the vector from the AI to the player
+
+			std::cout << "Left Strafe!\n";
+			
 			Vector3 playerToAI = GetPhysicsObject()->getTransform().getPosition() - reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.z);
-
-			// Calculate a vector perpendicular to the playerToAI vector
 			Vector3 strafeVector = Vector3(-playerToAI.z, 0, playerToAI.x).Normalised();
-
-			// Move the AI in the direction of the strafe vector
-			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, strafeVector.y, strafeVector.z) * 5);
-
+			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 3.5f);
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
 			UpdateAnim(this, aiLeftStrafeAnim, frameTime, currentFrame);
 
-			// Move the AI left for a set amount of time
+			//SetRotationToPlayer();
+
 			if (strafeTime > 0) {
 				strafeTime -= dt;
 				return Ongoing;
 			}
-
-			if (strafeTime < 0) {
+			else {
 				state = Success;
 				strafeTime = 3;
 			}
@@ -213,31 +211,27 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 	BehaviourAction* strafeRightAroundPlayerAct = new BehaviourAction("Right", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			// Calculate the vector from the AI to the player
+
+			std::cout << " Right Strafe!\n";
+			
 			Vector3 playerToAI = GetPhysicsObject()->getTransform().getPosition() - reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.z);
-
-			// Calculate a vector perpendicular to the playerToAI vector
 			Vector3 strafeVector = Vector3(playerToAI.z, 0, -playerToAI.x).Normalised();
-
-			// Move the AI in the direction of the strafe vector
-			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, strafeVector.y, strafeVector.z) * 5);
-
+			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 3.5f);
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
 
 			UpdateAnim(this, aiRightStrafeAnim, frameTime, currentFrame);
-			// Move the AI left for a set amount of time
+
+		//	SetRotationToPlayer();
+			
 			if (strafeTime > 0) {
 				strafeTime -= dt;
 				return Ongoing;
-			}
-
-			if (strafeTime < 0) {
+			}else{
 				state = Success;
 				strafeTime = 3;
 			}
-
 		}
 		return state;
 		});
@@ -249,28 +243,21 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		}
 		else if (state == Ongoing) {
 
-			float initialSpeed = 20.0f;
-			float stopDist = 1.0f;
+			float initialSpeed = 10.0f;
+			float stopDist = 3.0f;
 			if (walkOrAttack) {
-				std::cout << "Moving to player!\n";
 				UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 
 				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
 
-				// Interpolate the movement speed based on the current distance to the player
+				//Interpolate the movement speed based on the current distance to the player
 				movSpeed = initialSpeed * std::max((currentDist - stopDist) / (initialSpeed - 2), 0.0f);
 
-				// Apply the movement force
-				this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * movSpeed);
-
-				std::cout << "Distance to player: " << currentDist << std::endl;
-				std::cout << "Movement speed: " << movSpeed << std::endl;
+				this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(dir.x, dir.y, dir.z)* movSpeed);
 
 				SetRotationToPlayer();
-				// Check if the AI has reached the player
 				if (currentDist < 5) {
-
 					state = Success;
 					std::cout << "Near Player!\n";
 				}
@@ -283,9 +270,8 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		});
 
 	BehaviourAction* farAttackAnimAct = new BehaviourAction("Far Attack", [&](float dt, BehaviourState state) -> BehaviourState {
-
 		if (state == Initialise) {
-			std::cout << "jumping" << std::endl;
+			std::cout << "jumping from Rnage" << std::endl;
 			Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 			Vector3 aiVelocity = GetPhysicsObject()->getLinearVelocity();
 			Vector3 playerToAI = currPlayerPos - aiPos;
@@ -302,72 +288,159 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			jumpDirection.Normalise();
 
 			Vector3 jumpVelocity = jumpDirection * initialVelocity;	// Calculate the velocity of the jump
-
+			strafeTime = 4;
 			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(jumpVelocity.x, jumpVelocity.y, jumpVelocity.z));// Set the linear velocity of the jump
-
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
+			if (!walkOrAttack) {
+				SetRotationToPlayer();
+				UpdateAnim(this, aiFarAttackAnim, frameTime, currentFrame);
+				Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 
-			SetRotationToPlayer();
+				std::cout << aiPos << std::endl;
 
-			UpdateAnim(this, aiFarAttackAnim, frameTime, currentFrame);
-
-			if (GetPhysicsObject()->getLinearVelocity().y <= 0.0f) {
-				std::cout << "jump sucessful" << std::endl;
+				strafeTime -= dt;
+				float landedYPos = this->GetPhysicsObject()->getTransform().getPosition().y;
+				if (strafeTime <= 0 && landedYPos <= 4.0f) {
+					return Success; // Return Success
+				}
+			}
+			else {
 				state = Success;
 			}
 		}
 		return state;
+	});
+
+	BehaviourAction* checkLandedAct = new BehaviourAction("Land Check ", [&](float dt, BehaviourState state) -> BehaviourState {
+		if (state == Initialise) {
+			std::cout << "Check Landing " << std::endl;
+			state = Ongoing;
+		}
+		else if (state == Ongoing) {
+			Vector3 aiVelocity = this->GetPhysicsObject()->getLinearVelocity();
+			SetRotationToPlayer();
+			if (aiVelocity.y <= 0.0f) {
+				
+				std::cout << "AI has landed" << std::endl;
+				state = Success;
+			}
+			else {
+				state = Failure;
+			}
+		}
+	return state;
 		});
 
 	BehaviourAction* closeAttackAnimAct = new BehaviourAction("Close Attack", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
+			hitTime = 1.5f; // Set hit animation duration
 			state = Ongoing;
-			std::cout << " close Attack !\n";
 
-			//attackSelect = rand() % 1;
 		}
 		else if (state == Ongoing) {
 			if (range == 0) {
-
-				SetRotationToPlayer();
-
-				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
-
-				// Calculate the distance to the player
-				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
-
-				// Apply the movement force
-				this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(dir.x, 0, dir.z) * 10);
-
 				UpdateAnim(this, aicloseAttackAnim, frameTime, currentFrame);
+				hitTime -= dt;
+				SetRotationToPlayer();
+				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
+				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
+				this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * 8);
 
-				// Check if the AI has reached the player
-				if (currentDist < 1) {
-					state = Success;
-					std::cout << "Attack Success!\n";
-
+				if (hitTime <= 0.0f) {
+					state = Success; 
 				}
 			}
 			else
 				state = Failure;
 		}
 		return state;
+	});
+
+	BehaviourAction* dodgeAct = new BehaviourAction("Dodge Attack", [&](float dt, BehaviourState state) -> BehaviourState {
+		static float timer = 0.0f;
+		if (state == Initialise) {
+			std::cout << "jumping Back" << std::endl;
+			Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
+			Vector3 aiVelocity = GetPhysicsObject()->getLinearVelocity();
+			Vector3 playerToAI = currPlayerPos - aiPos;
+
+			float jumpHeight = 5.0f;
+			float jumpTime = 1.0f;
+			float jumpDistance = 5;
+			float gravity = 9.81f;
+
+			float initialVelocity = sqrtf((2 * jumpHeight * gravity) / jumpTime);
+		
+			Vector3 oppositeJumpDirection = -playerToAI.Normalised() + Vector3(0, 1, 0);
+			oppositeJumpDirection.Normalise();
+
+			Vector3 jumpVelocity = oppositeJumpDirection * initialVelocity;
+
+			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(jumpVelocity.x, jumpVelocity.y, jumpVelocity.z));
+			timer = 0.0f;
+			state = Ongoing;
+		}
+		else if (state == Ongoing) {
+			UpdateAnim(this, aiJumpBack, frameTime, currentFrame);
+
+			if(GetPhysicsObject()->getLinearVelocity().y <= 0.0f) {
+				if (timer >= 2.0f) { // Stand still for 2 seconds
+					std::cout << "Jump successful" << std::endl;
+					state = Success;
+				}
+				else {
+					timer += dt;
+				}
+			}
+		else {
+			state = Failure;
+		}
+		}
+		return state;
+	});
+
+	BehaviourAction* goHomeAct = new BehaviourAction("Dodge Attack", [&](float dt, BehaviourState state) -> BehaviourState {
+	if (state == Initialise) {
+		state = Ongoing;
+		nodeIndex = 0;
+		pathNodes.clear();
+	}
+	else if (state == Ongoing) {
+		UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
+
+		Vector3 dest = Vector3(10, 10, 10);
+		WalkPath(dest);
+
+		float distance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - dest).Length();
+		if(distance < 10) {
+			state = Success;
+		}
+
+		state = Failure;
+	}
+	return state;
 		});
 
 	strafeBehaviour = new BehaviourSequence("strafing Sequence");
 	strafeBehaviour->AddChild(strafeLeftAroundPlayerAct);
 	strafeBehaviour->AddChild(strafeRightAroundPlayerAct);
 
+
 	runThenAttackSequence = new BehaviourSequence("Run/Attack Sequence");
 	runThenAttackSequence->AddChild(runToPlayerAttack);
 	runThenAttackSequence->AddChild(closeAttackAnimAct);
+	runThenAttackSequence->AddChild(dodgeAct);
+	runThenAttackSequence->AddChild(goHomeAct);
 
+	jumpSequence = new BehaviourSequence("Jump Sequence ");
+	jumpSequence->AddChild(farAttackAnimAct);
+	jumpSequence->AddChild(checkLandedAct);
 
 	rangeForAttackSelector = new BehaviourSelector("Select Attack Range");
+	rangeForAttackSelector->AddChild(jumpSequence);
 	rangeForAttackSelector->AddChild(runThenAttackSequence);
-	rangeForAttackSelector->AddChild(farAttackAnimAct);
 
 	patrolSequence = new BehaviourSequence("Patrol Sequence");
 	patrolSequence->AddChild(walkAct);
@@ -425,8 +498,10 @@ void NCL::CSC8503::BasicAI::OnCollisionBegin(GameObject* otherObject)
 {
 	if (dynamic_cast<Projectile*>(otherObject)) {
 		if (aiHealth > 0) {
-			aiHealth - 0.15f;
+			aiHealth -= 0.08f;
 		}
+
+		std::cout << "aihealth: " << aiHealth << std::endl;
 	}
 
 	if (aiHealth <= 0) {
@@ -541,12 +616,11 @@ void NCL::CSC8503::BasicAI::WalkPath(Vector3& destination)
 		return;
 	}
 
+	Vector3 dir = (pathNodes[nodeIndex] - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 	float distToNode = (Vector3(this->GetPhysicsObject()->getTransform().getPosition()) - pathNodes[nodeIndex]).Length();
 
 	if (distToNode >= 2.0f && destNotArrived) {
-		float x = pathNodes[nodeIndex].x > this->GetPhysicsObject()->getTransform().getPosition().x ? 8 : -8;
-		float z = pathNodes[nodeIndex].z > this->GetPhysicsObject()->getTransform().getPosition().z ? 8 : -8;
-		this->GetPhysicsObject()->applyWorldForceAtCenterOfMass(reactphysics3d::Vector3(x, 0, z));
+		this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * 4);
 	}
 
 	if (distToNode <= 4.0f && destNotArrived)
@@ -571,9 +645,7 @@ double NCL::CSC8503::BasicAI::DegreesToRadian(double degrees)
 
 void NCL::CSC8503::BasicAI::SetRotationToPlayer()
 {
-
 	Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
-
 	Vector3 currentVelocity = Vector3(this->GetPhysicsObject()->getLinearVelocity());
 	float theta = atan2(currentVelocity.z, currentVelocity.x) * (180 / PI);
 	Quaternion aiTargetRotation = Quaternion(Matrix4::Rotation(-theta - 90, Vector3(0, 1, 0)));
@@ -606,5 +678,32 @@ void NCL::CSC8503::BasicAI::DrawAnim(BasicAI* p, MeshAnimation* anim, int& cfram
 	}
 	p->GetRenderObject()->SetFrameMatrices(tempMatrices);
 }
+MeshAnimation* NCL::CSC8503::BasicAI::BlendAnimation(MeshAnimation* anim1, MeshAnimation* anim2, float blendFactor)
+{
+	if (anim1->GetJointCount() != anim2->GetJointCount() || anim1->GetFrameCount() != anim2->GetFrameCount()) {
+		std::cout << "Error: Animations must have the same number of joints and frames to be blended!" << std::endl;
+		//return nullptr;
+	}
 
+	unsigned int jointCount = anim1->GetJointCount();
+	unsigned int frameCount = std::min(anim1->GetFrameCount(), anim2->GetFrameCount());
+	float frameRate = anim1->GetFrameRate();
 
+	std::vector<Matrix4> blendedFrames;
+	blendedFrames.reserve(jointCount * frameCount);
+
+	// Blend the joint transformations for each frame
+	for (unsigned int frame = 0; frame < frameCount; ++frame) {
+		const Matrix4* frameData1 = anim1->GetJointData(frame);
+		const Matrix4* frameData2 = anim2->GetJointData(frame);
+
+		for (unsigned int joint = 0; joint < jointCount; ++joint) {
+			Matrix4 blendedMat = (frameData1[joint] * (1.0f - blendFactor)) + (frameData2[joint] * blendFactor);
+			blendedFrames.emplace_back(blendedMat);
+		}
+	}
+
+	// Create the blended animation
+	MeshAnimation* blendedAnim = new MeshAnimation(jointCount, frameCount, frameRate, blendedFrames);
+	return blendedAnim;
+}
