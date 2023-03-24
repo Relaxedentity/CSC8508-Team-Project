@@ -2244,11 +2244,27 @@ void TutorialGame::FreezingPlayers(float dt, PlayerObject* p) {
 void TutorialGame::RegeneratePowerupProps(float dt) {
 
 	if (GameLock::isNetwork) {
-		world->RemoveGameObject(coin);
+	/*	world->RemoveGameObject(coin);
 		world->RemoveGameObject(coin2);
 		world->RemoveGameObject(capsule);
 		world->RemoveGameObject(capsule2);
-		world->RemoveGameObject(cat);
+		world->RemoveGameObject(cat);*/
+		reactphysics3d::Transform transform = reactphysics3d::Transform(reactphysics3d::Vector3(-20, -20, -20), reactphysics3d::Quaternion::identity());
+		coin->GetPhysicsObject()->setTransform(transform);
+		coin->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+		coin2->GetPhysicsObject()->setTransform(transform);
+		coin2->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+		capsule->GetPhysicsObject()->setTransform(transform);
+		capsule->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+		capsule2->GetPhysicsObject()->setTransform(transform);
+		capsule2->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+		cat->GetPhysicsObject()->setTransform(transform);
+		cat->GetPhysicsObject()->setType(reactphysics3d::BodyType::STATIC);
+		coin->setActive(false);
+		coin2->setActive(false);
+		capsule->setActive(false);
+		capsule2->setActive(false);
+		cat->setActive(false);
 		player->setFireMode(false);
 		player->setACARMode(false);
 		playerCoop->setFireMode(false);
