@@ -67,8 +67,6 @@ namespace NCL {
 			NCL::Maths::Vector3 dest1;
 			NCL::Maths::Vector3 dest2;
 			NCL::Maths::Vector3 dest3;
-			NCL::Maths::Vector3 dest4;
-
 		
 			float hitTime;
 			bool destNotArrived;

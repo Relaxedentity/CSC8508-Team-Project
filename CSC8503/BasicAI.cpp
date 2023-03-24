@@ -31,28 +31,27 @@ BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes, std::string aiNam
 
 	inTime = true;
 	dest1 = Vector3(45, 2, 20);
-	dest2 = Vector3(75, 2, 40);
-	dest3 = Vector3(50, 2, 30);
-	dest4 = Vector3(40, 2, 25);
+	dest2 = Vector3(115, 2, 100);
+	//dest3 = Vector3(115, 2, 30);
 	timeLimit = 0;
 	attackSelect = 0;
 
 	aiWalkAnim = new MeshAnimation("AIWalking.anm");
 	aiRunAnim = new MeshAnimation("AIRun.anm");
 	aicloseAttackAnim = new MeshAnimation("AICloseAttack.anm");
-	aiFarAttackAnim = new MeshAnimation("BigJump.anm");
-	aiJumpBack = new MeshAnimation("BackFlip.anm");
+	aiFarAttackAnim = new MeshAnimation("AIJump.anm");
+	aiJumpBack = new MeshAnimation("Backflip.anm");
 	aiFarAttackTwoAnim = new MeshAnimation("AIJumpAttack.anm");
 	aiRightStrafeAnim = new MeshAnimation("AIRightStrafe.anm");
 	aiLeftStrafeAnim = new MeshAnimation("AILeftStrafe.anm");
-	aiDamaged = new MeshAnimation("AIHitReaction.anm");
+	//aiDamaged = new MeshAnimation("AIHitReaction.anm");
 	
-	blendedAnimm = BlendAnimation(aiFarAttackAnim, aiFarAttackTwoAnim, 0.5f);
+	blendedAnimm = BlendAnimation(aiFarAttackAnim, aiFarAttackTwoAnim, 0.2f);
 
 	height = 10;
 	AngThres = 70;
 	outerRadius = 15;
-	innerRadius = 2;
+	innerRadius = 1;
 
 	CreateBehaviourTree();
 }
@@ -84,6 +83,7 @@ void BasicAI::UpdateBoss(float dt, NCL::Maths::Vector3& playerPos) {
 	currPlayerPos = playerPos;
 	frameTime -= dt;
 
+	//std::cout << currPlayerPos << std::endl;
 	//currentstate  = Ongoing;
 	currentstate = rootSequence->Execute(dt);
 
@@ -106,38 +106,29 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 {
 	BehaviourAction* walkAct = new BehaviourAction("Patrolling ", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			std::cout << " patrolling !\n";
+		//	std::cout << " patrolling !\n";
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
 
 			UpdateAnim(this, aiWalkAnim, frameTime, currentFrame);
 
-			// choose between four points on the map to patrol 
-			//int patrolPoints = 1;
-			WalkPath(dest1);
-			//switch (patrolPoints)
-			//{
-			//case 0:
-			//	WalkPath(dest1);
-			//	break;
-			//case 1:
-			//	WalkPath(dest2);
-			//	break;
-			//	//case 2:
-			//		//WalkPath(dest3);
-			//		//break;
-			//	//case 3:
-			//		//WalkPath(dest4);
-			//		//break;
-			//default:
-			//	break;
-			//}
-
+			switch (rNum)
+			{
+			case 0:
+				WalkPath(dest1);
+				break;
+			case 1:
+				WalkPath(dest2);
+				break;
+		
+			default:
+				break;
+			}
 			SetRotationToPlayer();
 
 			if (SeenPlayer()) {
-				std::cout << " Player in View!\n";
+				//std::cout << " Player in View!\n";
 				state = Success;
 			}
 		}
@@ -146,7 +137,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 	BehaviourAction* setRangeToTargetAct = new BehaviourAction("Set Range To player", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			std::cout << " Setting Range!\n";
+			//std::cout << " Setting Range!\n";
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
@@ -157,26 +148,25 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			SceneContactPoint* playerVisible = world->Raycast(ray);
 
 			if (playerVisible->isHit) { 
-				std::cout << "hit";
+				//std::cout << "hit";
 
 				if (dynamic_cast<PlayerObject*>(playerVisible->object)) {
-					std::cout << " hit player" << std::endl;
-					std::cout << playerVisible->object->GetTag() << std::endl;
+					//std::cout << " hit player" << std::endl;
+					//std::cout << playerVisible->object->GetTag() << std::endl;
 					currentDistance < 20 ? walkOrAttack = true : walkOrAttack = false;
 					state = Success;
 				}
 				else {
-					std::cout << playerVisible->object->GetTag() << std::endl;
-					std::cout << "fail hit" << std::endl;
+					//std::cout << playerVisible->object->GetTag() << std::endl;
+				//	std::cout << "fail hit" << std::endl;
 					state = Failure;
 				}
 			}
 			else {
-				std::cout << "no ray";
+				//std::cout << "no ray";
 				delete playerVisible;
 				state = Failure;
 			}
-
 		}
 		return state;
 	});
@@ -218,6 +208,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			Vector3 strafeVector = Vector3(playerToAI.z, 0, -playerToAI.x).Normalised();
 			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 3.5f);
 			state = Ongoing;
+			strafeTime = 0;
 		}
 		else if (state == Ongoing) {
 
@@ -230,7 +221,6 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 				return Ongoing;
 			}else{
 				state = Success;
-				strafeTime = 3;
 			}
 		}
 		return state;
@@ -239,7 +229,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 	BehaviourAction* runToPlayerAttack = new BehaviourAction("Running to Player", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
 			state = Ongoing;
-			std::cout << "Walking to Player!\n";
+			//std::cout << "Walking to Player!\n";
 		}
 		else if (state == Ongoing) {
 
@@ -259,7 +249,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 				SetRotationToPlayer();
 				if (currentDist < 5) {
 					state = Success;
-					std::cout << "Near Player!\n";
+					//std::cout << "Near Player!\n";
 				}
 			}
 			else {
@@ -295,10 +285,10 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		else if (state == Ongoing) {
 			if (!walkOrAttack) {
 				SetRotationToPlayer();
-				UpdateAnim(this, aiFarAttackAnim, frameTime, currentFrame);
+				UpdateAnim(this, blendedAnimm, frameTime, currentFrame);
 				Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 
-				std::cout << aiPos << std::endl;
+				//std::cout << aiPos << std::endl;
 
 				strafeTime -= dt;
 				float landedYPos = this->GetPhysicsObject()->getTransform().getPosition().y;
@@ -323,7 +313,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			SetRotationToPlayer();
 			if (aiVelocity.y <= 0.0f) {
 				
-				std::cout << "AI has landed" << std::endl;
+			//	std::cout << "AI has landed" << std::endl;
 				state = Success;
 			}
 			else {
@@ -387,7 +377,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 			if(GetPhysicsObject()->getLinearVelocity().y <= 0.0f) {
 				if (timer >= 2.0f) { // Stand still for 2 seconds
-					std::cout << "Jump successful" << std::endl;
+				//	std::cout << "Jump successful" << std::endl;
 					state = Success;
 				}
 				else {
@@ -401,11 +391,12 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		return state;
 	});
 
-	BehaviourAction* goHomeAct = new BehaviourAction("Dodge Attack", [&](float dt, BehaviourState state) -> BehaviourState {
+	BehaviourAction* goHomeAct = new BehaviourAction("Home Attack", [&](float dt, BehaviourState state) -> BehaviourState {
 	if (state == Initialise) {
 		state = Ongoing;
 		nodeIndex = 0;
 		pathNodes.clear();
+		std::cout << "jumping Back" << std::endl;
 	}
 	else if (state == Ongoing) {
 		UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
@@ -417,7 +408,6 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		if(distance < 10) {
 			state = Success;
 		}
-
 		state = Failure;
 	}
 	return state;
@@ -459,7 +449,6 @@ bool NCL::CSC8503::BasicAI::SeenPlayer() // create a wedge volume from the persp
 {
 	DrawWedgeVolume(height, AngThres, outerRadius, innerRadius);
 
-	// Get direction to target
 	Vector3 dirToTargetWorld = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition());
 
 	// Convert direction to local space
@@ -490,7 +479,6 @@ bool NCL::CSC8503::BasicAI::SeenPlayer() // create a wedge volume from the persp
 		projWidth > innerWidth && projWidth <= outerWidth) {
 		return true;
 	}
-
 	return false;
 }
 
@@ -500,8 +488,7 @@ void NCL::CSC8503::BasicAI::OnCollisionBegin(GameObject* otherObject)
 		if (aiHealth > 0) {
 			aiHealth -= 0.08f;
 		}
-
-		std::cout << "aihealth: " << aiHealth << std::endl;
+		//	std::cout << "aihealth: " << aiHealth << std::endl;
 	}
 
 	if (aiHealth <= 0) {
@@ -681,7 +668,7 @@ void NCL::CSC8503::BasicAI::DrawAnim(BasicAI* p, MeshAnimation* anim, int& cfram
 MeshAnimation* NCL::CSC8503::BasicAI::BlendAnimation(MeshAnimation* anim1, MeshAnimation* anim2, float blendFactor)
 {
 	if (anim1->GetJointCount() != anim2->GetJointCount() || anim1->GetFrameCount() != anim2->GetFrameCount()) {
-		std::cout << "Error: Animations must have the same number of joints and frames to be blended!" << std::endl;
+		//std::cout << "Error: Animations must have the same number of joints and frames to be blended!" << std::endl;
 		//return nullptr;
 	}
 

@@ -64,7 +64,6 @@ TutorialGame::TutorialGame()	{
 
 	gpConnected = true;
 
-
 	InitialiseAssets();
 }
 
@@ -277,7 +276,6 @@ void TutorialGame::UpdateGame(float dt) {
 	else {
 		timeLimit = GameLock::gametime;
 	}
-
 
 	
 	GameLock::redScore = world->getColourOneScore();
@@ -2368,6 +2366,7 @@ void TutorialGame::Posreset() {
 		reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity());
 		player->GetPhysicsObject()->setTransform(transform);
 		GameLock::playerPosinit = true;
+
 	}
 	if (GameLock::gamestart && GameLock::gamemod == 2 && !GameLock::playerPosinit) {
 		reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity());
