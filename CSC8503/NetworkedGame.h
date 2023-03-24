@@ -40,10 +40,13 @@ namespace NCL {
 			void UpdateNetworkAnimations(float dt);
 			void BroadcastSnapshot(bool deltaFrame);
 			void BroadcastProjectile(PlayerObject* p);
+			void BroadcastPlayerHealth(PlayerObject* p);
+			void BroadcastClientMovement(int ID, int buttonState, Quaternion yaw, bool grounded);
 			void UpdateMinimumState();
+			void BroadcastTime(float time);
+			void NetworkPaintTracks();
 			void ResetMovementFrame(GameObject* p);
 			std::map<int, int> stateIDs;
-
 			GameServer* thisServer;
 			GameClient* thisClient;
 			float timeToNextPacket;

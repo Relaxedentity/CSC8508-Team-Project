@@ -7,6 +7,7 @@
 #include "Debug.h"
 #include "Gamelock.h"
 #include "MapNode.h"
+#include "PlayerObject.h"
 #include <string>
 using namespace NCL;
 using namespace Rendering;
@@ -1273,7 +1274,7 @@ void NCL::CSC8503::GameTechRenderer::RenderFirstFrame()
 	if (GameLock::gamestart) {
 		RenderCrossHair();
 		RenderMap({ 0, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayer());
-		RenderHealthBar(gameWorld.GetPlayerHealth());
+		RenderHealthBar(gameWorld.playerHealth);
 	}
 
 	glDisable(GL_BLEND);
@@ -1304,7 +1305,7 @@ void NCL::CSC8503::GameTechRenderer::RenderSecFrame()
 
 		RenderCrossHair();
 		RenderMap({ windowWidth * 0.5f, 0 }, { windowWidth * 0.5f, (float)windowHeight }, gameWorld.GetPlayerCoop());
-		RenderHealthBar(gameWorld.GetPlayerCoopHealth());
+		RenderHealthBar(((PlayerObject*)(gameWorld.GetPlayerCoop()))->GetPlayerHealth());
 	}
 
 
@@ -1323,7 +1324,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 		NewRenderLines();
 		NewRenderText();
 		RenderMap({ 0, 0 }, { (float)windowWidth, (float)windowHeight }, gameWorld.GetPlayer());
-		RenderHealthBar(gameWorld.GetPlayerHealth());
+		RenderHealthBar(gameWorld.playerHealth);
 		RenderProgressBar(gameWorld.getColourOneScore());
 	}
 	
