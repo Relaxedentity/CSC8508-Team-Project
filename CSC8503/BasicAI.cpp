@@ -445,7 +445,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 bool NCL::CSC8503::BasicAI::SeenPlayer() // create a wedge volume from the perspective of boss. Only Check if the player is within it
 {
-	DrawWedgeVolume(height, AngThres, outerRadius, innerRadius);
+	//DrawWedgeVolume(height, AngThres, outerRadius, innerRadius);
 
 	Vector3 dirToTargetWorld = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition());
 

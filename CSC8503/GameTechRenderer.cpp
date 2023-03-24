@@ -13,28 +13,27 @@ using namespace NCL;
 using namespace Rendering;
 using namespace CSC8503;
 
-
 #define SHADOWSIZE 4096
 
 Matrix4 biasMatrix = Matrix4::Translation(Vector3(0.5f, 0.5f, 0.5f)) * Matrix4::Scale(Vector3(0.5f, 0.5f, 0.5f));
 
-GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetWindow()), gameWorld(world)	{
+GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetWindow()), gameWorld(world) {
 	glEnable(GL_DEPTH_TEST);
 
-	debugShader  = new OGLShader("debug.vert", "debug.frag");
+	debugShader = new OGLShader("debug.vert", "debug.frag");
 	shadowShader = new OGLShader("shadow.vert", "shadow.frag");
 
 	screenAspectSplit = ((float)windowWidth * 0.5) / (float)windowHeight;
 	screenAspect = (float)windowWidth / (float)windowHeight;
-	
+
 	// build texture that serves as the shadow attachment of the first framebuffer
 	glGenTextures(1, &shadowTex);
 	glBindTexture(GL_TEXTURE_2D, shadowTex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,SHADOWSIZE, SHADOWSIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOWSIZE, SHADOWSIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -44,11 +43,11 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	// shadow buffer
 	glGenFramebuffers(1, &shadowFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, shadowTex, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowTex, 0);
 	glDrawBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	
+
 	glClearColor(1, 1, 1, 1);
 
 	////Animated Objects
@@ -62,7 +61,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	//Skybox!
 	skyboxShader = new OGLShader("skybox.vert", "skybox.frag");
 	skyboxMesh = new OGLMesh();
-	skyboxMesh->SetVertexPositions({Vector3(-1, 1,-1), Vector3(-1,-1,-1) , Vector3(1,-1,-1) , Vector3(1,1,-1) });
+	skyboxMesh->SetVertexPositions({ Vector3(-1, 1,-1), Vector3(-1,-1,-1) , Vector3(1,-1,-1) , Vector3(1,1,-1) });
 	skyboxMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	skyboxMesh->UploadToGPU();
 	LoadSkybox();
@@ -81,7 +80,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	progressBar = new OGLMesh();
 	progressBar->SetVertexPositions({ Vector3(-0.4, 0.85,-1), Vector3(-0.4,0.9,-1) , Vector3(0.4, 0.9,-1) , Vector3(0.4, 0.85,-1) });
 	progressBar->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
-	progressBar->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f)});
+	progressBar->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
 	progressBar->SetVertexIndices({ 0,1,2,2,3,0 });
 	progressBar->UploadToGPU();
 
@@ -106,7 +105,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 
 	aimTex = new OGLTexture();
 	aimTex = (OGLTexture*)aimTex->RGBATextureFromFilename("crosshair018.png");
-	
+
 	aimQuad->SetVertexPositions({ Vector3(-0.05, -0.1,-1), Vector3(-0.05, 0.1,-1) , Vector3(0.05, 0.1,-1) , Vector3(0.05, -0.1,-1) });
 	aimQuad->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	aimQuad->SetVertexTextureCoords({ Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(1.0f, 0.0f) });
@@ -142,7 +141,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	Score1Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	Score1Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	Score1Mesh->SetVertexIndices({ 0,1,2,2,3,0 });
-	Score1Mesh-> UploadToGPU();
+	Score1Mesh->UploadToGPU();
 	Score2Mesh->SetVertexPositions({ Vector3(0.2, 0.55,0), Vector3(0.2, 0.4,0) , Vector3(0.15, 0.4, 0) , Vector3(0.15, 0.55, 0) });
 	Score2Mesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	Score2Mesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
@@ -188,7 +187,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	menuMesh = new OGLMesh();
 	menuMesh->SetVertexPositions({ Vector3(1, 1.1,0), Vector3(1, -1.1,0) , Vector3(-1, -1.1,0) , Vector3(-1, 1.1,0) });
 	menuMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
-	menuMesh->SetVertexTextureCoords({  Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
+	menuMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	menuMesh->SetVertexIndices({ 0,1,2,2,3,0 });
 	menuMesh->UploadToGPU();
 
@@ -285,7 +284,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	endexitBtnTex = new OGLTexture();
 	endexitBtnTex = (OGLTexture*)endexitBtnTex->SRGBTextureFromFilename("endexit.png");
 	endexitBtnMesh = new OGLMesh();
-	endexitBtnMesh->SetVertexPositions({ Vector3(0.11, -0.36, 0), Vector3(0.11, -0.55, 0), Vector3(-0.11, -0.55, 0), Vector3(-0.11, -0.36, 0)});
+	endexitBtnMesh->SetVertexPositions({ Vector3(0.11, -0.36, 0), Vector3(0.11, -0.55, 0), Vector3(-0.11, -0.55, 0), Vector3(-0.11, -0.36, 0) });
 	endexitBtnMesh->SetVertexColours({ Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) });
 	endexitBtnMesh->SetVertexTextureCoords({ Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),Vector2(0.0f, 1.0f), Vector2(0.0f, 0.0f), });
 	endexitBtnMesh->SetVertexIndices({ 0,1,2,2,3,0 });
@@ -326,7 +325,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	vector<Vector2> endexitBtn = { {  Vector2(-0.11, -0.26) , Vector2(0.11, -0.45)} };
 	vector<Vector2> coopendexitBtn = { {  Vector2(-0.11, -0.36) , Vector2(0.11, -0.55)} };
 	vector<Vector2> backBtn = { {  Vector2(-0.1, -0.6),   Vector2(0.1, -0.75)  } };
-	
+
 
 	loadingTex = new OGLTexture();
 	loadingTex = (OGLTexture*)loadingTex->SRGBTextureFromFilename("loadingBG.png");
@@ -363,7 +362,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	GameLock::CoopButtonPos.push_back(coopendexitBtn);
 	GameLock::CoopButtonPos.push_back(restartBtn);
 	GameLock::BackButtonPos.push_back(backBtn);
-	
+
 	glGenVertexArrays(1, &lineVAO);
 	glGenVertexArrays(1, &textVAO);
 
@@ -376,7 +375,7 @@ GameTechRenderer::GameTechRenderer(GameWorld& world) : OGLRenderer(*Window::GetW
 	SetDebugLineBufferSizes(1000);
 }
 
-GameTechRenderer::~GameTechRenderer()	{
+GameTechRenderer::~GameTechRenderer() {
 	delete debugShader;
 	delete shadowShader;
 	delete skyboxShader;
@@ -384,7 +383,7 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete simpleShader;
 
 	delete healthShader;
-	delete skyboxMesh;	
+	delete skyboxMesh;
 	delete healthQuad;
 	delete progressBar;
 	delete quad;
@@ -403,7 +402,7 @@ GameTechRenderer::~GameTechRenderer()	{
 	delete cooscore1Tex;
 	delete cooscore2Tex;
 
-	delete intropageTex; 
+	delete intropageTex;
 	delete menuTex;
 
 	delete Score1Tex;
@@ -418,10 +417,10 @@ GameTechRenderer::~GameTechRenderer()	{
 
 	delete team2Tex;
 	delete team1Tex;
-	
+
 	delete W1Tex;
 	delete W2Tex;
-	
+
 	glDeleteTextures(1, &shadowTex);
 	glDeleteFramebuffers(1, &shadowFBO);
 }
@@ -436,10 +435,10 @@ void GameTechRenderer::LoadSkybox() {
 		"/Cubemap/skyrender0005.png"
 	};
 
-	int width[6]	= { 0 };
-	int height[6]	= { 0 };
+	int width[6] = { 0 };
+	int height[6] = { 0 };
 	int channels[6] = { 0 };
-	int flags[6]	= { 0 };
+	int flags[6] = { 0 };
 
 	vector<char*> texData(6, nullptr);
 
@@ -557,7 +556,7 @@ void NCL::CSC8503::GameTechRenderer::RenderTriangle(Vector2 v1, Vector2 v2, Vect
 
 	// perform draw call
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	
+
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
 }
@@ -590,13 +589,13 @@ void NCL::CSC8503::GameTechRenderer::RenderMap(Vector2 window_pos, Vector2 windo
 	gameWorld.OperateOnMapNodes(
 		[&](MapNode* o)
 		{
-	        Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
-        	Vector2 o_pos(o->location.x, o->location.z);
-	        float dis = (p_pos - o_pos).Length();
-	        if (dis < draw_distance)
-	        {
-		       near_objects.push_back(o);
-	        }
+			Vector2 p_pos(player->GetPhysicsObject()->getTransform().getPosition().x, player->GetPhysicsObject()->getTransform().getPosition().z);
+			Vector2 o_pos(o->location.x, o->location.z);
+			float dis = (p_pos - o_pos).Length();
+			if (dis < draw_distance)
+			{
+				near_objects.push_back(o);
+			}
 		});
 
 	// rotation matrix of camera
@@ -728,10 +727,10 @@ void NCL::CSC8503::GameTechRenderer::RenderNormalButton() {
 
 void NCL::CSC8503::GameTechRenderer::RenderCoopButton() {
 	BindShader(uiShader);
-	
+
 	if (GameLock::coopBtnChange) coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("mode2_selected.png");
 	else coopBtnTex = (OGLTexture*)coopBtnTex->SRGBTextureFromFilename("mode2.png");
-	
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, coopBtnTex->GetObjectID());
 	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
@@ -757,7 +756,7 @@ void NCL::CSC8503::GameTechRenderer::RenderIntroButton() {
 	delete introBtnTex;
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderExitButton(){
+void NCL::CSC8503::GameTechRenderer::RenderExitButton() {
 	BindShader(uiShader);
 
 	if (GameLock::exitBtnChange) exitBtnTex = (OGLTexture*)exitBtnTex->SRGBTextureFromFilename("exit_selected.png");
@@ -772,7 +771,7 @@ void NCL::CSC8503::GameTechRenderer::RenderExitButton(){
 	delete exitBtnTex;
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderIntroPage() { 
+void NCL::CSC8503::GameTechRenderer::RenderIntroPage() {
 	BindShader(uiShader);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -783,7 +782,7 @@ void NCL::CSC8503::GameTechRenderer::RenderIntroPage() {
 	DrawBoundMesh();
 }
 
-void NCL::CSC8503::GameTechRenderer::RenderBackButton() { 
+void NCL::CSC8503::GameTechRenderer::RenderBackButton() {
 	BindShader(uiShader);
 
 	if (GameLock::introBtnChange) backBtnTex = (OGLTexture*)backBtnTex->SRGBTextureFromFilename("back_selected.png");
@@ -1138,6 +1137,112 @@ void NCL::CSC8503::GameTechRenderer::RendererCooScore2() {
 }
 
 
+void NCL::CSC8503::GameTechRenderer::teamScore1() {
+	BindShader(uiShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, team1Tex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(team1Mesh);
+	DrawBoundMesh();
+
+	BindShader(uiShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+	BindMesh(Score1Mesh);
+	DrawBoundMesh();
+	int n = int(GameLock::RedS);
+	if (!GameLock::istoString) {
+		if (n > 999 && n <= 9999) {
+			int s1 = n / 1000 % 10; a = std::to_string(s1);
+			int s2 = n / 100 % 10;  b = std::to_string(s2);
+			int s3 = n / 10 % 10;   c = std::to_string(s3);
+			int s4 = n % 10;        d = std::to_string(s4);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
+			Score4Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(d + d + ".png");
+		}
+		else if (n > 99 && n <= 999) {
+			int s1 = n / 100 % 10; a = std::to_string(s1);
+			int s2 = n / 10 % 10;  b = std::to_string(s2);
+			int s3 = n % 10;       c = std::to_string(s3);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
+		}
+		else if (n > 9 && n <= 99) {
+			int s1 = n / 10 % 10; a = std::to_string(s1);
+			int s2 = n % 10;      b = std::to_string(s2);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
+		}
+		else {
+			int s1 = n % 10;      a = std::to_string(s1);
+			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
+		}
+		GameLock::istoString = true;
+	}
+
+
+	if (n > 999 && n <= 9999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score3Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score4Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score4Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 99 && n <= 999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(Score1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
 		BindMesh(Score2Mesh);
 		DrawBoundMesh();
 
@@ -1167,172 +1272,21 @@ void NCL::CSC8503::GameTechRenderer::RendererCooScore2() {
 		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
 		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 
-		BindMesh(CoopScore2Mesh);
+		BindMesh(Score2Mesh);
 		DrawBoundMesh();
 	}
 	else {
 		BindShader(uiShader);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
 		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 
-		BindMesh(CoopScore1Mesh);
+		BindMesh(Score1Mesh);
 		DrawBoundMesh();
 	}
 
 }
-
-//void NCL::CSC8503::GameTechRenderer::teamScore1() {
-//	BindShader(uiShader);
-//
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, team1Tex->GetObjectID());
-//	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//	BindMesh(team1Mesh);
-//	DrawBoundMesh();
-//
-//	BindShader(uiShader);
-//
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
-//	glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//	BindMesh(Score1Mesh);
-//	DrawBoundMesh();
-//	int n = int(GameLock::RedS);
-//	if (!GameLock::istoString) {
-//		if (n > 999 && n <= 9999) {
-//			int s1 = n / 1000 % 10; a = std::to_string(s1);
-//			int s2 = n / 100 % 10;  b = std::to_string(s2);
-//			int s3 = n / 10 % 10;   c = std::to_string(s3);
-//			int s4 = n % 10;        d = std::to_string(s4);
-//			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
-//			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
-//			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
-//			Score4Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(d + d + ".png");
-//		}
-//		else if (n > 99 && n <= 999) {
-//			int s1 = n / 100 % 10; a = std::to_string(s1);
-//			int s2 = n / 10 % 10;  b = std::to_string(s2);
-//			int s3 = n % 10;       c = std::to_string(s3);
-//			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
-//			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
-//			Score3Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(c + c + ".png");
-//		}
-//		else if (n > 9 && n <= 99) {
-//			int s1 = n / 10 % 10; a = std::to_string(s1);
-//			int s2 = n % 10;      b = std::to_string(s2);
-//			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
-//			Score2Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(b + b + ".png");
-//		}
-//		else {
-//			int s1 = n % 10;      a = std::to_string(s1);
-//			Score1Tex = (OGLTexture*)menuTex->SRGBTextureFromFilename(a + a + ".png");
-//		}
-//		GameLock::istoString = true;
-//	}
-//
-//
-//	if (n > 999 && n <= 9999) {
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score1Mesh);
-//		DrawBoundMesh();
-//
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score2Mesh);
-//		DrawBoundMesh();
-//
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score3Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score3Mesh);
-//		DrawBoundMesh();
-//
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score4Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score4Mesh);
-//		DrawBoundMesh();
-//
-//	}
-//	else if (n > 99 && n <= 999) {
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score1Mesh);
-//		DrawBoundMesh();
-//
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score2Mesh);
-//		DrawBoundMesh();
-//
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score3Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score3Mesh);
-//		DrawBoundMesh();
-//
-//	}
-//	else if (n > 9 && n <= 99) {
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score1Mesh);
-//		DrawBoundMesh();
-//
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score2Mesh);
-//		DrawBoundMesh();
-//	}
-//	else {
-//		BindShader(uiShader);
-//
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
-//		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
-//
-//		BindMesh(Score1Mesh);
-//		DrawBoundMesh();
-//	}
-//
-//}
 
 void NCL::CSC8503::GameTechRenderer::teamScore2() {
 	BindShader(uiShader);
@@ -1382,15 +1336,100 @@ void NCL::CSC8503::GameTechRenderer::teamScore2() {
 		BindShader(uiShader);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, Score1Tex->GetObjectID());
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
 		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
 
-		BindMesh(Score1Mesh);
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore3Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore4Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore4Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 99 && n <= 999) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore2Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore3Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore3Mesh);
+		DrawBoundMesh();
+
+	}
+	else if (n > 9 && n <= 99) {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
+		DrawBoundMesh();
+
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Score2Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore2Mesh);
+		DrawBoundMesh();
+	}
+	else {
+		BindShader(uiShader);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, CoopScore1Tex->GetObjectID());
+		glUniform1i(glGetUniformLocation(uiShader->GetProgramID(), "texture1"), 0);
+
+		BindMesh(CoopScore1Mesh);
 		DrawBoundMesh();
 	}
 
 }
-
 
 void NCL::CSC8503::GameTechRenderer::RenderEndExitScreen() {
 	BindShader(uiShader);
@@ -1438,8 +1477,8 @@ void NCL::CSC8503::GameTechRenderer::RenderHealthBar(float health)
 	glEnable(GL_BLEND);
 	BindShader(healthShader);
 	glUniform1f(glGetUniformLocation(healthShader->GetProgramID(), "health"), health);
-	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "firstColour"), 1,0,0,1);
-	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "secColour"), 0,1,0,1);
+	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "firstColour"), 1, 0, 0, 1);
+	glUniform4f(glGetUniformLocation(healthShader->GetProgramID(), "secColour"), 0, 1, 0, 1);
 	BindMesh(healthQuad);
 	DrawBoundMesh();
 }
@@ -1501,7 +1540,7 @@ void NCL::CSC8503::GameTechRenderer::RenderCrossHair()
 	DrawBoundMesh();
 }
 
-void GameTechRenderer::RenderFrame( ) 
+void GameTechRenderer::RenderFrame()
 {
 	glEnable(GL_CULL_FACE);
 	BuildObjectList();
@@ -1520,7 +1559,7 @@ void GameTechRenderer::RenderFrame( )
 		progress += 0.0050f;
 	}
 	if (progress >= 1) {
-		if(GameLock::loadingdone == 1)
+		if (GameLock::loadingdone == 1)
 			GameLock::isloading1 = false;
 		if (GameLock::loadingdone == 2)
 			GameLock::isloading2 = false;
@@ -1552,7 +1591,7 @@ void GameTechRenderer::RenderFrame( )
 	}
 
 
-	if (GameLock::isloading1){
+	if (GameLock::isloading1) {
 		RenderLoadingScreen();
 		GameLock::loadingdone = 1;
 		RenderloadingBar(progress);
@@ -1651,7 +1690,7 @@ void NCL::CSC8503::GameTechRenderer::RenderHUD()
 		RenderHealthBar(gameWorld.playerHealth);
 		RenderProgressBar(0.5f + gameWorld.getColourOneScore() - gameWorld.getColourTwoScore());
 	}
-	
+
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -1662,7 +1701,7 @@ void NCL::CSC8503::GameTechRenderer::RenderCoopHUD()
 {
 
 	glViewport(0, 0, windowWidth, windowHeight);
-	
+
 	glDisable(GL_CULL_FACE); //Todo - text indices are going the wrong way...
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
@@ -1694,7 +1733,7 @@ void GameTechRenderer::BuildObjectList() {
 		}
 	);
 }
-void GameTechRenderer::SortObjectList() 
+void GameTechRenderer::SortObjectList()
 {
 
 }
@@ -1710,17 +1749,17 @@ void GameTechRenderer::RenderShadowMap(int start, int end, int width, int height
 	BindShader(shadowShader);
 	int mvpLocation = glGetUniformLocation(shadowShader->GetProgramID(), "mvpMatrix");
 
-	Matrix4 shadowViewMatrix = Matrix4::BuildViewMatrix(lightPosition, Vector3(0, 0, 0), Vector3(0,1,0));
+	Matrix4 shadowViewMatrix = Matrix4::BuildViewMatrix(lightPosition, Vector3(0, 0, 0), Vector3(0, 1, 0));
 	Matrix4 shadowProjMatrix = Matrix4::Perspective(100.0f, 500.0f, 1, 45.0f);
 
 	Matrix4 mvMatrix = shadowProjMatrix * shadowViewMatrix;
 
 	shadowMatrix = biasMatrix * mvMatrix; //we'll use this one later on
 
-	for (const auto&i : activeObjects) {
+	for (const auto& i : activeObjects) {
 		reactphysics3d::Transform iTransform = i->GetPhysicsObject()->getTransform();
 		Matrix4 modelMatrix = Matrix4() * Matrix4::Translation(Vector3(iTransform.getPosition())) * Matrix4(Quaternion(iTransform.getOrientation())) * Matrix4::Scale((*i).GetScale());
-		Matrix4 mvpMatrix	= mvMatrix * modelMatrix;
+		Matrix4 mvpMatrix = mvMatrix * modelMatrix;
 		glUniformMatrix4fv(mvpLocation, 1, false, (float*)&mvpMatrix);
 		BindMesh((*i).GetMesh());
 		int layerCount = (*i).GetMesh()->GetSubMeshCount();
@@ -1750,7 +1789,7 @@ void GameTechRenderer::RenderSkybox(Camera& camera) {
 
 	int projLocation = glGetUniformLocation(skyboxShader->GetProgramID(), "projMatrix");
 	int viewLocation = glGetUniformLocation(skyboxShader->GetProgramID(), "viewMatrix");
-	int texLocation  = glGetUniformLocation(skyboxShader->GetProgramID(), "cubeTex");
+	int texLocation = glGetUniformLocation(skyboxShader->GetProgramID(), "cubeTex");
 
 	glUniformMatrix4fv(projLocation, 1, false, (float*)&projMatrix);
 	glUniformMatrix4fv(viewLocation, 1, false, (float*)&viewMatrix);
@@ -1767,25 +1806,25 @@ void GameTechRenderer::RenderSkybox(Camera& camera) {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
+void GameTechRenderer::RenderCamera(Camera& camera, float& aspectRatio) {
 	//float screenAspect = ((float)windowWidth/2) / (float)windowHeight;
 	Matrix4 viewMatrix = camera.BuildViewMatrix();
-		
+
 	//	gameWorld.GetMainCamera()->BuildViewMatrix();
 	Matrix4 projMatrix = camera.BuildProjectionMatrix(aspectRatio);
-		
-		//gameWorld.GetMainCamera()->BuildProjectionMatrix(aspectRatio);
+
+	//gameWorld.GetMainCamera()->BuildProjectionMatrix(aspectRatio);
 
 	OGLShader* activeShader = nullptr;
-	int projLocation	= 0;
-	int viewLocation	= 0;
-	int modelLocation	= 0;
-	int colourLocation  = 0;
+	int projLocation = 0;
+	int viewLocation = 0;
+	int modelLocation = 0;
+	int colourLocation = 0;
 	int hasVColLocation = 0;
-	int hasTexLocation  = 0;
-	int shadowLocation  = 0;
+	int hasTexLocation = 0;
+	int shadowLocation = 0;
 	int paintedLocation = 0;
-	int lightPosLocation	= 0;
+	int lightPosLocation = 0;
 	int lightColourLocation = 0;
 	int lightRadiusLocation = 0;
 	int paintCount = 0;
@@ -1797,32 +1836,32 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 	glActiveTexture(GL_TEXTURE0 + 1);
 	glBindTexture(GL_TEXTURE_2D, shadowTex);
 
-	for (const auto&i : activeObjects) {
+	for (const auto& i : activeObjects) {
 		OGLShader* shader = (OGLShader*)(*i).GetShader();
 		BindShader(shader);
 
 		BindTextureToShader((OGLTexture*)(*i).GetDefaultTexture(), "mainTex", 0);
-		
-	
+
+
 
 		if (i->GetPaintedPos().size()) {
 			for (int j = 0; j < i->GetPaintedPos().size(); j++)
 			{
 				vector<Vector4> allPos = i->GetPaintedPos();
 				Vector4 paintedPos = allPos[j];
-				restartLocation = glGetUniformLocation(shader->GetProgramID(),"gamestart");
-				glUniform1i(restartLocation,GameLock::gamestart);
+				restartLocation = glGetUniformLocation(shader->GetProgramID(), "gamestart");
+				glUniform1i(restartLocation, GameLock::gamestart);
 				char buffer[64];
 				sprintf_s(buffer, "paintedPos[%i]", j);
 				paintedLocation = glGetUniformLocation(shader->GetProgramID(), buffer);
 				if (!GameLock::gamestart) {
-					glUniform4fv(paintedLocation, 1, Vector4(0,0,0,0).array);
+					glUniform4fv(paintedLocation, 1, Vector4(0, 0, 0, 0).array);
 				}
 				else
 				{
 					glUniform4fv(paintedLocation, 1, paintedPos.array);
 				}
-				
+
 			}
 		}
 		if (GameLock::isloading1 || GameLock::isloading2) {
@@ -1844,7 +1883,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 					}
 				});
 		}
-		
+
 		/*if (GameLock::gamemod == 0) {
 			gameWorld.OperateOnContents(
 				[&](GameObject* o)
@@ -1890,10 +1929,10 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 				int j = glGetUniformLocation(shader->GetProgramID(), "joints");
 				glUniformMatrix4fv(j, i->GetFrameMatrices().size(), false, (float*)i->GetFrameMatrices().data());
 			}
-			
+
 			Vector3 camPos = camera.GetPosition();
-	
-			
+
+
 			/*for (int i = 0; i < gameWorld.painted.size();i++) {
 				Vector4 paintedPos = gameWorld.painted[i];
 				char buffer[64];
@@ -1907,9 +1946,9 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 			glUniformMatrix4fv(viewLocation, 1, false, (float*)&viewMatrix);
 			//int size = gameWorld.painted.size();
 			//glUniform1f(paintCount,size);
-			glUniform3fv(lightPosLocation	, 1, (float*)&lightPosition);
+			glUniform3fv(lightPosLocation, 1, (float*)&lightPosition);
 			glUniform4fv(lightColourLocation, 1, (float*)&lightColour);
-			glUniform1f(lightRadiusLocation , lightRadius);
+			glUniform1f(lightRadiusLocation, lightRadius);
 			int shadowTexLocation = glGetUniformLocation(shader->GetProgramID(), "shadowTex");
 			glUniform1i(shadowTexLocation, 1);
 
@@ -1918,8 +1957,8 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 
 		reactphysics3d::Transform iTransform = i->GetPhysicsObject()->getTransform();
 		Matrix4 modelMatrix = Matrix4() * Matrix4::Translation(Vector3(iTransform.getPosition())) * Matrix4(Quaternion(iTransform.getOrientation())) * Matrix4::Scale((*i).GetScale());
-		glUniformMatrix4fv(modelLocation, 1, false, (float*)&modelMatrix);			
-		
+		glUniformMatrix4fv(modelLocation, 1, false, (float*)&modelMatrix);
+
 		Matrix4 fullShadowMat = shadowMatrix * modelMatrix;
 		glUniformMatrix4fv(shadowLocation, 1, false, (float*)&fullShadowMat);
 
@@ -1928,7 +1967,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 
 		glUniform1i(hasVColLocation, !(*i).GetMesh()->GetColourData().empty());
 
-		glUniform1i(hasTexLocation, (OGLTexture*)(*i).GetDefaultTexture() ? 1:0);
+		glUniform1i(hasTexLocation, (OGLTexture*)(*i).GetDefaultTexture() ? 1 : 0);
 
 		BindMesh((*i).GetMesh());
 		int layerCount = (*i).GetMesh()->GetSubMeshCount();
@@ -1937,7 +1976,7 @@ void GameTechRenderer::RenderCamera(Camera & camera, float& aspectRatio) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, ((OGLTexture*)i->matTextures[x])->GetObjectID());
 				glUniform1i(glGetUniformLocation(shader->GetProgramID(), "diffuseTex"), 0);
-			}	
+			}
 			DrawBoundMesh(x);
 		}
 	}
@@ -1958,8 +1997,8 @@ void GameTechRenderer::NewRenderLines() {
 	float screenAspect = (float)windowWidth / (float)windowHeight;
 	Matrix4 viewMatrix = gameWorld.GetMainCamera()->BuildViewMatrix();
 	Matrix4 projMatrix = gameWorld.GetMainCamera()->BuildProjectionMatrix(screenAspect);
-	
-	Matrix4 viewProj  = projMatrix * viewMatrix;
+
+	Matrix4 viewProj = projMatrix * viewMatrix;
 
 	BindShader(debugShader);
 	int matSlot = glGetUniformLocation(debugShader->GetProgramID(), "viewProjMatrix");
@@ -1976,7 +2015,7 @@ void GameTechRenderer::NewRenderLines() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, lineVertVBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, lines.size() * sizeof(Debug::DebugLineEntry), lines.data());
-	
+
 
 	glBindVertexArray(lineVAO);
 	glDrawArrays(GL_LINES, 0, frameLineCount);
@@ -1998,7 +2037,7 @@ void GameTechRenderer::NewRenderText() {
 		glBindTexture(GL_TEXTURE_2D, t->GetObjectID());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D, 0);	
+		glBindTexture(GL_TEXTURE_2D, 0);
 		BindTextureToShader(t, "mainTex", 0);
 	}
 	Matrix4 proj = Matrix4::Orthographic(0.0, 100.0f, 100, 0, -1.0f, 1.0f);
