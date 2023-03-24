@@ -1,4 +1,5 @@
 #pragma once
+#include "RenderObject.h"
 using std::vector;
 
 namespace reactphysics3d {
@@ -122,7 +123,8 @@ namespace NCL::CSC8503 {
 		NCL::Maths::Vector3 collisionPoint;
 		bool directionInput;
 
-		virtual void paintHit(NCL::Maths::Vector3 position, char paintColour) {}
+		virtual void paintHit(NCL::Maths::Vector3 position, char paintColour) {
+		}
 
 	protected:
 		reactphysics3d::RigidBody*		physicsObject;
@@ -139,6 +141,24 @@ namespace NCL::CSC8503 {
 		GameWorld* world;
 
 	//	std::string name;
+	};
+
+	class FurnitureObject : public GameObject {
+	public:
+		FurnitureObject(GameWorld* world, std::string name = "");
+		~FurnitureObject() {}
+
+		void paintHit(NCL::Maths::Vector3 position, char paintColour) override {
+			//std::cout << "furniture hit check\n";
+			switch (paintColour) {
+			case 'r':
+				renderObject->SetColour(NCL::Maths::Vector4(1, 0, 0, 1));
+				break;
+			case 'b':
+				renderObject->SetColour(NCL::Maths::Vector4(0, 0, 1, 1));
+				break;
+			}
+		}
 	};
 }
 

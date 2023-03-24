@@ -113,6 +113,9 @@ namespace NCL {
 			PlayerObject* AddPlayerToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation, ShaderBase* shader, char paintColour, int netID, int worldID);
 			GameObject* AddEnemyToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 
+			//Decorative Objects
+			FurnitureObject* AddChairToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
+
 			//Power-up items
 			GameObject* AddBonusToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
 			GameObject* AddCapsuleToWorld(const reactphysics3d::Vector3& position, const reactphysics3d::Quaternion& orientation);
@@ -151,6 +154,9 @@ namespace NCL {
 			void AddRebWallCornerNorthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallCornerSouthEastToWorld(const reactphysics3d::Vector3& position, MapNode* node);
 			void AddRebWallCornerSouthWestToWorld(const reactphysics3d::Vector3& position, MapNode* node);
+
+			void AddChairsFacingEast(const reactphysics3d::Vector3& position);
+			void AddChairsFacingWest(const reactphysics3d::Vector3& position);
 
 			void RenderDebug(float dt);
 
@@ -201,6 +207,7 @@ namespace NCL {
 			bool debug;
 			bool isMultiplayer;
 			float renderTime = 0;
+			float physicsTime = 0;
 			float accumulator = 0;
 			const float timeStep = 1.0f / 60.0f;
 
@@ -248,6 +255,8 @@ namespace NCL {
 			// Rebellion Assets
 			TextureBase*	chairTex	= nullptr;
 			MeshGeometry*	chairMesh	= nullptr;
+			TextureBase*	tableTex = nullptr;
+			MeshGeometry*	tableMesh = nullptr;
 			TextureBase* playerTex = nullptr;
 			TextureBase*	corridorTexture			= nullptr;
 			MeshGeometry*	corridorStraightMesh	= nullptr;

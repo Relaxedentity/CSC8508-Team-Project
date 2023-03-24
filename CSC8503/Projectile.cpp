@@ -56,6 +56,7 @@ void Projectile::OnCollisionBegin(GameObject* otherObject) {
 		world->SetPlayerHealth(world->GetPlayerHealth() - 0.05f); 
 	}
 
+	otherObject->paintHit(collisionPoint, paintColour);
 	//world->painted.push_back(paintCollision);
 
 	//std::cout << "projectile paint colour: " << paintColour << "\n";
