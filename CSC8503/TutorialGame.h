@@ -229,7 +229,7 @@ namespace NCL {
 			float     p1pauseTime = 3.0f;
 			float     p2pauseTime = 3.0f;
 			float    shotGunModeTime = 10.0f;
-
+			float     speedUpTime = 10.0f;
 
 
 			GameObject* selectionObject = nullptr;

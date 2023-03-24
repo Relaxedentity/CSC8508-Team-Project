@@ -27,9 +27,14 @@ void PlayerObject::OnCollisionBegin(GameObject* otherObject) {
 	   voice->coin(GameLock::hitsound);
 	   //std::cout << "Hit the coin£¡£¡" << std::endl;
 
-	   //.....Player Attribute Enhancement//
-
-	   //
+	   if (this == world->GetPlayer()) {
+		   setACARMode(true);
+		   GameLock::p1FastTime = 10.0f;
+	   }
+	   if (this == world->GetPlayerCoop()) {
+		   setACARMode(true);
+		   GameLock::p2FastTime = 10.0f;
+	   }
 
 	   otherObject->setActive(false);
 	   otherObject->GetPhysicsObject()->setType(BodyType::STATIC);

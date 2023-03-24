@@ -77,6 +77,8 @@ namespace NCL {
 			void RendererSinScore();
 			void RendererCooScore1();
 			void RendererCooScore2();
+			void teamScore1();
+			void teamScore2();
 			void RenderEndExitScreen();
 			void Restart();
 			void RenderCoopEndExitScreen();
@@ -197,6 +199,12 @@ namespace NCL {
 
 			OGLTexture* cooscore2Tex;
 			OGLMesh* cooscore2Mesh;
+
+			OGLTexture* team1Tex;
+			OGLMesh* team1Mesh;
+
+			OGLTexture* team2Tex;
+			OGLMesh* team2Mesh;
 
 			OGLTexture* endexitBtnTex;
 			OGLMesh* endexitBtnMesh;

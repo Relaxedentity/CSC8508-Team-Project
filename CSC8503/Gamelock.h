@@ -11,7 +11,7 @@ namespace NCL {
 			static float blueScore;
 			static bool gamestart;
 			static int gamemod;
-			static const int gamelength = 200;
+			static const int gamelength = 20;
 			static ISoundEngine* hitsound;
 			static vector<vector<Vector2>> IntroButtonPos;
 			static vector<vector<Vector2>> EndButtonPos;
@@ -39,6 +39,9 @@ namespace NCL {
 
 			static float p1ModeTime;
 			static float p2ModeTime;
+
+			static float p1FastTime;
+			static float p2FastTime;
 
 			static bool istoString;
 			static bool isto2String;
