@@ -265,9 +265,8 @@ void TutorialGame::UpdateGame(float dt) {
 		world->SetPlayerCoopHealth(secHealth);
 	}*/
 
-	UpdateEnemies(dt);
-
 	Posreset();
+
 	if (!isMultiplayer) {
 		if (GameLock::gamestart) {//gametime//////////////////////////////////////
 			timeLimit -= dt;
@@ -358,16 +357,22 @@ void TutorialGame::UpdateGame(float dt) {
 		coopMode = false;
 	if (GameLock::gamestart && GameLock::gamemod == 2) {
 		coopMode = true;
+		basicAI->setActive(false);
 	}
 	else
 	{
+		basicAI->setActive(true);
+		UpdateEnemies(dt);
 		coopMode = false;
 	}
+
 	if (!coopMode && playerCoop) {
 		playerCoop->setActive(false);
+
 	}
 	else if(coopMode)
 	{
+		
 		playerCoop->setActive(true);
 		playerCoop->GetRenderObject()->frameTime -= dt;
 		if (playerCoop->directionInput) {
@@ -1714,6 +1719,7 @@ void TutorialGame::InitGameExamples() {
 	world->SetPlayerCoop(playerCoop);
 
 	basicAI = AddAIToWorld(reactphysics3d::Vector3(80, 1, 50), reactphysics3d::Quaternion::identity(), newNodes);
+	basicAI->setActive(false);
 
 	if(!coin)coin = AddBonusToWorld(itemPos[1], reactphysics3d::Quaternion::identity());
 	if(!coin2)coin2 = AddBonusToWorld(itemPos[13], reactphysics3d::Quaternion::identity());
@@ -2418,9 +2424,9 @@ void TutorialGame::Posreset() {
 
 	if (GameLock::gamestart && GameLock::gamemod == 1 && !GameLock::playerPosinit) {
 		reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity());
-		reactphysics3d::Transform transform2(reactphysics3d::Vector3(80, 1, 50), reactphysics3d::Quaternion::identity());
+		//reactphysics3d::Transform transform2(reactphysics3d::Vector3(80, 1, 50), reactphysics3d::Quaternion::identity());
 		player->GetPhysicsObject()->setTransform(transform);
-		basicAI->GetPhysicsObject()->setTransform(transform2);
+		//basicAI->GetPhysicsObject()->setTransform(transform2);
 		GameLock::playerPosinit = true;
 
 
