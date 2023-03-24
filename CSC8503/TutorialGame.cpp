@@ -1658,7 +1658,7 @@ void NCL::CSC8503::TutorialGame::UpdateEnemies(float dt)
 	Vector3 playerPos = Vector3(playerTransform.getPosition());
 
 	basicAI->UpdateBoss(dt, playerPos);
-	basicAI->DisplayPath();
+	//basicAI->DisplayPath();
 
 }
 void TutorialGame::TestPathfinding(Vector3 position) {
@@ -2402,8 +2402,11 @@ void TutorialGame::Posreset() {
 
 	if (GameLock::gamestart && GameLock::gamemod == 1 && !GameLock::playerPosinit) {
 		reactphysics3d::Transform transform(reactphysics3d::Vector3(50, 2, 20), reactphysics3d::Quaternion::identity());
+		reactphysics3d::Transform transform2(reactphysics3d::Vector3(80, 1, 50), reactphysics3d::Quaternion::identity());
 		player->GetPhysicsObject()->setTransform(transform);
+		basicAI->GetPhysicsObject()->setTransform(transform2);
 		GameLock::playerPosinit = true;
+
 
 	}
 	if (GameLock::gamestart && GameLock::gamemod == 2 && !GameLock::playerPosinit) {

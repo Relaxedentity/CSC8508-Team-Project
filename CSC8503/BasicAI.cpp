@@ -46,7 +46,7 @@ BasicAI::BasicAI(GameWorld* world, vector <Vector3 > mapNodes, std::string aiNam
 	aiLeftStrafeAnim = new MeshAnimation("AILeftStrafe.anm");
 	//aiDamaged = new MeshAnimation("AIHitReaction.anm");
 	
-	blendedAnimm = BlendAnimation(aiFarAttackAnim, aiFarAttackTwoAnim, 0.2f);
+	blendedAnimm = BlendAnimation(aiFarAttackAnim, aiFarAttackTwoAnim, 0.5f);
 
 	height = 10;
 	AngThres = 70;
@@ -125,6 +125,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			default:
 				break;
 			}
+
 			SetRotationToPlayer();
 
 			if (SeenPlayer()) {
@@ -153,7 +154,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 				if (dynamic_cast<PlayerObject*>(playerVisible->object)) {
 					//std::cout << " hit player" << std::endl;
 					//std::cout << playerVisible->object->GetTag() << std::endl;
-					currentDistance < 20 ? walkOrAttack = true : walkOrAttack = false;
+					currentDistance < 15 ? walkOrAttack = true : walkOrAttack = false;
 					state = Success;
 				}
 				else {
@@ -175,21 +176,20 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 	BehaviourAction* strafeLeftAroundPlayerAct = new BehaviourAction("Left", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
 
-			std::cout << "Left Strafe!\n";
+			//std::cout << "Left Strafe!\n";
 			
 			Vector3 playerToAI = GetPhysicsObject()->getTransform().getPosition() - reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.z);
 			Vector3 strafeVector = Vector3(-playerToAI.z, 0, playerToAI.x).Normalised();
-			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 3.5f);
+			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 5.0f);
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
 			UpdateAnim(this, aiLeftStrafeAnim, frameTime, currentFrame);
 
-			//SetRotationToPlayer();
+			SetRotationToPlayer();
 
 			if (strafeTime > 0) {
 				strafeTime -= dt;
-				return Ongoing;
 			}
 			else {
 				state = Success;
@@ -202,23 +202,21 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 	BehaviourAction* strafeRightAroundPlayerAct = new BehaviourAction("Right", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
 
-			std::cout << " Right Strafe!\n";
+			//std::cout << " Right Strafe!\n";
 			
 			Vector3 playerToAI = GetPhysicsObject()->getTransform().getPosition() - reactphysics3d::Vector3(currPlayerPos.x, currPlayerPos.y, currPlayerPos.z);
 			Vector3 strafeVector = Vector3(playerToAI.z, 0, -playerToAI.x).Normalised();
-			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 3.5f);
+			this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(strafeVector.x, 0, strafeVector.z) * 5.0f);
 			state = Ongoing;
-			strafeTime = 0;
 		}
 		else if (state == Ongoing) {
 
 			UpdateAnim(this, aiRightStrafeAnim, frameTime, currentFrame);
 
-		//	SetRotationToPlayer();
+			SetRotationToPlayer();
 			
 			if (strafeTime > 0) {
 				strafeTime -= dt;
-				return Ongoing;
 			}else{
 				state = Success;
 			}
@@ -261,7 +259,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 	BehaviourAction* farAttackAnimAct = new BehaviourAction("Far Attack", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			std::cout << "jumping from Rnage" << std::endl;
+		//	std::cout << "jumping from Rnage" << std::endl;
 			Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 			Vector3 aiVelocity = GetPhysicsObject()->getLinearVelocity();
 			Vector3 playerToAI = currPlayerPos - aiPos;
@@ -269,7 +267,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 			// Calculate the jump trajectory
 			float jumpHeight = 10.0f;
 			float jumpTime = 1.0f;
-			float jumpDistance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
+			float jumpDistance = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length() - 5.0f;
 			float gravity = 9.81f;
 
 			float initialVelocity = sqrtf((2 * jumpHeight * gravity) / jumpTime);// Calculate the initial velocity of the jump
@@ -305,7 +303,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 
 	BehaviourAction* checkLandedAct = new BehaviourAction("Land Check ", [&](float dt, BehaviourState state) -> BehaviourState {
 		if (state == Initialise) {
-			std::cout << "Check Landing " << std::endl;
+			//std::cout << "Check Landing " << std::endl;
 			state = Ongoing;
 		}
 		else if (state == Ongoing) {
@@ -336,7 +334,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 				SetRotationToPlayer();
 				Vector3 dir = (currPlayerPos - this->GetPhysicsObject()->getTransform().getPosition()).Normalised();
 				float currentDist = (Vector3(GetPhysicsObject()->getTransform().getPosition()) - currPlayerPos).Length();
-				this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * 8);
+				this->GetPhysicsObject()->setLinearVelocity(reactphysics3d::Vector3(dir.x, dir.y, dir.z) * 9);
 
 				if (hitTime <= 0.0f) {
 					state = Success; 
@@ -351,7 +349,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 	BehaviourAction* dodgeAct = new BehaviourAction("Dodge Attack", [&](float dt, BehaviourState state) -> BehaviourState {
 		static float timer = 0.0f;
 		if (state == Initialise) {
-			std::cout << "jumping Back" << std::endl;
+			//std::cout << "jumping Back" << std::endl;
 			Vector3 aiPos = this->GetPhysicsObject()->getTransform().getPosition();
 			Vector3 aiVelocity = GetPhysicsObject()->getLinearVelocity();
 			Vector3 playerToAI = currPlayerPos - aiPos;
@@ -396,7 +394,7 @@ void NCL::CSC8503::BasicAI::CreateBehaviourTree()
 		state = Ongoing;
 		nodeIndex = 0;
 		pathNodes.clear();
-		std::cout << "jumping Back" << std::endl;
+		//std::cout << "jumping Back" << std::endl;
 	}
 	else if (state == Ongoing) {
 		UpdateAnim(this, aiRunAnim, frameTime, currentFrame);
